@@ -1,126 +1,84 @@
-# FarmPlug AI
+# 🌾 FarmPlug AI
 
-> **Your Farm's Plug to Every Market.**
+> **From Farm Intelligence to the Right Market.**
 
 Smart India Hackathon 2026 • **Problem Statement 26033** • Software • Agriculture, FoodTech & Rural Development
 
-## 🌾 Overview
+## What it does
 
-FarmPlug AI is an AI-powered agricultural market intelligence and supply-chain platform connecting **Farmers and FPOs** with **Buyers, Processors and Exporters**.
+FarmPlug AI is a predictive intelligence layer for Farmers and FPOs. It complements existing agricultural market infrastructure such as e-NAM rather than replacing it.
 
-It adds a predictive intelligence layer between agricultural supply and market demand — helping users understand upcoming demand, support production decisions, predict selling windows, match supply with suitable buyers, aggregate fragmented supply and coordinate delivery.
+The MVP connects:
 
-## 🎯 SIH MVP
+**Farmers / FPOs → FarmPlug AI → Buyers / Processors / Exporters**
 
-1. Demand Forecasting
-2. AI-assisted Production / Crop Recommendation
-3. FreshLife AI — Shelf-Life / Selling-Window Prediction
-4. Smart Buyer Matching
-5. Supply Aggregation
-6. Basic Route Optimization
-7. Farmer/FPO and Admin Dashboard
+Core intelligence:
+- Demand forecasting
+- Production decision support
+- FreshLife AI selling-window intelligence
+- Smart buyer matching
+- Supply aggregation
+- Logistics and route optimization support
 
-## 🔄 Core Workflow
+## ⚡ 2-minute judge demo
+
+The primary experience is the **FarmPlug AI Decision Center**:
+
+1. Choose crop, location, quantity, quality and storage.
+2. Click **Analyze with FarmPlug AI**.
+3. Review Demand Outlook, Selling Window, Buyer Matches, Bulk Opportunity and Logistics.
+4. Continue to Marketplace, aggregation and route-planning views.
+
+The current MVP uses realistic fictional demo data. Results are explicitly labelled as **AI Demo Prediction — Prototype Demonstration** and are not scientifically validated predictions.
+
+## Product journey
 
 **PLAN → PREDICT → PRESERVE → MATCH → AGGREGATE → DELIVER → SELL**
 
-## 🤖 AI Intelligence Layer
+## e-NAM positioning
 
-- Demand forecasting
-- Production decision support
-- Selling-window intelligence
-- Buyer/supply matching and ranking
-- Supply aggregation recommendations
-- Route optimization support
+FarmPlug AI complements existing agricultural market infrastructure. It focuses on the predictive layer around market activity: demand forecasting, production decision support, selling-window intelligence, matching, aggregation and route optimization.
 
-> FarmPlug AI is designed as a **decision-support and prediction platform**. Pilot KPIs will be measured and validated rather than assuming guaranteed financial outcomes.
+## Technology
 
-## 🏛️ Positioning vs e-NAM
+- Next.js + TypeScript
+- React + responsive CSS
+- Lucide React
+- Recharts-ready dashboard architecture
+- Supabase-ready data layer
+- Python + FastAPI-ready AI service boundary
+- PostgreSQL
+- Scikit-learn / PyTorch for future validated models
+- OR-Tools for future optimization
+- OpenStreetMap-compatible mapping architecture
+- Vercel deployment
 
-FarmPlug AI **complements, not replaces, existing agricultural market infrastructure**.
+## Safety and data integrity
 
-e-NAM provides digital agricultural market infrastructure such as trading, price discovery and FPO participation. FarmPlug AI focuses on the predictive intelligence layer around that ecosystem: demand forecasting, production decision support, selling-window prediction, smart matching, supply aggregation and route optimization.
+This prototype does **not** claim:
+- guaranteed income or profits
+- scientifically validated predictions
+- real buyer orders
+- government endorsements or partnerships
+- real-time GPS routing without a connected mapping service
 
-## 🧱 Planned Architecture
+Pilot KPIs are intentionally presented as **to be measured and validated**.
 
-```text
-Farmer / FPO
-     ↓
-FarmPlug Next.js Web App
-     ↓
-Data Layer
-     ↓
-AI Intelligence Layer
-     ↓
-Supply Aggregation
-     ↓
-Logistics & Route Optimization
-     ↓
-Buyers / Processors / Exporters
+## Local development
+
+```bash
+npm install
+npm run dev
 ```
 
-## 🛠️ Technology Stack
+Open `http://localhost:3000`.
 
-- **Frontend:** Next.js + TypeScript + Tailwind CSS
-- **Application/API Layer:** Next.js Route Handlers / Server Actions
-- **AI Backend:** Python + FastAPI
-- **Database:** PostgreSQL
-- **AI/ML:** Scikit-learn / PyTorch
-- **Forecasting:** Time-series models
-- **Matching:** Recommendation / ranking models
-- **Optimization:** Google OR-Tools
-- **Maps:** OpenStreetMap / mapping APIs
-- **Infrastructure:** Docker
-- **Deployment:** Vercel for the Next.js application + cloud deployment for AI services
+## Deployment
 
-## 📊 Pilot KPIs
+Designed for deployment on Vercel with Supabase available for the production data/auth layer when backend integration is enabled.
 
-To be measured and validated during pilot deployment:
+## Status
 
-- Buyer Match Rate
-- Order Fulfilment Rate
-- Supply Aggregation Volume
-- Selling-Window Utilization
-- Logistics Efficiency
-- Farmer/FPO Market Access
+**Stage:** SIH 2026 MVP prototype
 
-## 📁 Project Structure
-
-```text
-Farmplug-ai/
-├── docs/
-│   ├── FarmPlug_AI_SIH_2026_Idea_Presentation.pptx
-│   └── FarmPlug_AI_SIH_2026_Idea_Presentation.pdf
-├── app/
-├── components/
-├── lib/
-├── api/
-├── ai/
-├── optimization/
-└── README.md
-```
-
-## 📑 SIH Presentation
-
-The competition presentation is a **6-slide SIH-format deck** covering:
-
-1. Title
-2. The Idea
-3. Technical Approach
-4. Feasibility & Viability
-5. Impact & Benefits
-6. Research & References
-
-Presentation files will be maintained under `docs/`.
-
-## 🔬 Research Direction
-
-The project is focused on improving supply-demand alignment around existing agricultural market infrastructure, with emphasis on predictive intelligence rather than creating another basic produce-listing marketplace.
-
-## 📜 Status
-
-**Stage:** SIH 2026 concept / MVP development
-
-**Frontend:** Next.js-first architecture
-
-**Goal:** Build a focused, technically believable pilot that validates the intelligence workflow with real users and measurable KPIs.
+**Primary goal:** demonstrate the complete intelligence workflow clearly within 1–2 minutes, then replace simulated services with validated data and models during pilot development.
