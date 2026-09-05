@@ -123,3 +123,4 @@ FarmPlug AI is an **SIH 2026 prototype**. AI outputs, buyer matches, demand scor
 
 <!-- Vercel deployment trigger: corrected manifest is ready. -->
 <!-- Vercel production rebuild trigger: 2026-09-05 -->
+<!-- APK workflow fix trigger: 2026-09-05 -->
