@@ -32,15 +32,16 @@ export default function AdminPage() {
     supabase.auth.getUser().then(({ data }) => {
       const user = data.user;
       if (!mounted) return;
-      if (!user || user.app_metadata?.role !== 'admin') router.replace('/admin/login');
-      else { setUserEmail(user.email ?? 'Admin'); setChecking(false); }
+      // Any authenticated Supabase user can access the admin center.
+      if (!user) router.replace('/admin/login');
+      else { setUserEmail(user.email ?? 'Authenticated user'); setChecking(false); }
     });
     return () => { mounted = false; };
   }, [router]);
 
   const logout = async () => { if (supabase) await supabase.auth.signOut(); router.replace('/admin/login'); };
-  if (checking) return <main className="adminShell"><div className="adminLoading">Checking admin authorization…</div></main>;
-  if (!supabase) return <main className="adminShell"><div className="adminEmpty"><ShieldCheck size={30}/><h1>Admin backend not configured</h1><p>Connect Supabase Auth to activate secure admin access. The dashboard is intentionally not exposed in demo mode.</p><Link href="/" className="adminBack"><ArrowLeft size={16}/> Back to FarmPlug AI</Link></div></main>;
+  if (checking) return <main className="adminShell"><div className="adminLoading">Checking authentication…</div></main>;
+  if (!supabase) return <main className="adminShell"><div className="adminEmpty"><ShieldCheck size={30}/><h1>Admin backend not configured</h1><p>Connect Supabase Auth to activate authenticated access. The dashboard is intentionally not exposed without authentication.</p><Link href="/" className="adminBack"><ArrowLeft size={16}/> Back to FarmPlug AI</Link></div></main>;
 
   return <main className="adminShell">
     <aside className="adminSidebar">
@@ -49,7 +50,7 @@ export default function AdminPage() {
       <div className="adminSideBottom"><Link href="/" className="adminBack"><ArrowLeft size={15}/> Public site</Link><button onClick={logout} className="adminLogout"><LogOut size={15}/> Sign out</button></div>
     </aside>
     <section className="adminContent">
-      <header className="adminTop"><div><div className="adminEyebrow"><ShieldCheck size={14}/> SECURE OPERATIONS</div><h1>Admin Control Center</h1><p>Platform overview for FarmPlug AI operations and SIH pilot demonstration.</p></div><div className="adminUser"><span className="adminAvatar"><UserRoundCog size={18}/></span><div><b>Administrator</b><small>{userEmail}</small></div><button onClick={logout} aria-label="Sign out"><LogOut size={16}/></button></div></header>
+      <header className="adminTop"><div><div className="adminEyebrow"><ShieldCheck size={14}/> AUTHENTICATED OPERATIONS</div><h1>Admin Control Center</h1><p>Platform overview for FarmPlug AI operations and SIH pilot demonstration.</p></div><div className="adminUser"><span className="adminAvatar"><UserRoundCog size={18}/></span><div><b>Administrator</b><small>{userEmail}</small></div><button onClick={logout} aria-label="Sign out"><LogOut size={16}/></button></div></header>
       <div className="adminNotice"><CheckCircle2 size={18}/><div><b>System status: operational</b><span>AI outputs remain clearly marked as prototype demonstration signals.</span></div></div>
       <div className="adminStats">{stats.map(([label,value,note,Icon])=><div className="adminStat" key={label}><Icon size={20}/><small>{label}</small><strong>{value}</strong><span>{note}</span></div>)}</div>
       <div className="adminGrid">
