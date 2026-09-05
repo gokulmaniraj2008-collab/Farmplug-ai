@@ -1,28 +1,32 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function DownloadPage() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [installed, setInstalled] = useState(false);
 
-  function enableInstallPrompt() {
-    window.addEventListener('beforeinstallprompt', (event) => {
+  useEffect(() => {
+    const onBeforeInstallPrompt = (event: Event) => {
       event.preventDefault();
-      setDeferredPrompt(event);
-    });
-    window.addEventListener('appinstalled', () => setInstalled(true));
-  }
+      setDeferredPrompt(event as Event & { prompt: () => Promise<void>; userChoice: Promise<unknown> });
+    };
+    const onInstalled = () => setInstalled(true);
+    window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt as EventListener);
+    window.addEventListener('appinstalled', onInstalled);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', onBeforeInstallPrompt as EventListener);
+      window.removeEventListener('appinstalled', onInstalled);
+    };
+  }, []);
 
-  function installApp() {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.finally(() => setDeferredPrompt(null));
-    }
+  async function installApp() {
+    if (!deferredPrompt) return;
+    await deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    setDeferredPrompt(null);
   }
-
-  useState(enableInstallPrompt);
 
   return (
     <main style={{minHeight:'100vh',display:'grid',placeItems:'center',padding:'24px',background:'linear-gradient(145deg,#f4fbf1,#ffffff)'}}>
@@ -31,8 +35,8 @@ export default function DownloadPage() {
         <h1 style={{fontSize:34,margin:'8px 0 6px'}}>FarmPlug AI</h1>
         <p style={{fontSize:18,color:'#45604a',marginBottom:8}}>Farmer PWA</p>
         <p style={{lineHeight:1.6,color:'#5b6d5e'}}>Use FarmPlug like an Android app without maintaining a separate Flutter client. List produce, run AI decisions, and track farm-to-market orders from one source of truth.</p>
-        <button onClick={installApp} disabled={installed} style={{width:'100%',padding:'15px 20px',border:0,borderRadius:14,background:installed?'#64756a':'#166534',color:'#fff',fontWeight:800,fontSize:16,marginTop:22,cursor:installed?'default':'pointer'}}>
-          {installed ? 'FarmPlug Installed ✓' : 'Install FarmPlug on Android'}
+        <button onClick={installApp} disabled={!deferredPrompt || installed} style={{width:'100%',padding:'15px 20px',border:0,borderRadius:14,background:installed?'#64756a':deferredPrompt?'#166534':'#91a097',color:'#fff',fontWeight:800,fontSize:16,marginTop:22,cursor:deferredPrompt && !installed?'pointer':'default'}}>
+          {installed ? 'FarmPlug Installed ✓' : deferredPrompt ? 'Install FarmPlug on Android' : 'Open in Chrome to Install'}
         </button>
         <div style={{textAlign:'left',marginTop:22,padding:16,borderRadius:16,background:'#f7fbf7',border:'1px solid #e3ece5'}}>
           <strong>Android Chrome</strong>
