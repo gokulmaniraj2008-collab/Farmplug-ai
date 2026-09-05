@@ -23,8 +23,14 @@ jobs:
       - name: Build release APK
         working-directory: android
         run: gradle assembleRelease --no-daemon
-      - name: Prepare branded APK
-        run: cp android/app/build/outputs/apk/release/app-release.apk FarmPlug-AI.apk
+      - name: Locate and prepare branded APK
+        run: |
+          set -e
+          APK_PATH="$(find android -type f -name '*.apk' -path '*/outputs/apk/release/*' | head -n 1)"
+          test -n "$APK_PATH"
+          echo "Using APK: $APK_PATH"
+          cp "$APK_PATH" FarmPlug-AI.apk
+          test -s FarmPlug-AI.apk
       - name: Publish APK release
         uses: softprops/action-gh-release@v2
         with:
