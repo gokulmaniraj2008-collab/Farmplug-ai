@@ -22,9 +22,13 @@
 | Gemini failure | Stable JSON error | Implemented; production error history reviewed |
 | Mobile viewport | No clipping/horizontal overflow | Requires real-device/browser verification |
 
-## Important production observation
+## Production deployment verification
 
-Vercel production currently has a READY deployment from commit `6233ded62857d921f320524241d5d97368274ef5`. Runtime error history from the previous 7 days contains Gemini 400 errors on `/api/chat`, including an old `max_tokens` parameter error and an input content-shape error. The current repository route no longer uses `max_tokens`; it uses `max_output_tokens`, and its input is a single text string. The latest deployment has no error logs in the inspected 6-hour window.
+Vercel production currently has a **READY** deployment from the latest GitHub `main` commit `726d2ce4742cee06f7087309cad764173eecadf3` (`chore: protect local environment files from Git`). The deployment build completed successfully; the inspected Vercel build log contains no build errors. The production site returns HTTP 200, and `/manifest.webmanifest` returns HTTP 200 with `display: standalone` and portrait orientation.
+
+The inspected production runtime error window (last 6 hours at audit time) contains **no error or fatal logs**.
+
+Previous production history contained Gemini 400 errors on `/api/chat`, including an old `max_tokens` parameter error and an input content-shape error. The current repository route uses `max_output_tokens` and sends the expected single text input shape. No new runtime errors were observed in the inspected 6-hour window.
 
 ## Evidence limitation
 
