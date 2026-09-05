@@ -1,16 +1,17 @@
 import Link from 'next/link';
+import type { ComponentType } from 'react';
 import { ArrowRight, Bot, Boxes, Route, ShoppingCart, Sparkles, Store, TrendingUp, Users } from 'lucide-react';
 
 const modules = [
   ['Demand Forecasting','Anticipate relevant demand signals before production and selling decisions.','TrendingUp'],
-  ['Production Decision Support','Translate market and seasonal signals into practical planning guidance.','Sprout'],
-  ['Selling-Window Intelligence','Help estimate a suitable selling window for perishable produce.','Clock'],
+  ['Production Decision Support','Translate market and seasonal signals into practical planning guidance.','Bot'],
+  ['Selling-Window Intelligence','Help estimate a suitable selling window for perishable produce.','Bot'],
   ['Smart Buyer Matching','Match supply with quantity, quality, location and delivery requirements.','Users'],
   ['Supply Aggregation','Combine fragmented supply to satisfy larger buyer requirements.','Boxes'],
   ['Route Planning','Coordinate collection and delivery around the confirmed transaction.','Route'],
 ];
 
-const icons: Record<string, React.ComponentType<{size?:number}>> = { TrendingUp, Users, Boxes, Route, Bot, ShoppingCart };
+const icons: Record<string, ComponentType<{size?:number}>> = { TrendingUp, Users, Boxes, Route, Bot, ShoppingCart };
 
 export default function PlatformPage(){
   return <main className="pageShell">
