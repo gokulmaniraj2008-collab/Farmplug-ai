@@ -7,58 +7,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
-const stats = [
-  ['Farmers / FPOs', '128', '+12 this pilot cycle', Users],
-  ['Active buyers', '34', '8 high-priority requirements', Store],
-  ['Supply under coordination', '42.6 t', 'Demo + pilot intake', PackageCheck],
-  ['AI decisions generated', '286', 'Prototype signals', BarChart3],
-] as const;
-const activities = [
-  ['Buyer requirement created', 'Processor C • Tomato • 6,000 kg', '2 min ago'],
-  ['FPO supply aggregated', 'Salem FPO • 5,000 kg • Grade A', '18 min ago'],
-  ['AI Decision Center run', 'Coimbatore • Mango • 2,000 kg', '41 min ago'],
-  ['Route plan generated', 'Chennai collection cluster', '1 hr ago'],
-] as const;
-const controls = ['Marketplace listings', 'Buyer verification', 'FPO onboarding', 'AI demo monitoring', 'Pilot KPI tracking', 'System activity logs'];
+const stats = [['Farmers / FPOs', '128', '+12 this pilot cycle', Users], ['Active buyers', '34', '8 high-priority requirements', Store], ['Supply under coordination', '42.6 t', 'Demo + pilot intake', PackageCheck], ['AI decisions generated', '286', 'Prototype signals', BarChart3]] as const;
+const activities = [['Buyer requirement created', 'Processor C • Tomato • 6,000 kg', '2 min ago'], ['FPO supply aggregated', 'Salem FPO • 5,000 kg • Grade A', '18 min ago'], ['AI Decision Center run', 'Coimbatore • Mango • 2,000 kg', '41 min ago'], ['Route plan generated', 'Chennai collection cluster', '1 hr ago']] as const;
+const controls = [['Users','/admin/users'],['Marketplace listings','#'],['Buyer verification','#'],['FPO onboarding','#'],['AI demo monitoring','#'],['Pilot KPI tracking','#'],['System activity logs','#']] as const;
 
 export default function AdminPage() {
-  const router = useRouter();
-  const [userEmail, setUserEmail] = useState('');
-  const [checking, setChecking] = useState(true);
-
-  useEffect(() => {
-    let mounted = true;
-    if (!supabase) { setChecking(false); return; }
-    supabase.auth.getUser().then(({ data }) => {
-      const user = data.user;
-      if (!mounted) return;
-      // Any authenticated Supabase user can access the admin center.
-      if (!user) router.replace('/admin/login');
-      else { setUserEmail(user.email ?? 'Authenticated user'); setChecking(false); }
-    });
-    return () => { mounted = false; };
-  }, [router]);
-
-  const logout = async () => { if (supabase) await supabase.auth.signOut(); router.replace('/admin/login'); };
-  if (checking) return <main className="adminShell"><div className="adminLoading">Checking authentication…</div></main>;
-  if (!supabase) return <main className="adminShell"><div className="adminEmpty"><ShieldCheck size={30}/><h1>Admin backend not configured</h1><p>Connect Supabase Auth to activate authenticated access. The dashboard is intentionally not exposed without authentication.</p><Link href="/" className="adminBack"><ArrowLeft size={16}/> Back to FarmPlug AI</Link></div></main>;
-
-  return <main className="adminShell">
-    <aside className="adminSidebar">
-      <Link href="/" className="adminBrand"><span className="adminLogo">🌱</span><span><b>FarmPlug AI</b><small>Admin Center</small></span></Link>
-      <div className="adminSideGroup"><span>CONTROL</span>{['Overview','Farmers & FPOs','Buyers','Marketplace','Supply','Logistics','AI Monitor','Pilot KPIs'].map((x,i)=><button key={x} className={i===0?'selected':''}>{x}</button>)}</div>
-      <div className="adminSideBottom"><Link href="/" className="adminBack"><ArrowLeft size={15}/> Public site</Link><button onClick={logout} className="adminLogout"><LogOut size={15}/> Sign out</button></div>
-    </aside>
-    <section className="adminContent">
-      <header className="adminTop"><div><div className="adminEyebrow"><ShieldCheck size={14}/> AUTHENTICATED OPERATIONS</div><h1>Admin Control Center</h1><p>Platform overview for FarmPlug AI operations and SIH pilot demonstration.</p></div><div className="adminUser"><span className="adminAvatar"><UserRoundCog size={18}/></span><div><b>Administrator</b><small>{userEmail}</small></div><button onClick={logout} aria-label="Sign out"><LogOut size={16}/></button></div></header>
-      <div className="adminNotice"><CheckCircle2 size={18}/><div><b>System status: operational</b><span>AI outputs remain clearly marked as prototype demonstration signals.</span></div></div>
-      <div className="adminStats">{stats.map(([label,value,note,Icon])=><div className="adminStat" key={label}><Icon size={20}/><small>{label}</small><strong>{value}</strong><span>{note}</span></div>)}</div>
-      <div className="adminGrid">
-        <section className="adminPanel"><div className="adminPanelHead"><div><small>LIVE ACTIVITY</small><h2>Recent operations</h2></div><span className="adminLive"><Activity size={13}/> LIVE</span></div>{activities.map(([title,detail,time])=><div className="adminActivity" key={title}><span className="activityDot"/><div><b>{title}</b><p>{detail}</p></div><time>{time}</time></div>)}</section>
-        <section className="adminPanel"><div className="adminPanelHead"><div><small>ADMIN CONTROLS</small><h2>Platform modules</h2></div></div>{controls.map(x=><button className="adminControl" key={x}><span>{x}</span><span>›</span></button>)}</section>
-      </div>
-      <section className="adminPanel adminRisk"><div className="adminPanelHead"><div><small>DEMO SAFETY</small><h2>Claims & data guardrails</h2></div></div><div className="guardrails"><div><b>AI Demo Prediction</b><span>Prototype Demonstration</span></div><div><b>Real orders</b><span>Not represented by demo data</span></div><div><b>Scientific validation</b><span>Not claimed</span></div><div><b>Live GPS / routing</b><span>Not claimed</span></div></div></section>
-      <footer className="adminFooter"><Truck size={15}/> FarmPlug AI • SIH 2026 • PS 26033</footer>
-    </section>
-  </main>;
+  const router = useRouter(); const [userEmail,setUserEmail]=useState(''); const [checking,setChecking]=useState(true);
+  useEffect(()=>{let mounted=true;if(!supabase){setChecking(false);return;}supabase.auth.getUser().then(({data})=>{const user=data.user;if(!mounted)return;if(!user)router.replace('/admin/login');else{setUserEmail(user.email??'Authenticated user');setChecking(false);}});return()=>{mounted=false;};},[router]);
+  const logout=async()=>{if(supabase)await supabase.auth.signOut();router.replace('/admin/login');};
+  if(checking)return <main className="adminShell"><div className="adminLoading">Checking authentication…</div></main>;
+  if(!supabase)return <main className="adminShell"><div className="adminEmpty"><ShieldCheck size={30}/><h1>Admin backend not configured</h1><p>Connect Supabase Auth to activate authenticated access. The dashboard is intentionally not exposed without authentication.</p><Link href="/" className="adminBack"><ArrowLeft size={16}/> Back to FarmPlug AI</Link></div></main>;
+  return <main className="adminShell"><aside className="adminSidebar"><Link href="/" className="adminBrand"><span className="adminLogo">🌱</span><span><b>FarmPlug AI</b><small>Admin Center</small></span></Link><div className="adminSideGroup"><span>CONTROL</span><Link href="/admin" className="adminControl selected">Overview <span>›</span></Link><Link href="/admin/users" className="adminControl">Users <span>›</span></Link>{['Farmers & FPOs','Buyers','Marketplace','Supply','Logistics','AI Monitor','Pilot KPIs'].map(x=><button key={x} className="adminControl"><span>{x}</span><span>›</span></button>)}</div><div className="adminSideBottom"><Link href="/" className="adminBack"><ArrowLeft size={15}/> Public site</Link><button onClick={logout} className="adminLogout"><LogOut size={15}/> Sign out</button></div></aside><section className="adminContent"><header className="adminTop"><div><div className="adminEyebrow"><ShieldCheck size={14}/> AUTHENTICATED OPERATIONS</div><h1>Admin Control Center</h1><p>Platform overview for FarmPlug AI operations and SIH pilot demonstration.</p></div><div className="adminUser"><span className="adminAvatar"><UserRoundCog size={18}/></span><div><b>Administrator</b><small>{userEmail}</small></div><button onClick={logout} aria-label="Sign out"><LogOut size={16}/></button></div></header><div className="adminNotice"><CheckCircle2 size={18}/><div><b>System status: operational</b><span>AI outputs remain clearly marked as prototype demonstration signals.</span></div></div><div className="adminStats">{stats.map(([label,value,note,Icon])=><div className="adminStat" key={label}><Icon size={20}/><small>{label}</small><strong>{value}</strong><span>{note}</span></div>)}</div><div className="adminGrid"><section className="adminPanel"><div className="adminPanelHead"><div><small>LIVE ACTIVITY</small><h2>Recent operations</h2></div><span className="adminLive"><Activity size={13}/> LIVE</span></div>{activities.map(([title,detail,time])=><div className="adminActivity" key={title}><span className="activityDot"/><div><b>{title}</b><p>{detail}</p></div><time>{time}</time></div>)}</section><section className="adminPanel"><div className="adminPanelHead"><div><small>ADMIN CONTROLS</small><h2>Platform modules</h2></div></div>{controls.map(([x,href])=>href==='#'?<button className="adminControl" key={x}><span>{x}</span><span>›</span></button>:<Link className="adminControl" key={x} href={href}><span>{x}</span><span>›</span></Link>)}</section></div><section className="adminPanel adminRisk"><div className="adminPanelHead"><div><small>DEMO SAFETY</small><h2>Claims & data guardrails</h2></div></div><div className="guardrails"><div><b>AI Demo Prediction</b><span>Prototype Demonstration</span></div><div><b>Real orders</b><span>Not represented by demo data</span></div><div><b>Scientific validation</b><span>Not claimed</span></div><div><b>Live GPS / routing</b><span>Not claimed</span></div></div></section><footer className="adminFooter"><Truck size={15}/> FarmPlug AI • SIH 2026 • PS 26033</footer></section></main>;
 }
