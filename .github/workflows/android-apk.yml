@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -23,6 +23,8 @@ jobs:
       - name: Build release APK
         working-directory: android
         run: gradle assembleRelease --no-daemon
+      - name: Prepare branded APK
+        run: cp android/app/build/outputs/apk/release/app-release.apk FarmPlug-AI.apk
       - name: Publish APK release
         uses: softprops/action-gh-release@v2
         with:
@@ -31,4 +33,5 @@ jobs:
           body: Android APK build for FarmPlug AI.
           prerelease: false
           make_latest: true
-          files: android/app/build/outputs/apk/release/app-release.apk
+          overwrite_files: true
+          files: FarmPlug-AI.apk
