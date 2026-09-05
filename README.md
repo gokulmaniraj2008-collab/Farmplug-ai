@@ -133,8 +133,12 @@ along with real Android/PWA device testing. These are validation tasks, not clai
 
 FarmPlug AI is an **SIH 2026 prototype**. AI outputs, buyer matches, demand scores, logistics estimates and commercial recommendations require real-world validation before production use. The project does not claim live market prices, guaranteed AI accuracy, or real-time logistics unless explicitly connected and verified.
 
+## 🚢 Deployment
+
+The `main` branch is the source of truth for the connected Vercel project. UI/build fixes pushed to `main` are intended to flow into the production deployment.
+
 ---
 
 **FarmPlug AI — From Farm Intelligence to the Right Market.**
 
-<!-- README updated for current mobile UI, Android APK, and system-bar handling. -->
+<!-- README updated for current mobile UI, Android APK, system-bar handling, and production deployment flow. -->
