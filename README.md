@@ -141,4 +141,4 @@ The `main` branch is the source of truth for the connected Vercel project. UI/bu
 
 **FarmPlug AI — From Farm Intelligence to the Right Market.**
 
-<!-- README updated for current mobile UI, Android APK, system-bar handling, and production deployment flow. -->
+<!-- Vercel rebuild trigger: verified current main app-v2 source has no legacy otp screen reference. -->
