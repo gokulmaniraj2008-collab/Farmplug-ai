@@ -6,46 +6,79 @@ const SYSTEM_PROMPT = `You are FarmPlug AI Assistant for SIH 2026 Problem Statem
 
 type HistoryItem = { role?: string; text?: string };
 
+type GeminiStep = {
+  type?: string;
+  content?: Array<{ type?: string; text?: string }>;
+};
+
+function extractText(data: { steps?: GeminiStep[] }) {
+  return (data.steps || [])
+    .filter(step => step.type === 'model_output')
+    .flatMap(step => step.content || [])
+    .filter(part => part.type === 'text' && typeof part.text === 'string')
+    .map(part => part.text)
+    .join('')
+    .trim();
+}
+
 export async function POST(request: Request) {
   try {
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: 'Gemini is not configured on this deployment. Add GEMINI_API_KEY in the server environment.' }, { status: 503 });
+      return NextResponse.json(
+        { error: 'Gemini is not configured on this deployment. Add GEMINI_API_KEY in the server environment.' },
+        { status: 503 },
+      );
     }
 
     const body = await request.json();
     const message = typeof body?.message === 'string' ? body.message.trim() : '';
     const history: HistoryItem[] = Array.isArray(body?.history) ? body.history.slice(-8) : [];
+
     if (!message) return NextResponse.json({ error: 'Message is required.' }, { status: 400 });
     if (message.length > 2000) return NextResponse.json({ error: 'Message is too long.' }, { status: 400 });
 
-    const contents = [
-      ...history.filter(item => typeof item?.text === 'string' && item.text.trim()).map(item => ({
-        role: item.role === 'user' ? 'user' : 'model',
-        parts: [{ text: item.text!.slice(0, 3000) }],
-      })),
-      { role: 'user', parts: [{ text: message }] },
+    const input = [
+      ...history
+        .filter(item => typeof item?.text === 'string' && item.text.trim())
+        .map(item => ({
+          type: item.role === 'user' ? 'user_input' : 'model_output',
+          content: item.text!.slice(0, 3000),
+        })),
+      { type: 'user_input', content: message },
     ];
 
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent', {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/interactions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey,
+      },
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-        contents,
-        generationConfig: { temperature: 0.4, maxOutputTokens: 500 },
+        model: 'gemini-3.8-flash',
+        input,
+        system_instruction: SYSTEM_PROMPT,
+        store: false,
+        generation_config: {
+          temperature: 0.4,
+          max_tokens: 500,
+        },
       }),
       cache: 'no-store',
     });
 
     const data = await response.json();
     if (!response.ok) {
-      console.error('Gemini API error', response.status, data?.error?.message);
+      console.error('Gemini Interactions API error', response.status, data?.error?.message || data);
       return NextResponse.json({ error: 'Gemini could not answer right now. Please try again.' }, { status: 502 });
     }
 
-    const text = data?.candidates?.[0]?.content?.parts?.map((part: { text?: string }) => part.text || '').join('').trim();
-    if (!text) return NextResponse.json({ error: 'Gemini returned an empty response.' }, { status: 502 });
+    const text = extractText(data);
+    if (!text) {
+      console.error('Gemini returned no model output', data?.status);
+      return NextResponse.json({ error: 'Gemini returned an empty response.' }, { status: 502 });
+    }
+
     return NextResponse.json({ text });
   } catch (error) {
     console.error('Chat route error', error);
