@@ -27,7 +27,7 @@ jobs:
         working-directory: mobile
         run: flutter create --platforms=android --org com.farmplug .
 
-      - name: Select FarmPlug app entrypoint
+      - name: Select FarmPlug app entrypoint and enable Android network access
         working-directory: mobile
         run: |
           cp lib/main_fixed.dart lib/main.dart
@@ -38,6 +38,18 @@ jobs:
           linter:
             rules: []
           EOF
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('android/app/src/main/AndroidManifest.xml')
+          text = p.read_text()
+          permission = '    <uses-permission android:name="android.permission.INTERNET" />\n'
+          if 'android.permission.INTERNET' not in text:
+              text = text.replace('<manifest ', '<manifest ', 1)
+              marker = '    <application'
+              text = text.replace(marker, permission + marker, 1)
+          p.write_text(text)
+          print('Verified INTERNET permission in release AndroidManifest.xml')
+          PY
 
       - name: Get dependencies
         working-directory: mobile
