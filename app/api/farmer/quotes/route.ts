@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 export const dynamic = 'force-dynamic';
 
 type BuyerUser = { id: string; email?: string | null; user_metadata?: Record<string, unknown> | null };
+
 type BuyerResult = { data: BuyerUser[]; error: { message: string } | null };
 
 function clients(request: NextRequest) {
@@ -31,13 +32,30 @@ export async function GET(request: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   const requirementIds = Array.from(new Set((quotes ?? []).map(x => x.requirement_id).filter(Boolean)));
   const buyerIds = Array.from(new Set((quotes ?? []).map(x => x.buyer_id).filter(Boolean)));
-  const [reqResult, buyerResult]: [{ data: Array<{ id: string; buyer_name: string | null; crop: string; quantity_kg: number; quality: string; location: string; delivery_days: number | null; status: string }> | null; error: { message: string } | null }, BuyerResult] = await Promise.all([
-    requirementIds.length ? c.admin.from('farmplug_buyer_requirements').select('id,buyer_name,crop,quantity_kg,quality,location,delivery_days,status').in('id', requirementIds) : Promise.resolve({ data: [], error: null }),
-    Promise.all(buyerIds.map(id => c.admin.auth.admin.getUserById(id))).then(results => ({ data: results.map(r => r.data.user).filter((u): u is BuyerUser => Boolean(u)), error: results.find(r => r.error)?.error ? { message: results.find(r => r.error)!.error!.message } : null }))
+
+  const [reqResultRaw, buyerResultRaw] = await Promise.all([
+    requirementIds.length
+      ? c.admin.from('farmplug_buyer_requirements').select('id,buyer_name,crop,quantity_kg,quality,location,delivery_days,status').in('id', requirementIds)
+      : Promise.resolve({ data: [], error: null }),
+    Promise.all(buyerIds.map(id => c.admin.auth.admin.getUserById(id))).then(results => {
+      const data: BuyerUser[] = results
+        .map(result => result.data.user)
+        .filter((u): u is NonNullable<typeof u> => Boolean(u))
+        .map(u => ({ id: u.id, email: u.email, user_metadata: u.user_metadata }));
+      const failed = results.find(result => result.error);
+      return { data, error: failed?.error ? { message: failed.error.message } : null } satisfies BuyerResult;
+    })
   ]);
+
+  const reqResult = {
+    data: reqResultRaw.data ?? [],
+    error: reqResultRaw.error ? { message: reqResultRaw.error.message } : null
+  };
+  const buyerResult: BuyerResult = buyerResultRaw;
+
   if (reqResult.error) return NextResponse.json({ error: reqResult.error.message }, { status: 500 });
   if (buyerResult.error) return NextResponse.json({ error: buyerResult.error.message }, { status: 500 });
-  const reqMap = new Map((reqResult.data ?? []).map(x => [x.id, x]));
+  const reqMap = new Map(reqResult.data.map(x => [x.id, x]));
   const buyerMap = new Map(buyerResult.data.map(x => [x.id, x]));
   const enriched = (quotes ?? []).map(q => {
     const buyer = buyerMap.get(q.buyer_id);
