@@ -16,7 +16,6 @@ const items=[
   {href:'/download',label:'Download App',icon:Download},
 ];
 
-const mobileItems=[items[0],items[2],items[3],items[4],items[8]];
 const logo=<img src="/icons/farmplug-icon.svg" alt="FarmPlug AI logo" width={40} height={40}/>;
 
 export default function Sidebar(){
@@ -30,6 +29,5 @@ export default function Sidebar(){
     <aside className={open?'desktopSidebar open':'desktopSidebar'} aria-label="Desktop navigation"><div className="sideBrand"><div className="sideLogo">{logo}</div><div><strong>FarmPlug AI</strong><small>Farm intelligence → market</small></div><button className="sideClose" onClick={()=>setOpen(false)} aria-label="Close navigation"><X size={21}/></button></div>{nav()}<div className="sideFooter">SIH 2026 · PS 26033<br/><span>Professional platform prototype</span></div></aside>
     <button className="mobileMenuButton" onClick={()=>setOpen(true)} aria-label="Open navigation"><Menu size={22}/></button>
     <aside className={open?'mobileSidebar open':'mobileSidebar'} aria-label="Mobile navigation"><div className="sideBrand"><div className="sideLogo">{logo}</div><div><strong>FarmPlug AI</strong><small>Platform</small></div><button className="sideClose" onClick={()=>setOpen(false)} aria-label="Close navigation"><X size={21}/></button></div>{nav()}<div className="sideFooter">SIH 2026 · PS 26033</div></aside>
-    <nav className="bottomNav" aria-label="Quick mobile navigation">{mobileItems.map(({href,label,icon:Icon})=><Link key={href} href={href} className={isActive(href)?'bottomItem active':'bottomItem'}><Icon size={20} strokeWidth={isActive(href)?2.6:2}/><span>{label==='Download App'?'Download':label}</span></Link>)}</nav>
   </>;
 }
