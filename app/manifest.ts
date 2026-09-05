@@ -19,13 +19,13 @@ export default function manifest(): MetadataRoute.Manifest {
         src: '/icons/farmplug-icon.svg',
         sizes: '192x192',
         type: 'image/svg+xml',
-        purpose: 'any maskable',
+        purpose: 'any',
       },
       {
         src: '/icons/farmplug-icon.svg',
         sizes: '512x512',
         type: 'image/svg+xml',
-        purpose: 'any maskable',
+        purpose: 'any',
       },
     ],
   };
