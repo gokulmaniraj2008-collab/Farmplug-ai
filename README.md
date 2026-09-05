@@ -4,6 +4,39 @@
 
 Smart India Hackathon 2026 • **Problem Statement 26033** • Software • Agriculture, FoodTech & Rural Development
 
+## 🔗 Project Links
+
+| Resource | Link |
+|---|---|
+| 🌐 **Live Website** | https://farmplugaisxd.vercel.app |
+| 💻 **GitHub Repository** | https://github.com/gokulmaniraj2008-collab/Farmplug-ai |
+| 📱 **Latest Android APK** | https://github.com/gokulmaniraj2008-collab/Farmplug-ai/releases/latest/download/farmplug-farmer.apk |
+| 📦 **GitHub Releases** | https://github.com/gokulmaniraj2008-collab/Farmplug-ai/releases |
+| 📥 **Farmer App Download Page** | https://farmplugaisxd.vercel.app/download |
+| 🎬 **2-Minute SIH Demo** | https://farmplugaisxd.vercel.app/demo |
+| 🧠 **AI Decision Center** | https://farmplugaisxd.vercel.app/decision-center |
+| 🛒 **Marketplace** | https://farmplugaisxd.vercel.app/marketplace |
+| 👨‍🌾 **Farmer / FPO Dashboard** | https://farmplugaisxd.vercel.app/dashboard |
+| 🏢 **Buyer Command Center** | https://farmplugaisxd.vercel.app/buyer |
+| 📦 **Orders & Fulfilment** | https://farmplugaisxd.vercel.app/orders |
+| 🚚 **Logistics / Route Planning** | https://farmplugaisxd.vercel.app/decision-center |
+| 🛡️ **Admin Control Center** | https://farmplugaisxd.vercel.app/admin |
+| ℹ️ **About FarmPlug AI** | https://farmplugaisxd.vercel.app/about |
+
+> **Note:** The Android APK is a prototype release. If the latest release has not been published yet, use the web platform while the Android CI build is completing.
+
+## 📱 FarmPlug Android App
+
+FarmPlug is a **web + mobile platform**. Farmers can use the Android application for a simpler farmer-first experience, while buyers, FPOs, logistics teams and administrators can use the web platform.
+
+The Android app is designed to connect to the **same FarmPlug backend, Supabase authentication and server APIs** rather than creating a separate database.
+
+### Farmer app flow
+
+**Sign in → Dashboard → Produce Listing → AI Decision Center → Buyer Signals → Quotes → Orders → Collection / Delivery**
+
+Android source lives under `farmplug_mobile/` and the release APK is generated through GitHub Actions.
+
 ## The problem
 
 Farmers and FPOs can have produce ready without knowing the strongest available demand, the most suitable buyer, whether their own lot is large enough for a bulk requirement, or how the collection and delivery journey should be coordinated.
@@ -36,7 +69,7 @@ The Decision Center exposes component signals for market, quantity/aggregation, 
 
 FarmPlug AI **complements rather than replaces** e-NAM. e-NAM already provides digital agricultural trading, price discovery and FPO participation. FarmPlug focuses on the surrounding predictive and fulfillment workflow: demand-oriented planning, selling-window prioritization, buyer-fit scoring, fragmented-supply aggregation and route planning.
 
-## 2-minute judge demo
+## 🎬 2-minute judge demo
 
 1. Open **Decision Center**.
 2. Choose crop, location, quantity, quality, harvest date and storage.
@@ -62,6 +95,7 @@ FarmPlug AI **complements rather than replaces** e-NAM. e-NAM already provides d
 - Logistics and route optimization support
 - Admin monitoring and role-based authorization
 - Gemini-powered prototype assistant
+- Android farmer application
 
 ## AI and validation status
 
@@ -107,12 +141,14 @@ No fabricated success percentages are used. A pilot should measure:
 - Gemini prototype assistant
 - OpenStreetMap-compatible geocoding
 - OSRM-compatible road routing
+- Flutter + Dart Android client
 - Python + FastAPI-ready AI service boundary
 - Scikit-learn / PyTorch for future validated models
 - OR-Tools for future collection optimization
+- GitHub Actions Android CI
 - Vercel deployment
 
-## Data integrity and safety
+## 🔐 Data integrity and safety
 
 This prototype does **not** claim:
 
@@ -124,7 +160,9 @@ This prototype does **not** claim:
 
 Demo data is clearly labelled. Pilot KPIs are presented as **to be measured and validated**.
 
-## Development
+## 🛠️ Development
+
+### Web
 
 ```bash
 npm install
@@ -133,8 +171,30 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+### Android
+
+Android builds are automated with GitHub Actions. The repository contains the Flutter client under `farmplug_mobile/`; CI generates the Android platform project, installs dependencies, analyzes the code, builds the release APK and publishes it to GitHub Releases.
+
+No Supabase secret/service key should ever be placed in the mobile application. The app uses public configuration and authenticated server APIs.
+
+## Repository structure
+
+```text
+Farmplug-ai/
+├── app/                  # Next.js web platform and server APIs
+├── lib/                  # Decision engine and shared server logic
+├── farmplug_mobile/      # Flutter farmer Android application
+├── .github/workflows/    # Android CI / release automation
+├── README.md
+└── package.json
+```
+
 ## Status
 
-**Stage:** SIH 2026 MVP prototype
+**Stage:** SIH 2026 MVP prototype + Android farmer client
 
 **Target:** demonstrate a complete farm-to-market intelligence and fulfillment workflow in approximately two minutes, while keeping every prototype claim transparent and leaving clear boundaries for validated data/model integration.
+
+## ⚠️ Prototype notice
+
+FarmPlug AI is a hackathon prototype. AI outputs, buyer matches, demand scores, logistics estimates and commercial recommendations must be validated with real-world data and operational trials before production use.
