@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import BottomNav from "./components/BottomNav";
+import FarmPlugChatbot from "./components/FarmPlugChatbot";
 
 export const metadata: Metadata = {
   title: "FarmPlug AI | Farm Intelligence to the Right Market",
@@ -14,5 +15,5 @@ const mobileStyles = `
 `;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}<BottomNav /><style dangerouslySetInnerHTML={{__html: mobileStyles}} /></body></html>;
+  return <html lang="en"><body>{children}<FarmPlugChatbot /><BottomNav /><style dangerouslySetInnerHTML={{__html: mobileStyles}} /></body></html>;
 }
