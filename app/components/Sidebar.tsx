@@ -19,12 +19,12 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  const nav = (mobile = false) => (
-    <nav className={mobile ? 'sideNav mobileSideNav' : 'sideNav'} aria-label="FarmPlug navigation">
+  const nav = () => (
+    <nav className="sideNav" aria-label="FarmPlug navigation">
       {items.map(({ href, label, icon: Icon }) => {
         const active = href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
         return (
-          <Link key={href} href={href} onClick={() => mobile && setOpen(false)} className={active ? 'sideItem active' : 'sideItem'}>
+          <Link key={href} href={href} onClick={() => setOpen(false)} className={active ? 'sideItem active' : 'sideItem'}>
             <Icon size={19} strokeWidth={active ? 2.5 : 2} />
             <span>{label}</span>
           </Link>
@@ -35,16 +35,17 @@ export default function Sidebar() {
 
   return (
     <>
-      <aside className="desktopSidebar">
-        <div className="sideBrand"><div className="sideLogo">F</div><div><strong>FarmPlug AI</strong><small>Farm intelligence → market</small></div></div>
+      <button className="desktopMenuButton" onClick={() => setOpen(true)} aria-label="Open navigation"><Menu size={22} /></button>
+      {open && <div className="sideOverlay" onClick={() => setOpen(false)} aria-hidden="true" />}
+      <aside className={open ? 'desktopSidebar open' : 'desktopSidebar'} aria-label="Desktop navigation">
+        <div className="sideBrand"><div className="sideLogo">F</div><div><strong>FarmPlug AI</strong><small>Farm intelligence → market</small></div><button className="sideClose" onClick={() => setOpen(false)} aria-label="Close navigation"><X size={21} /></button></div>
         {nav()}
         <div className="sideFooter">SIH 2026 · PS 26033<br /><span>Prototype demonstration</span></div>
       </aside>
       <button className="mobileMenuButton" onClick={() => setOpen(true)} aria-label="Open navigation"><Menu size={22}/></button>
-      {open && <div className="sideOverlay" onClick={() => setOpen(false)} aria-hidden="true" />}
       <aside className={open ? 'mobileSidebar open' : 'mobileSidebar'} aria-label="Mobile navigation">
         <div className="sideBrand"><div className="sideLogo">F</div><div><strong>FarmPlug AI</strong><small>Navigation</small></div><button className="sideClose" onClick={() => setOpen(false)} aria-label="Close navigation"><X size={21}/></button></div>
-        {nav(true)}
+        {nav()}
         <div className="sideFooter">SIH 2026 · PS 26033</div>
       </aside>
     </>
