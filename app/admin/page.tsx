@@ -1,5 +1,6 @@
 'use client';
 
+import './admin.css';
 import { useEffect, useState } from 'react';
 import { Activity, ArrowLeft, BarChart3, CheckCircle2, LogOut, PackageCheck, ShieldCheck, Store, Truck, Users, UserRoundCog } from 'lucide-react';
 import Link from 'next/link';
