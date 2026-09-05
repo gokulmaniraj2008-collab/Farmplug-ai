@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { Home, Sparkles, Store, Users, LayoutDashboard, ShieldCheck, Info, Menu, X, UserRound } from 'lucide-react';
+import { Home, Sparkles, Store, LayoutDashboard, ShieldCheck, Info, Menu, X, UserRound } from 'lucide-react';
 
 const items = [
   { href: '/', label: 'Home', icon: Home },
@@ -12,7 +12,6 @@ const items = [
   { href: '/buyer', label: 'Buyer Command Center', icon: UserRound },
   { href: '/dashboard', label: 'Farmer / FPO Dashboard', icon: LayoutDashboard },
   { href: '/admin', label: 'Admin Control Center', icon: ShieldCheck },
-  { href: '/admin/users', label: 'Users', icon: Users },
   { href: '/about', label: 'About FarmPlug AI', icon: Info },
 ];
 
