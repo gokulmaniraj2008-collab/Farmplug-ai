@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-const apkUrl = 'https://github.com/gokulmaniraj2008-collab/Farmplug-ai/releases/latest/download/farmplug-farmer.apk';
+const apkUrl = 'https://github.com/gokulmaniraj2008-collab/Farmplug-ai/releases/latest/download/FarmPlug-AI.apk';
 
 export default function DownloadPage() {
   return (
