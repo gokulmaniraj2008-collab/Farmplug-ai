@@ -10,9 +10,11 @@
 
 FarmPlug AI is a web + mobile agricultural marketplace and intelligence platform connecting farmers/FPOs with buyers, supply aggregation, AI-assisted decision support, orders and logistics planning.
 
-## 📱 Android App
+## 📱 Farmer App
 
-The FarmPlug Farmer Android app is built with Flutter and connects to the same FarmPlug platform/backend.
+📲 **FarmPlug Farmer App:** https://farmplugaisxd.vercel.app/download
+
+Install the mobile-friendly Farmer PWA from the link above. It uses the same FarmPlug platform, APIs and backend as the main website.
 
 ## 🛠️ Technology
 
@@ -20,8 +22,7 @@ The FarmPlug Farmer Android app is built with Flutter and connects to the same F
 - React
 - Supabase / PostgreSQL
 - Gemini-powered prototype assistant
-- Flutter + Dart Android app
-- GitHub Actions
+- Progressive Web App (PWA)
 - Vercel
 
 ## ⚠️ Prototype Notice
