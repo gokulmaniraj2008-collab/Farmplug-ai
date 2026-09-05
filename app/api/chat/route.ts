@@ -49,7 +49,7 @@ async function loadFarmContext(): Promise<FarmContext> {
 
 function friendlyGeminiError(status: number, code?: string) {
   const normalized = String(code || '').toLowerCase();
-  if (status === 400 || normalized.includes('invalid')) return { code: 'GEMINI_INVALID_REQUEST', message: 'The AI request was rejected by Gemini. The FarmPlug AI request format needs attention. Please try again.' };
+  if (status === 400 || normalized.includes('invalid')) return { code: 'GEMINI_INVALID_REQUEST', message: 'The AI request was rejected by Gemini. Please try again.' };
   if (status === 401 || normalized.includes('authentication') || normalized.includes('unauthenticated')) return { code: 'GEMINI_AUTH_ERROR', message: 'Gemini authentication failed. Check the GEMINI_API_KEY configured on the server.' };
   if (status === 403 || normalized.includes('permission')) return { code: 'GEMINI_PERMISSION_ERROR', message: 'Gemini access was denied. Check API access and permissions for the configured key.' };
   if (status === 429 || normalized.includes('rate') || normalized.includes('quota')) return { code: 'GEMINI_RATE_LIMIT', message: 'Gemini is temporarily rate-limited. Please wait a moment and try again.' };
@@ -72,29 +72,25 @@ export async function POST(request: Request) {
     const farmContext = await loadFarmContext();
     const contextText = JSON.stringify(farmContext).slice(0, 12000);
 
-    // Interactions API Step input requires Content blocks. Keep history as valid user/model steps.
-    const input = [
-      ...history
-        .filter(item => typeof item?.text === 'string' && item.text.trim())
-        .map(item => ({
-          type: item.role === 'user' ? 'user_input' : 'model_output',
-          content: [{ type: 'text', text: item.text!.slice(0, 2500) }],
-        })),
-      {
-        type: 'user_input',
-        content: [{
-          type: 'text',
-          text: `FarmPlug application data context (may be empty):\n${contextText}\n\nFarmer question:\n${message}`,
-        }],
-      },
-    ];
+    // Use the Interactions API's simplest and most stable input form: one text string.
+    // This avoids the structured-step/content-shape incompatibility seen in production.
+    const historyText = history
+      .filter(item => typeof item?.text === 'string' && item.text.trim())
+      .map(item => `${item.role === 'user' ? 'Farmer' : 'FarmPlug AI'}: ${item.text!.slice(0, 2500)}`)
+      .join('\n');
+
+    const inputText = [
+      historyText ? `Recent conversation:\n${historyText}` : '',
+      `FarmPlug application data context (may be empty):\n${contextText}`,
+      `Farmer question:\n${message}`,
+    ].filter(Boolean).join('\n\n');
 
     const response = await fetch('https://generativelanguage.googleapis.com/v1beta/interactions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
       body: JSON.stringify({
         model: 'gemini-3.7-flash',
-        input,
+        input: inputText,
         system_instruction: SYSTEM_PROMPT,
         store: false,
         generation_config: { temperature: 0.4, max_output_tokens: 500 },
