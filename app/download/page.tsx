@@ -2,8 +2,6 @@
 
 import Link from 'next/link';
 
-const apkUrl = 'https://github.com/gokulmaniraj2008-collab/Farmplug-ai/releases/latest/download/FarmPlug-AI.apk';
-
 export default function DownloadPage() {
   return (
     <main style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: '24px', background: 'linear-gradient(145deg,#f4fbf1,#ffffff)' }}>
@@ -12,15 +10,15 @@ export default function DownloadPage() {
         <h1 style={{ fontSize: 34, margin: '8px 0 6px' }}>FarmPlug AI</h1>
         <p style={{ fontSize: 18, color: '#45604a' }}>Farmer Android App</p>
         <p style={{ lineHeight: 1.6, color: '#5b6d5e' }}>
-          Download the FarmPlug AI Farmer Android APK and install it directly on your phone.
+          Download the FarmPlug AI Farmer Android APK directly from FarmPlug.
         </p>
-        <a href={apkUrl} style={{ display: 'block', width: '100%', boxSizing: 'border-box', padding: '15px 20px', borderRadius: 14, background: '#166534', color: '#fff', fontWeight: 800, fontSize: 16, marginTop: 22, textDecoration: 'none' }}>
+        <a href="/api/download-apk" download="FarmPlug-AI.apk" style={{ display: 'block', width: '100%', boxSizing: 'border-box', padding: '15px 20px', borderRadius: 14, background: '#166534', color: '#fff', fontWeight: 800, fontSize: 16, marginTop: 22, textDecoration: 'none' }}>
           Download APK
         </a>
         <div style={{ textAlign: 'left', marginTop: 22, padding: 16, borderRadius: 16, background: '#f7fbf7', border: '1px solid #e3ece5' }}>
           <strong>Android installation</strong>
           <p style={{ fontSize: 13, lineHeight: 1.5, color: '#5b6d5e', margin: '7px 0 0' }}>
-            After downloading, open the APK. Android may ask you to allow installation from this source. Allow it, then install FarmPlug AI.
+            The APK download stays on the FarmPlug domain. After downloading, open the APK and allow installation from this source if Android asks.
           </p>
         </div>
         <Link href="/" style={{ display: 'inline-block', marginTop: 18, color: '#166534', fontWeight: 700 }}>Continue on FarmPlug Web →</Link>
