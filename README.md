@@ -1,144 +1,65 @@
 # 🌾 FarmPlug AI
 
-> **From Farm Intelligence to the Right Market.**
+> **Right Market. Right Buyer. Right Time.**
 
-**Smart India Hackathon 2026 • Problem Statement 26033**
+FarmPlug AI is a decision-to-market AgriTech platform that connects market intelligence, AI decision support, verified buyer discovery, supply aggregation, logistics and transparent digital transactions in one workflow.
 
-FarmPlug AI is a farmer-first AgriTech platform designed to connect farm intelligence, produce aggregation, buyer matching, orders and logistics in one workflow.
+## Product flow
 
-## 🔗 Project Links
+**Farm/FPO → Market Data → Forecast → Selling Window → Buyer Match → Aggregation → Logistics → Quote → Order → Payment → Delivery → Impact**
 
-🌐 **FarmPlug AI Website:** https://farmplugaisxd.vercel.app
+## Current architecture
 
-📱 **Farmer App / APK:** https://farmplugaisxd.vercel.app/download
+- **Web:** Next.js + TypeScript + mobile-first UI
+- **Auth:** Supabase Auth
+- **Database:** Supabase PostgreSQL with RLS
+- **AI/ML:** Python/pandas/numpy/scikit-learn reference pipeline in `ml/`; forecasts are labelled Prototype Forecast until validated
+- **Logistics:** routing/optimization data model ready for OpenStreetMap-compatible routing and OR-Tools integration
+- **Mobile:** PWA/Android-compatible Farmer experience using the same backend
+- **Deployment:** Vercel + GitHub
 
-💻 **GitHub Repository:** https://github.com/gokulmaniraj2008-collab/Farmplug-ai
+## Security
 
-## 📱 Farmer App
+The Farmer app no longer stores passwords in localStorage. Authentication uses Supabase Auth sessions. Database mutations are protected by ownership/RLS policies, and critical order progression is exposed through a server-side PostgreSQL state-transition function.
 
-The Farmer experience is designed **mobile-first** for Android users, with an app-style navigation and touch-friendly layout.
+## Data honesty
 
-- Farmer-focused interface
-- Mobile-first responsive UI
-- App-style bottom navigation
-- Produce listing and supply information
-- AI-assisted decision support
-- Buyer matching
-- Quote and order workflow
-- Order tracking and logistics planning
-- Connected to the same FarmPlug backend
-- Dedicated **Download App** page
-- Published Android APK through the project release workflow
-- Android WebView respects the device status and navigation bars instead of rendering edge-to-edge/full-screen
+FarmPlug AI does not invent live prices, buyers, payments, GPS positions or model accuracy. Data that is illustrative is explicitly marked **DEMO DATA**. Unvalidated forecasts are **Prototype Forecast**. Escrow/payment demonstrations are **Payment Simulation** until a real provider is integrated.
 
-> **APK status:** A signed `FarmPlug-AI.apk` is published through the `apk-latest` release workflow. The FarmPlug download page is the user-facing entry point.
+## Database foundation
 
-## 🚀 Core Platform
+The version-controlled migrations cover:
 
-FarmPlug AI brings the following workflow together:
+- Farmer, FPO and buyer profiles
+- Farms and crops
+- Markets, prices, arrivals and demand
+- Price and demand forecasts
+- AI predictions and recommendations
+- Explainable buyer matches
+- Multi-farmer supply aggregation
+- Logistics routes and delivery events
+- Payments and escrow simulation
+- Notifications, disputes and audit logs
+- Strict order lifecycle: `quote_pending → quote_accepted → order_confirmed → collecting → in_transit → delivered → completed`
 
-**Farmer → Produce Listing → AI Decision Support → Buyer Matching → Quote → Order → Logistics**
+## ML foundation
 
-### Key capabilities
+`ml/train.py` implements a real, reproducible baseline regression pipeline with chronological holdout evaluation and records MAE/RMSE/MAPE plus model and dataset versions. It intentionally refuses undersized datasets instead of manufacturing an accuracy claim.
 
-- 🌱 **Farm Intelligence** — AI-assisted production and decision support
-- 📈 **Demand Insights** — prototype demand forecasting and market signals
-- 🤝 **Buyer Matching** — connect available produce with buyer requirements
-- 📦 **Supply Aggregation** — combine fragmented farmer supply into buyer-ready quantities
-- 🧾 **Quotes & Orders** — structured quote-to-order workflow
-- 🚚 **Logistics Planning** — route and delivery planning using external routing services
-- 💬 **AI Assistant** — Gemini-powered prototype assistant
-- 📱 **Mobile Farmer Experience** — Android-focused Farmer app and mobile-first web experience
+## Demo vs production
 
-## 🛠️ Technology Stack
+The interface is production-oriented, but live market ingestion, trained forecasting models, verified buyer onboarding, routing-provider credentials and payment-provider integration still require their respective real data/services before commercial launch. No unsupported integration is represented as complete.
 
-- **Frontend:** Next.js + TypeScript + React
-- **Backend:** Next.js API routes
-- **Database:** Supabase / PostgreSQL
-- **AI:** Gemini-powered prototype assistant
-- **Mobile:** Android Farmer app / mobile-first web experience
-- **Deployment:** Vercel
-- **Version Control & CI:** GitHub Actions
+## Development
 
-## 🏗️ Architecture
-
-The active platform uses one Next.js application and one shared backend contract.
-
-```text
-Farmer / Buyer / Admin
-          │
-          ▼
-   Next.js Web Platform
-          │
-          ├── Farmer App
-          ├── Buyer Portal
-          ├── Admin Dashboard
-          ├── Decision Center
-          └── Marketplace / Orders
-          │
-          ▼
-     Next.js API Layer
-          │
-     ┌────┴────┐
-     ▼         ▼
- Supabase   AI / Routing
- PostgreSQL  Services
+```bash
+npm install
+npm run typecheck
+npm run build
 ```
 
-The Android app is a lightweight WebView wrapper around the Farmer experience. The legacy Flutter/mobile implementation is not the active production architecture.
-
-## 🎨 Mobile UI / UX
-
-The current interface is optimized for phone use:
-
-- Responsive mobile-first layout
-- Touch-friendly controls
-- Fixed mobile bottom navigation
-- Slide-out navigation drawer
-- FarmPlug branded app/web icon
-- Dedicated Download App experience
-- Android system-bar safe-area handling to prevent content from being hidden behind the status/navigation bars
-
-## 🔐 Security & Prototype Boundaries
-
-- Server-side secrets must remain in deployment environment variables.
-- Protected API routes perform authentication and authorization checks.
-- Database access is backed by Supabase/PostgreSQL controls.
-- Input validation is applied to critical API flows.
-- AI recommendations and commercial decisions are advisory prototypes and require human validation.
-- Logistics results depend on external geocoding/routing availability.
-
-## 🧪 SIH Readiness
-
-The project has been audited against an SIH-focused readiness scorecard.
-
-**Current readiness estimate: ~8.5/10**
-
-The highest-priority remaining validation is a real authenticated end-to-end test of:
-
-**Farmer → Buyer → Quote → Order → Logistics**
-
-along with real Android/PWA device testing. These are validation tasks, not claims of completed production certification.
-
-## 📚 Documentation
-
-- `docs/architecture.md` — system architecture and active platform boundaries
-- `docs/api-contract.md` — API contracts and payload conventions
-- `docs/security-checklist.md` — security review checklist
-- `docs/end-to-end-test-report.md` — current E2E verification status
-- `docs/demo-script.md` — SIH demonstration flow
-- `docs/known-limitations.md` — prototype limitations and validation requirements
-
-## ⚠️ Prototype Notice
-
-FarmPlug AI is an **SIH 2026 prototype**. AI outputs, buyer matches, demand scores, logistics estimates and commercial recommendations require real-world validation before production use. The project does not claim live market prices, guaranteed AI accuracy, or real-time logistics unless explicitly connected and verified.
-
-## 🚢 Deployment
-
-The `main` branch is the source of truth for the connected Vercel project. UI/build fixes pushed to `main` are intended to flow into the production deployment.
+Configure `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in the deployment environment. Never commit service-role keys or other secrets.
 
 ---
 
-**FarmPlug AI — From Farm Intelligence to the Right Market.**
-
-<!-- Vercel rebuild trigger: verified current main app-v2 source has no legacy otp screen reference. -->
+**FarmPlug AI — Right Market. Right Buyer. Right Time.**
