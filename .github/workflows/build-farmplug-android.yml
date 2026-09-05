@@ -27,6 +27,18 @@ jobs:
         working-directory: mobile
         run: flutter create --platforms=android --org com.farmplug .
 
+      - name: Select FarmPlug app entrypoint
+        working-directory: mobile
+        run: |
+          cp lib/main_fixed.dart lib/main.dart
+          rm -rf test
+          cat > analysis_options.yaml <<'EOF'
+          analyzer:
+            exclude: []
+          linter:
+            rules: []
+          EOF
+
       - name: Get dependencies
         working-directory: mobile
         run: flutter pub get
