@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Sidebar from "./components/Sidebar";
 import FarmPlugChatbot from "./components/FarmPlugChatbot";
+import PWARegister from "./components/PWARegister";
 
 export const metadata: Metadata = {
   title: "FarmPlug AI | Farm Intelligence to the Right Market",
   description: "Predictive agricultural market intelligence for Farmers and FPOs.",
+  applicationName: "FarmPlug AI Farmer",
+  appleWebApp: { capable: true, title: "FarmPlug AI Farmer", statusBarStyle: "default" },
 };
 
 const navigationStyles = `
@@ -22,5 +25,5 @@ body{padding-left:0}
 `;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><Sidebar />{children}<FarmPlugChatbot /><style dangerouslySetInnerHTML={{__html: navigationStyles}} /></body></html>;
+  return <html lang="en"><body><PWARegister /><Sidebar />{children}<FarmPlugChatbot /><style dangerouslySetInnerHTML={{__html: navigationStyles}} /></body></html>;
 }
