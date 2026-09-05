@@ -38,3 +38,4 @@ export default function FarmPlugFarmerApp(){
  function header(title:string,sub?:string){return <header className="top"><button className="iconBtn" onClick={back}><ChevronLeft/></button><div><b>{title}</b>{sub&&<small>{sub}</small>}</div><button className="iconBtn" onClick={()=>go('notifications')}><Bell/></button></header>}
 }
 function BottomNav({screen,go}:{screen:Screen;go:(s:Screen)=>void}){return <nav className="bottomNav">{nav.map(n=>{const I=n.icon;return <button key={n.id} className={screen===n.id?'selected':''} onClick={()=>go(n.id)}><I size={19}/><span>{n.label}</span></button>})}</nav>}
+// Vercel rebuild marker: current main branch intentionally contains no legacy otp screen reference.
