@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Sidebar from "./components/Sidebar";
 import PWARegister from "./components/PWARegister";
+import FarmChatbot from "./components/FarmChatbot";
 
 export const metadata: Metadata = {
   title: "FarmPlug AI | Farm Intelligence to the Right Market",
@@ -41,5 +42,5 @@ body{padding-left:0}
 `;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><PWARegister /><Sidebar />{children}<style dangerouslySetInnerHTML={{__html: navigationStyles}} /></body></html>;
+  return <html lang="en"><body><PWARegister /><Sidebar />{children}<FarmChatbot /><style dangerouslySetInnerHTML={{__html: navigationStyles}} /></body></html>;
 }
