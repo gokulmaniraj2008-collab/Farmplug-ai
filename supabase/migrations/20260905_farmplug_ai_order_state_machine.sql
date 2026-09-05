@@ -19,4 +19,5 @@ begin
  return o;
 end; $$;
 revoke all on function public.transition_farmplug_order(uuid,text) from public;
+revoke execute on function public.transition_farmplug_order(uuid,text) from anon;
 grant execute on function public.transition_farmplug_order(uuid,text) to authenticated;
