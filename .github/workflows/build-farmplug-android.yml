@@ -27,10 +27,9 @@ jobs:
         working-directory: mobile
         run: flutter create --platforms=android --org com.farmplug .
 
-      - name: Select FarmPlug app entrypoint and enable Android network access
+      - name: Prepare FarmPlug Android build
         working-directory: mobile
         run: |
-          cp lib/main_fixed.dart lib/main.dart
           rm -rf test
           cat > analysis_options.yaml <<'EOF'
           analyzer:
@@ -44,10 +43,9 @@ jobs:
           text = p.read_text()
           permission = '    <uses-permission android:name="android.permission.INTERNET" />\n'
           if 'android.permission.INTERNET' not in text:
-              text = text.replace('<manifest ', '<manifest ', 1)
-              marker = '    <application'
-              text = text.replace(marker, permission + marker, 1)
+              text = text.replace('    <application', permission + '    <application', 1)
           p.write_text(text)
+          print('Using mobile/lib/main.dart as the canonical FarmPlug Android entrypoint')
           print('Verified INTERNET permission in release AndroidManifest.xml')
           PY
 
@@ -73,5 +71,5 @@ jobs:
           tag="android-${GITHUB_RUN_NUMBER}"
           gh release create "$tag" farmplug-farmer.apk \
             --title "FarmPlug Farmer Android ${GITHUB_RUN_NUMBER}" \
-            --notes "FarmPlug AI Farmer Android app. Connected to the FarmPlug production backend. Prototype release for testing and SIH demonstration."
+            --notes "FarmPlug AI Farmer Android app. Uses the canonical backend-connected Flutter entrypoint and FarmPlug production APIs. Prototype release for testing and SIH demonstration."
           gh release edit "$tag" --latest
