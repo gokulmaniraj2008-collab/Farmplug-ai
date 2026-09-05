@@ -46,7 +46,7 @@ e-NAM provides digital agricultural market infrastructure such as trading, price
 ```text
 Farmer / FPO
      ↓
-FarmPlug Mobile / Web App
+FarmPlug Next.js Web App
      ↓
 Data Layer
      ↓
@@ -59,17 +59,19 @@ Logistics & Route Optimization
 Buyers / Processors / Exporters
 ```
 
-## 🛠️ Planned Technology
+## 🛠️ Technology Stack
 
-- **Frontend:** Flutter / React
-- **Backend:** Python / FastAPI
+- **Frontend:** Next.js + TypeScript + Tailwind CSS
+- **Application/API Layer:** Next.js Route Handlers / Server Actions
+- **AI Backend:** Python + FastAPI
 - **Database:** PostgreSQL
 - **AI/ML:** Scikit-learn / PyTorch
 - **Forecasting:** Time-series models
 - **Matching:** Recommendation / ranking models
 - **Optimization:** Google OR-Tools
 - **Maps:** OpenStreetMap / mapping APIs
-- **Infrastructure:** Docker / Firebase
+- **Infrastructure:** Docker
+- **Deployment:** Vercel for the Next.js application + cloud deployment for AI services
 
 ## 📊 Pilot KPIs
 
@@ -89,9 +91,11 @@ Farmplug-ai/
 ├── docs/
 │   ├── FarmPlug_AI_SIH_2026_Idea_Presentation.pptx
 │   └── FarmPlug_AI_SIH_2026_Idea_Presentation.pdf
-├── frontend/
-├── backend/
-├── ml/
+├── app/
+├── components/
+├── lib/
+├── api/
+├── ai/
 ├── optimization/
 └── README.md
 ```
@@ -116,5 +120,7 @@ The project is focused on improving supply-demand alignment around existing agri
 ## 📜 Status
 
 **Stage:** SIH 2026 concept / MVP development
+
+**Frontend:** Next.js-first architecture
 
 **Goal:** Build a focused, technically believable pilot that validates the intelligence workflow with real users and measurable KPIs.
