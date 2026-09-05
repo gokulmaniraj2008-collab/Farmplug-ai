@@ -3,6 +3,9 @@ import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
 
+type BuyerUser = { id: string; email?: string | null; user_metadata?: Record<string, unknown> | null };
+type BuyerResult = { data: BuyerUser[]; error: { message: string } | null };
+
 function clients(request: NextRequest) {
   const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
   const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
@@ -28,17 +31,19 @@ export async function GET(request: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   const requirementIds = Array.from(new Set((quotes ?? []).map(x => x.requirement_id).filter(Boolean)));
   const buyerIds = Array.from(new Set((quotes ?? []).map(x => x.buyer_id).filter(Boolean)));
-  const [reqResult, buyerResult] = await Promise.all([
+  const [reqResult, buyerResult]: [{ data: Array<{ id: string; buyer_name: string | null; crop: string; quantity_kg: number; quality: string; location: string; delivery_days: number | null; status: string }> | null; error: { message: string } | null }, BuyerResult] = await Promise.all([
     requirementIds.length ? c.admin.from('farmplug_buyer_requirements').select('id,buyer_name,crop,quantity_kg,quality,location,delivery_days,status').in('id', requirementIds) : Promise.resolve({ data: [], error: null }),
-    Promise.all(buyerIds.map(id => c.admin.auth.admin.getUserById(id))).then(results => ({ data: results.map(r => r.data.user).filter(Boolean), error: results.find(r => r.error)?.error ?? null }))
+    Promise.all(buyerIds.map(id => c.admin.auth.admin.getUserById(id))).then(results => ({ data: results.map(r => r.data.user).filter((u): u is BuyerUser => Boolean(u)), error: results.find(r => r.error)?.error ? { message: results.find(r => r.error)!.error!.message } : null }))
   ]);
   if (reqResult.error) return NextResponse.json({ error: reqResult.error.message }, { status: 500 });
   if (buyerResult.error) return NextResponse.json({ error: buyerResult.error.message }, { status: 500 });
   const reqMap = new Map((reqResult.data ?? []).map(x => [x.id, x]));
-  const buyerMap = new Map((buyerResult.data ?? []).map(x => [x.id, x]));
+  const buyerMap = new Map(buyerResult.data.map(x => [x.id, x]));
   const enriched = (quotes ?? []).map(q => {
     const buyer = buyerMap.get(q.buyer_id);
-    return { ...q, supply: listingMap.get(q.supply_listing_id) ?? null, requirement: reqMap.get(q.requirement_id) ?? null, buyer_email: buyer?.email ?? null, buyer_name: buyer?.user_metadata?.full_name ?? reqMap.get(q.requirement_id)?.buyer_name ?? buyer?.email?.split('@')[0] ?? 'Buyer' };
+    const requirement = reqMap.get(q.requirement_id);
+    const fullName = buyer?.user_metadata?.full_name;
+    return { ...q, supply: listingMap.get(q.supply_listing_id) ?? null, requirement: requirement ?? null, buyer_email: buyer?.email ?? null, buyer_name: typeof fullName === 'string' ? fullName : requirement?.buyer_name ?? buyer?.email?.split('@')[0] ?? 'Buyer' };
   });
   return NextResponse.json({ quotes: enriched }, { headers: { 'Cache-Control': 'no-store' } });
 }
