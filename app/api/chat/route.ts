@@ -42,8 +42,6 @@ async function loadFarmContext(): Promise<FarmContext> {
   const supabase = createAdminClient();
   if (!supabase) return empty;
 
-  // These are optional FarmPlug tables. Missing tables are intentionally ignored so
-  // the public prototype still works before the production schema is provisioned.
   const [farmers, buyers, listings, demand] = await Promise.all([
     supabase.from('farmers').select('id,name,location,crop,quantity,quality,harvest_date').limit(20),
     supabase.from('buyers').select('id,name,location,crop,quantity_required,quality,delivery_days,status').limit(20),
@@ -103,7 +101,7 @@ export async function POST(request: Request) {
         input,
         system_instruction: SYSTEM_PROMPT,
         store: false,
-        generation_config: { temperature: 0.4, max_tokens: 500 },
+        generation_config: { temperature: 0.4, max_output_tokens: 500 },
       }),
       cache: 'no-store',
     });
