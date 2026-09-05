@@ -2,7 +2,6 @@ package ai.farmplug.app
 
 import android.graphics.Color
 import android.os.Bundle
-import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
@@ -14,8 +13,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Keep the web app below Android's status/navigation areas instead of drawing
-        // edge-to-edge over system UI on newer Android versions.
+        // Keep the app content below Android system bars.
         WindowCompat.setDecorFitsSystemWindows(window, true)
         window.statusBarColor = Color.rgb(22, 101, 52)
         window.navigationBarColor = Color.WHITE
@@ -33,7 +31,9 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        web.loadUrl("https://farmplugaisxd.vercel.app/?app=farmer")
+        // Professional separation: Android opens the dedicated V2 app route.
+        // The normal website root remains the original FarmPlug AI website.
+        web.loadUrl("https://farmplugaisxd.vercel.app/app-v2")
         setContentView(web)
     }
 }
