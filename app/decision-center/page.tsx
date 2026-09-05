@@ -18,14 +18,35 @@ export default function DecisionCenter() {
   const [error, setError] = useState('');
 
   async function run() {
-    setLoading(true); setError('');
+    const quantityKg = Number(qty);
+    if (!crop.trim()) {
+      setError('Crop is required.');
+      setResult(null);
+      return;
+    }
+    if (!Number.isFinite(quantityKg) || quantityKg <= 0) {
+      setError('Enter a valid quantity greater than 0 kg.');
+      setResult(null);
+      return;
+    }
+
+    setLoading(true);
+    setError('');
     try {
-      const response = await fetch('/api/decision', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ crop, quantityKg: qty, location, quality, harvestDate, storage }) });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Analysis failed');
+      const response = await fetch('/api/decision', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ crop: crop.trim(), quantityKg, location: location.trim(), quality, harvestDate, storage }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || `Decision service returned ${response.status}`);
       setResult(data.result);
-    } catch (e) { setError(e instanceof Error ? e.message : 'Analysis failed'); setResult(null); }
-    finally { setLoading(false); }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Analysis failed');
+      setResult(null);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return <main className="pageShell"><header className="mobilePageHead"><Link href="/" className="back"><ArrowLeft size={18}/></Link><div><b>FarmPlug AI</b><span>Decision Center</span></div><Sparkles size={20}/></header>
