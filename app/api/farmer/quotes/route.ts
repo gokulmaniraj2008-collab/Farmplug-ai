@@ -36,6 +36,7 @@ export async function GET(request: NextRequest) {
     Promise.all(buyerIds.map(id => c.admin.auth.admin.getUserById(id))).then(results => ({ data: results.map(r => r.data.user).filter(Boolean), error: results.find(r => r.error)?.error ?? null }))
   ]);
   if (reqResult.error) return NextResponse.json({ error: reqResult.error.message }, { status: 500 });
+  if (buyerResult.error) return NextResponse.json({ error: buyerResult.error.message }, { status: 500 });
 
   const reqMap = new Map((reqResult.data ?? []).map(x => [x.id, x]));
   const buyerMap = new Map((buyerResult.data ?? []).map(x => [x.id, x]));
@@ -55,14 +56,42 @@ export async function PATCH(request: NextRequest) {
   const body = await request.json().catch(() => null);
   const id = String(body?.id || ''); const status = String(body?.status || '');
   if (!id || !['accepted', 'rejected', 'pending'].includes(status)) return NextResponse.json({ error: 'Valid request id and status are required.' }, { status: 400 });
-  const { data: quote, error: quoteError } = await c.admin.from('farmplug_quote_requests').select('id,supply_listing_id').eq('id', id).maybeSingle();
+
+  const { data: quote, error: quoteError } = await c.admin.from('farmplug_quote_requests').select('id,supply_listing_id,status').eq('id', id).maybeSingle();
   if (quoteError) return NextResponse.json({ error: quoteError.message }, { status: 500 });
   if (!quote) return NextResponse.json({ error: 'Buyer request not found.' }, { status: 404 });
   const { data: listing } = await c.admin.from('farmplug_supply_listings').select('id,status').eq('id', quote.supply_listing_id).eq('created_by', user.id).maybeSingle();
   if (!listing) return NextResponse.json({ error: 'You do not own this supply listing.' }, { status: 403 });
-  const { data, error } = await c.admin.from('farmplug_quote_requests').update({ status }).eq('id', id).select('id,status').single();
+
+  if (status === 'accepted') {
+    if (quote.status === 'accepted') return NextResponse.json({ request: { id: quote.id, status: 'accepted' }, alreadyAccepted: true });
+    if (listing.status !== 'available') return NextResponse.json({ error: 'This supply listing is already reserved or sold. Accept the active buyer request only after releasing it.' }, { status: 409 });
+
+    // Reserve first with a conditional update so only one buyer request can win the listing.
+    const { data: reserved, error: reserveError } = await c.admin.from('farmplug_supply_listings').update({ status: 'reserved' }).eq('id', listing.id).eq('created_by', user.id).eq('status', 'available').select('id').maybeSingle();
+    if (reserveError) return NextResponse.json({ error: reserveError.message }, { status: 500 });
+    if (!reserved) return NextResponse.json({ error: 'This supply listing was just reserved by another request. Refresh the page and review the latest status.' }, { status: 409 });
+
+    const { data, error } = await c.admin.from('farmplug_quote_requests').update({ status: 'accepted' }).eq('id', id).eq('status', 'pending').select('id,status').maybeSingle();
+    if (error) {
+      await c.admin.from('farmplug_supply_listings').update({ status: 'available' }).eq('id', listing.id).eq('created_by', user.id).eq('status', 'reserved');
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    if (!data) {
+      await c.admin.from('farmplug_supply_listings').update({ status: 'available' }).eq('id', listing.id).eq('created_by', user.id).eq('status', 'reserved');
+      return NextResponse.json({ error: 'This request is no longer pending. Refresh and try again.' }, { status: 409 });
+    }
+    return NextResponse.json({ request: data });
+  }
+
+  const { data, error } = await c.admin.from('farmplug_quote_requests').update({ status }).eq('id', id).eq('supply_listing_id', listing.id).select('id,status').maybeSingle();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  if (status === 'accepted') await c.admin.from('farmplug_supply_listings').update({ status: 'reserved' }).eq('id', listing.id).eq('created_by', user.id);
-  if (status === 'rejected' || status === 'pending') await c.admin.from('farmplug_supply_listings').update({ status: status === 'rejected' ? 'available' : listing.status }).eq('id', listing.id).eq('created_by', user.id);
+  if (!data) return NextResponse.json({ error: 'This request could not be updated. Refresh and try again.' }, { status: 409 });
+
+  // Rejecting one request must never release a listing that is reserved for another accepted request.
+  if (status === 'rejected') {
+    const { data: accepted } = await c.admin.from('farmplug_quote_requests').select('id').eq('supply_listing_id', listing.id).eq('status', 'accepted').limit(1).maybeSingle();
+    if (!accepted) await c.admin.from('farmplug_supply_listings').update({ status: 'available' }).eq('id', listing.id).eq('created_by', user.id).eq('status', 'reserved');
+  }
   return NextResponse.json({ request: data });
 }
