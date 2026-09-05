@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 
+// Official mobile architecture: Next.js Farmer PWA, with Flutter archived.
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'FarmPlug AI Farmer',
