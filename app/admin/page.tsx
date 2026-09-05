@@ -12,13 +12,13 @@ const stats = [
   ['Active buyers', '34', '8 high-priority requirements', Store],
   ['Supply under coordination', '42.6 t', 'Demo + pilot intake', PackageCheck],
   ['AI decisions generated', '286', 'Prototype signals', BarChart3],
-];
+] as const;
 const activities = [
   ['Buyer requirement created', 'Processor C • Tomato • 6,000 kg', '2 min ago'],
   ['FPO supply aggregated', 'Salem FPO • 5,000 kg • Grade A', '18 min ago'],
   ['AI Decision Center run', 'Coimbatore • Mango • 2,000 kg', '41 min ago'],
   ['Route plan generated', 'Chennai collection cluster', '1 hr ago'],
-];
+] as const;
 const controls = ['Marketplace listings', 'Buyer verification', 'FPO onboarding', 'AI demo monitoring', 'Pilot KPI tracking', 'System activity logs'];
 
 export default function AdminPage() {
@@ -51,7 +51,7 @@ export default function AdminPage() {
     <section className="adminContent">
       <header className="adminTop"><div><div className="adminEyebrow"><ShieldCheck size={14}/> SECURE OPERATIONS</div><h1>Admin Control Center</h1><p>Platform overview for FarmPlug AI operations and SIH pilot demonstration.</p></div><div className="adminUser"><span className="adminAvatar"><UserRoundCog size={18}/></span><div><b>Administrator</b><small>{userEmail}</small></div><button onClick={logout} aria-label="Sign out"><LogOut size={16}/></button></div></header>
       <div className="adminNotice"><CheckCircle2 size={18}/><div><b>System status: operational</b><span>AI outputs remain clearly marked as prototype demonstration signals.</span></div></div>
-      <div className="adminStats">{stats.map(([label,value,note,Icon])=>{const I=Icon as typeof Activity;return <div className="adminStat" key={String(label)}><I size={20}/><small>{label}</small><strong>{value}</strong><span>{note}</span></div>})}</div>
+      <div className="adminStats">{stats.map(([label,value,note,Icon])=><div className="adminStat" key={label}><Icon size={20}/><small>{label}</small><strong>{value}</strong><span>{note}</span></div>)}</div>
       <div className="adminGrid">
         <section className="adminPanel"><div className="adminPanelHead"><div><small>LIVE ACTIVITY</small><h2>Recent operations</h2></div><span className="adminLive"><Activity size={13}/> LIVE</span></div>{activities.map(([title,detail,time])=><div className="adminActivity" key={title}><span className="activityDot"/><div><b>{title}</b><p>{detail}</p></div><time>{time}</time></div>)}</section>
         <section className="adminPanel"><div className="adminPanelHead"><div><small>ADMIN CONTROLS</small><h2>Platform modules</h2></div></div>{controls.map(x=><button className="adminControl" key={x}><span>{x}</span><span>›</span></button>)}</section>
