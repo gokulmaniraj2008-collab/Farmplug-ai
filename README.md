@@ -16,18 +16,22 @@ FarmPlug AI is a farmer-first AgriTech platform designed to connect farm intelli
 
 ## 📱 Farmer App
 
-The Farmer experience is designed mobile-first for Android users.
+The Farmer experience is designed **mobile-first** for Android users, with an app-style navigation and touch-friendly layout.
 
 - Farmer-focused interface
+- Mobile-first responsive UI
+- App-style bottom navigation
 - Produce listing and supply information
 - AI-assisted decision support
 - Buyer matching
 - Quote and order workflow
 - Order tracking and logistics planning
 - Connected to the same FarmPlug backend
-- APK distribution is being prepared through the project release workflow
+- Dedicated **Download App** page
+- Published Android APK through the project release workflow
+- Android WebView respects the device status and navigation bars instead of rendering edge-to-edge/full-screen
 
-> **APK status:** The download page is the official entry point. The APK link should only be considered available after a GitHub release asset named `FarmPlug-AI.apk` has been successfully published.
+> **APK status:** A signed `FarmPlug-AI.apk` is published through the `apk-latest` release workflow. The FarmPlug download page is the user-facing entry point.
 
 ## 🚀 Core Platform
 
@@ -44,7 +48,7 @@ FarmPlug AI brings the following workflow together:
 - 🧾 **Quotes & Orders** — structured quote-to-order workflow
 - 🚚 **Logistics Planning** — route and delivery planning using external routing services
 - 💬 **AI Assistant** — Gemini-powered prototype assistant
-- 📱 **Mobile Farmer Experience** — Android-focused Farmer app
+- 📱 **Mobile Farmer Experience** — Android-focused Farmer app and mobile-first web experience
 
 ## 🛠️ Technology Stack
 
@@ -54,7 +58,7 @@ FarmPlug AI brings the following workflow together:
 - **AI:** Gemini-powered prototype assistant
 - **Mobile:** Android Farmer app / mobile-first web experience
 - **Deployment:** Vercel
-- **Version Control & CI:** GitHub
+- **Version Control & CI:** GitHub Actions
 
 ## 🏗️ Architecture
 
@@ -81,7 +85,19 @@ Farmer / Buyer / Admin
  PostgreSQL  Services
 ```
 
-The legacy Flutter/mobile implementation is not the active production architecture.
+The Android app is a lightweight WebView wrapper around the Farmer experience. The legacy Flutter/mobile implementation is not the active production architecture.
+
+## 🎨 Mobile UI / UX
+
+The current interface is optimized for phone use:
+
+- Responsive mobile-first layout
+- Touch-friendly controls
+- Fixed mobile bottom navigation
+- Slide-out navigation drawer
+- FarmPlug branded app/web icon
+- Dedicated Download App experience
+- Android system-bar safe-area handling to prevent content from being hidden behind the status/navigation bars
 
 ## 🔐 Security & Prototype Boundaries
 
@@ -121,6 +137,4 @@ FarmPlug AI is an **SIH 2026 prototype**. AI outputs, buyer matches, demand scor
 
 **FarmPlug AI — From Farm Intelligence to the Right Market.**
 
-<!-- Vercel deployment trigger: corrected manifest is ready. -->
-<!-- Vercel production rebuild trigger: 2026-09-05 -->
-<!-- APK workflow fix trigger: 2026-09-05 -->
+<!-- README updated for current mobile UI, Android APK, and system-bar handling. -->
