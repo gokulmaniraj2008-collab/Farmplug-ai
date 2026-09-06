@@ -11,8 +11,8 @@ android {
         applicationId = "ai.farmplug.app"
         minSdk = 23
         targetSdk = 35
-        versionCode = (project.findProperty("versionCode") as String?)?.toInt() ?: 2
-        versionName = (project.findProperty("versionName") as String?) ?: "1.1.0"
+        versionCode = (project.findProperty("versionCode") as String?)?.toInt() ?: 3
+        versionName = (project.findProperty("versionName") as String?) ?: "2.0.0"
     }
 
     compileOptions {
