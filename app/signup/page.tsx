@@ -2,97 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { ArrowRight, Leaf, LockKeyhole } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
-function friendlyAuthError(message: string) {
-  const normalized = message.toLowerCase();
-  if (normalized.includes("rate limit")) {
-    return "Too many signup attempts right now. Wait a few minutes and try again.";
-  }
-  if (normalized.includes("already registered") || normalized.includes("already exists")) {
-    return "An account with this email already exists. Log in instead.";
-  }
-  if (normalized.includes("invalid") && normalized.includes("email")) {
-    return "Enter a valid email address.";
-  }
-  return message;
-}
+function friendlyAuthError(message: string) { const n=message.toLowerCase(); if(n.includes("rate limit")) return "Too many signup attempts right now. Wait a few minutes and try again."; if(n.includes("already registered")||n.includes("already exists")) return "An account with this email already exists. Log in instead."; if(n.includes("invalid")&&n.includes("email")) return "Enter a valid email address."; return message; }
 
-export default function SignUpPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [accountExists, setAccountExists] = useState(false);
-
-  async function createAccount(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setMessage("");
-    setAccountExists(false);
-    if (password.length < 6) return setMessage("Password must be at least 6 characters.");
-    if (password !== confirmPassword) return setMessage("Passwords do not match.");
-
-    setLoading(true);
-    const supabase = createClient();
-    const { data, error } = await supabase.auth.signUp({
-      email: email.trim(),
-      password,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
-    });
-    if (error) {
-      const normalized = error.message.toLowerCase();
-      setAccountExists(normalized.includes("already registered") || normalized.includes("already exists"));
-      setMessage(friendlyAuthError(error.message));
-      setLoading(false);
-      return;
-    }
-
-    if (!data.session || !data.user) {
-      setMessage("Account creation did not start a session. Please try signing in directly, or try creating the account again.");
-      setLoading(false);
-      return;
-    }
-
-    const { error: profileError } = await supabase.from("profiles").upsert({
-      id: data.user.id,
-      email: data.user.email,
-      auth_provider: "email",
-      role: "user",
-      farm_role: "farmer",
-      profile_complete: false,
-    }, { onConflict: "id" });
-    if (profileError) {
-      setMessage(`Account created, but profile setup failed: ${profileError.message}`);
-      setLoading(false);
-      return;
-    }
-
-    window.location.href = "/onboarding/role-selection";
-  }
-
-  return (
-    <main className="flex min-h-screen items-center justify-center bg-white px-6 py-10">
-      <div className="w-full max-w-sm">
-        <div className="rounded-2xl border border-gray-200 bg-white p-7 shadow-sm">
-          <Link href="/" className="text-sm font-bold tracking-tight text-[#1B4332]">FARMPLUG AI</Link>
-          <h1 className="mt-8 text-2xl font-bold text-gray-900">Create account</h1>
-          <p className="mt-2 text-sm text-[#5F6B63]">Join FarmPlug AI with your email and password.</p>
-          {message && (
-            <div className="mt-4 rounded-lg bg-gray-100 p-3 text-sm text-gray-700" role="alert">
-              <span>{message}</span>
-              {accountExists && <span>{" "}<Link href="/signin" className="font-semibold text-[#1B4332] hover:underline">Log in</Link></span>}
-            </div>
-          )}
-          <form onSubmit={createAccount} className="mt-6 space-y-4">
-            <label className="block"><span className="mb-1.5 block text-sm font-medium text-gray-700">Email</span><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" placeholder="you@example.com" className="w-full rounded-lg border border-gray-300 px-3 py-3 text-sm outline-none focus:border-[#1B4332]" /></label>
-            <label className="block"><span className="mb-1.5 block text-sm font-medium text-gray-700">Password</span><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} autoComplete="new-password" placeholder="At least 6 characters" className="w-full rounded-lg border border-gray-300 px-3 py-3 text-sm outline-none focus:border-[#1B4332]" /></label>
-            <label className="block"><span className="mb-1.5 block text-sm font-medium text-gray-700">Confirm password</span><input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required minLength={6} autoComplete="new-password" placeholder="Re-enter your password" className="w-full rounded-lg border border-gray-300 px-3 py-3 text-sm outline-none focus:border-[#1B4332]" /></label>
-            <button type="submit" disabled={loading} className="w-full rounded-lg bg-[#1B4332] px-4 py-3 text-sm font-semibold text-white disabled:opacity-50">{loading ? "Creating account..." : "Create account"}</button>
-          </form>
-          <p className="mt-6 text-center text-sm text-gray-600">Already have an account? <Link href="/signin" className="font-semibold text-[#1B4332] hover:underline">Log in</Link></p>
-        </div>
-      </div>
-    </main>
-  );
+export default function SignUpPage(){
+ const [email,setEmail]=useState(""); const [password,setPassword]=useState(""); const [confirmPassword,setConfirmPassword]=useState(""); const [loading,setLoading]=useState(false); const [message,setMessage]=useState(""); const [accountExists,setAccountExists]=useState(false);
+ async function createAccount(event:React.FormEvent<HTMLFormElement>){event.preventDefault();setMessage("");setAccountExists(false);if(password.length<6)return setMessage("Password must be at least 6 characters.");if(password!==confirmPassword)return setMessage("Passwords do not match.");setLoading(true);const supabase=createClient();const {data,error}=await supabase.auth.signUp({email:email.trim(),password,options:{emailRedirectTo:`${window.location.origin}/auth/callback`}});if(error){const n=error.message.toLowerCase();setAccountExists(n.includes("already registered")||n.includes("already exists"));setMessage(friendlyAuthError(error.message));setLoading(false);return;}if(!data.session||!data.user){setMessage("Account creation did not start a session. Please try signing in directly, or try again.");setLoading(false);return;}const {error:profileError}=await supabase.from("profiles").upsert({id:data.user.id,email:data.user.email,auth_provider:"email",role:"user",farm_role:"farmer",profile_complete:false},{onConflict:"id"});if(profileError){setMessage(`Account created, but profile setup failed: ${profileError.message}`);setLoading(false);return;}window.location.href="/onboarding/role-selection";}
+ return <main className="min-h-screen bg-[#07130D] px-4 py-6 text-white sm:px-6 sm:py-10"><div className="mx-auto grid min-h-[calc(100vh-3rem)] max-w-5xl items-center gap-8 lg:grid-cols-[1fr_420px]"><section className="hidden rounded-[2rem] border border-white/10 bg-[#0E2019] p-10 lg:block"><Link href="/" className="inline-flex items-center gap-2 text-sm font-bold"><span className="grid size-9 place-items-center rounded-xl bg-[#E3B341] text-[#07130D]"><Leaf size={19}/></span>FarmPlug AI</Link><h1 className="mt-20 max-w-xl text-5xl font-semibold tracking-tight">Start with your farm. We’ll help you find the next best move.</h1><p className="mt-5 max-w-lg text-sm leading-7 text-white/60">Create one workspace for your farm, crop intelligence, market opportunities and orders.</p></section><section className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur-xl sm:p-8"><Link href="/" className="text-sm font-bold text-[#E3B341] lg:hidden">FarmPlug AI</Link><h2 className="mt-5 text-3xl font-semibold tracking-tight">Create your account</h2><p className="mt-2 text-sm leading-6 text-white/60">Set up your workspace in a few simple steps.</p>{message&&<div className="mt-5 rounded-xl border border-white/10 bg-white/[0.06] p-3 text-sm text-white/80" role="alert">{message}{accountExists&&<> <Link href="/signin" className="font-semibold text-[#7FD79B] hover:underline">Log in</Link></>}</div>}<form onSubmit={createAccount} className="mt-6 space-y-4"><label className="block"><span className="mb-2 block text-sm font-medium text-white/80">Email</span><input type="email" value={email} onChange={e=>setEmail(e.target.value)} required autoComplete="email" placeholder="you@example.com" className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3.5 text-sm text-white outline-none placeholder:text-white/35 focus:border-[#7FD79B] focus:ring-2 focus:ring-[#7FD79B]/20"/></label><label className="block"><span className="mb-2 block text-sm font-medium text-white/80">Password</span><input type="password" value={password} onChange={e=>setPassword(e.target.value)} required minLength={6} autoComplete="new-password" placeholder="At least 6 characters" className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3.5 text-sm text-white outline-none placeholder:text-white/35 focus:border-[#7FD79B] focus:ring-2 focus:ring-[#7FD79B]/20"/></label><label className="block"><span className="mb-2 block text-sm font-medium text-white/80">Confirm password</span><input type="password" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} required minLength={6} autoComplete="new-password" placeholder="Re-enter your password" className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3.5 text-sm text-white outline-none placeholder:text-white/35 focus:border-[#7FD79B] focus:ring-2 focus:ring-[#7FD79B]/20"/></label><button type="submit" disabled={loading} className="group flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#E3B341] px-4 text-sm font-bold text-[#07130D] disabled:opacity-50">{loading?"Creating account…":"Create account"}<ArrowRight size={17}/></button></form><div className="mt-5 flex items-center gap-2 text-xs text-white/45"><LockKeyhole size={14}/> Your password is handled by the authentication provider.</div><p className="mt-6 text-center text-sm text-white/60">Already have an account? <Link href="/signin" className="font-semibold text-[#7FD79B] hover:underline">Sign in</Link></p></section></div></main>;
 }
