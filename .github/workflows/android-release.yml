@@ -17,12 +17,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Check Android project
+      - name: Check canonical Android project
         run: |
           test -f android/settings.gradle.kts
           test -f android/build.gradle.kts
           test -f android/app/build.gradle.kts
           test -f android/app/src/main/AndroidManifest.xml
+          test ! -e android/settings.gradle
+          test ! -e android/build.gradle
+          test ! -e android/app/build.gradle
+          test ! -e android/app/src/main/java/com/farmplug/ai/MainActivity.java
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -38,21 +42,18 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      # Debug APKs are automatically signed by Android Gradle Plugin and are
-      # directly installable on Android devices. A production release keystore
-      # can be introduced later through GitHub Actions secrets.
-      - name: Build installable signed APK
+      - name: Build signed installable APK
         working-directory: android
-        run: gradle assembleDebug --stacktrace --no-daemon
+        run: gradle clean assembleDebug --stacktrace --no-daemon
 
-      - name: Validate APK
+      - name: Validate APK integrity, signature and package
         run: |
           APK="android/app/build/outputs/apk/debug/app-debug.apk"
           test -f "$APK"
           test -s "$APK"
-          file "$APK"
           unzip -t "$APK" >/dev/null
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -F "package: name='com.farmplug.farmer' versionName='1.1.0'"
 
       - name: Rename APK
         run: cp android/app/build/outputs/apk/debug/app-debug.apk FarmPlug-Farmer.apk
@@ -68,7 +69,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="v1.1.${GITHUB_RUN_NUMBER}"
+          TAG="v1.1.0-build.${GITHUB_RUN_NUMBER}"
           gh release create "$TAG" "FarmPlug-Farmer.apk#FarmPlug-Farmer-${TAG}.apk" \
             --repo "$GITHUB_REPOSITORY" \
             --title "FarmPlug Farmer Android ${TAG}" \
