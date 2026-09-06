@@ -37,10 +37,17 @@ jobs:
           flutter create --platforms=android --org com.farmplug --project-name farmer build/farmplug_flutter
           cp farmer_app/pubspec.yaml build/farmplug_flutter/pubspec.yaml
           cp farmer_app/lib/main_complete.dart build/farmplug_flutter/lib/main.dart
+          # FarmPlug is intentionally light-mode only. Normalize legacy dark tokens before build.
+          sed -i \
+            -e 's/const bg=Color(0xFF0B0B0B), surface=Color(0xFF171817), surface2=Color(0xFF222422), green=Color(0xFF2E9E4F), greenDark=Color(0xFF1E7A3D), gold=Color(0xFFD6AD45), text=Color(0xFFF5F5F0), muted=Color(0xFFA7ACA7), warning=Color(0xFFE1A83A), danger=Color(0xFFE05252);/const bg=Color(0xFFF7FAF7), surface=Color(0xFFFFFFFF), surface2=Color(0xFFF1F6F1), green=Color(0xFF2E9E4F), greenDark=Color(0xFF1E7A3D), gold=Color(0xFFC99A2E), text=Color(0xFF172117), muted=Color(0xFF647064), warning=Color(0xFFB77A16), danger=Color(0xFFC94343);/' \
+            -e 's/brightness:Brightness.dark/brightness:Brightness.light/' \
+            -e 's/Color(0xFF343734)/Color(0xFFDCE6DC)/g' \
+            -e 's/color: #fff/color: #FFFFFF/g' \
+            build/farmplug_flutter/lib/main.dart
           cd build/farmplug_flutter
           flutter --version
           flutter pub get
-      - name: Verify Dart source
+      - name: Verify Dart source and light theme
         run: |
           test -f farmer_app/pubspec.yaml
           test -f farmer_app/lib/main_complete.dart
@@ -50,6 +57,10 @@ jobs:
           grep -F "Notifications" farmer_app/lib/main_complete.dart
           grep -F "SettingsPage" farmer_app/lib/main_complete.dart
           grep -F "url_launcher" farmer_app/pubspec.yaml
+          grep -F "brightness:Brightness.light" build/farmplug_flutter/lib/main.dart
+          grep -F "Color(0xFFF7FAF7)" build/farmplug_flutter/lib/main.dart
+          ! grep -F "brightness:Brightness.dark" build/farmplug_flutter/lib/main.dart
+          ! grep -F "Color(0xFF0B0B0B)" build/farmplug_flutter/lib/main.dart
       - name: Build release APK
         working-directory: build/farmplug_flutter
         run: flutter build apk --release --no-shrink
