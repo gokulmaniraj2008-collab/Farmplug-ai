@@ -1,118 +1,43 @@
-// File location: app/onboarding/complete-profile/page.tsx
 "use client";
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-type Role = "farmer" | "buyer" | "fpo" | "admin" | null;
-
-const WORKSPACE_BY_ROLE: Record<string, string> = {
-  farmer: "/dashboard/farmer",
-  buyer: "/dashboard/buyer",
-  fpo: "/dashboard/fpo",
-  admin: "/dashboard/admin",
-};
-
 export default function CompleteProfilePage() {
   const router = useRouter();
-  const [role, setRole] = useState<Role>(null);
-  const [fullName, setFullName] = useState("");
+  const [role, setRole] = useState<string | null>(null);
   const [phone, setPhone] = useState("");
-  const [locationText, setLocationText] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [location, setLocation] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    async function loadProfile() {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        router.replace("/signin?error=session_expired");
-        return;
-      }
-
-      const { data: profile, error: fetchError } = await supabase
-        .from("profiles")
-        .select("role, full_name")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (fetchError || !profile?.role) {
-        router.replace("/onboarding/role-selection");
-        return;
-      }
-
-      setRole(profile.role);
-      setFullName(profile.full_name ?? "");
-      setLoading(false);
-    }
-    loadProfile();
-  }, [router]);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setSubmitting(true);
-    setError(null);
-
+  useEffect(() => { (async () => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { router.replace("/signin"); return; }
+    const { data } = await supabase.from("profiles").select("farm_role, role, phone, location_text, profile_complete").eq("id", user.id).maybeSingle();
+    if (!data?.farm_role && data?.role !== "admin") { router.replace("/onboarding/role-selection"); return; }
+    if (data.profile_complete) router.replace(data.role === "admin" ? "/dashboard/admin" : `/dashboard/${data.farm_role}`);
+    setRole(data.role === "admin" ? "admin" : data.farm_role);
+    setPhone(data.phone ?? ""); setLocation(data.location_text ?? "");
+  })(); }, [router]);
 
-    if (!user || !role) {
-      router.replace("/signin?error=session_expired");
-      return;
-    }
-
-    const { error: updateError } = await supabase
-      .from("profiles")
-      .update({
-        full_name: fullName,
-        phone,
-        location_text: locationText,
-        profile_complete: true,
-      })
-      .eq("id", user.id);
-
-    if (updateError) {
-      setError("Couldn't save your profile. Please try again.");
-      setSubmitting(false);
-      return;
-    }
-
-    router.replace(WORKSPACE_BY_ROLE[role] ?? "/");
+  async function submit(e: React.FormEvent) {
+    e.preventDefault(); setSaving(true); setError("");
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user || !role) { router.replace("/signin"); return; }
+    const { error } = await supabase.from("profiles").update({ phone, location_text: location, profile_complete: true }).eq("id", user.id);
+    if (error) { setError(error.message); setSaving(false); return; }
+    router.replace(role === "admin" ? "/dashboard/admin" : `/dashboard/${role}`);
   }
-
-  if (loading) {
-    return <div className="flex min-h-screen items-center justify-center text-gray-500">Loading your profile...</div>;
-  }
-
-  return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
-      <h1 className="text-2xl font-semibold text-gray-900">Complete your profile</h1>
-      <p className="mt-1 text-sm text-gray-500">
-        Signed up as <span className="font-medium capitalize">{role === "fpo" ? "FPO / Aggregator" : role}</span>.
-      </p>
-
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Full name</label>
-          <input required value={fullName} onChange={(e) => setFullName(e.target.value)} className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Phone number</label>
-          <input required value={phone} onChange={(e) => setPhone(e.target.value)} className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">{role === "buyer" ? "Business location" : "Village / District"}</label>
-          <input required value={locationText} onChange={(e) => setLocationText(e.target.value)} className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2" />
-        </div>
-        {error && <p className="text-sm text-red-600" role="alert">{error}</p>}
-        <button type="submit" disabled={submitting} className="w-full rounded-md bg-green-600 px-4 py-2.5 font-medium text-white disabled:opacity-50">
-          {submitting ? "Saving..." : "Finish setup"}
-        </button>
-      </form>
-    </div>
-  );
+  return <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center p-6">
+    <h1 className="text-2xl font-bold">Complete your profile</h1><p className="mt-2 text-sm text-gray-500">Workspace: <b className="capitalize">{role ?? "…"}</b></p>
+    <form onSubmit={submit} className="mt-6 space-y-4">
+      <input required placeholder="Phone number" value={phone} onChange={e => setPhone(e.target.value)} className="w-full rounded-xl border px-3 py-3" />
+      <input required placeholder="Village / District / Business location" value={location} onChange={e => setLocation(e.target.value)} className="w-full rounded-xl border px-3 py-3" />
+      {error && <p className="text-sm text-red-600">{error}</p>}
+      <button disabled={saving} className="w-full rounded-xl bg-green-600 px-4 py-3 font-semibold text-white disabled:opacity-50">{saving ? "Saving…" : "Finish setup"}</button>
+    </form>
+  </main>;
 }
