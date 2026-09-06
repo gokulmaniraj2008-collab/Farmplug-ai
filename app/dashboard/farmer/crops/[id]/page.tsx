@@ -1,0 +1,17 @@
+// File location: app/dashboard/farmer/crops/[id]/page.tsx
+"use client";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+interface Crop { id: string; crop_name: string; variety: string | null; expected_harvest_date: string | null; crop_calendar_notes: string | null; health_status: string; health_notes: string | null; }
+const HEALTH_OPTIONS = [{ value: "unknown", label: "Not assessed" }, { value: "healthy", label: "Healthy" }, { value: "attention", label: "Needs attention" }, { value: "at_risk", label: "At risk" }];
+export default function CropDetailPage() {
+  const params = useParams(); const cropId = params?.id as string;
+  const [crop, setCrop] = useState<Crop | null>(null); const [loading, setLoading] = useState(true); const [error, setError] = useState<string | null>(null); const [savingHealth, setSavingHealth] = useState(false); const [healthNotes, setHealthNotes] = useState("");
+  useEffect(() => { if (cropId) load(); }, [cropId]);
+  async function load() { setLoading(true); const supabase = createClient(); const { data, error: fetchError } = await supabase.from("crops").select("id, crop_name, variety, expected_harvest_date, crop_calendar_notes, health_status, health_notes").eq("id", cropId).maybeSingle(); if (fetchError || !data) { setError("Couldn't load this crop."); setLoading(false); return; } setCrop(data); setHealthNotes(data.health_notes ?? ""); setLoading(false); }
+  async function updateHealth(status: string) { setSavingHealth(true); const supabase = createClient(); const { error: updateError } = await supabase.from("crops").update({ health_status: status, health_notes: healthNotes || null }).eq("id", cropId); if (!updateError) setCrop((prev) => prev ? { ...prev, health_status: status, health_notes: healthNotes || null } : prev); setSavingHealth(false); }
+  if (loading) return <div className="p-6 text-sm text-gray-500">Loading crop...</div>;
+  if (error || !crop) return <div className="p-6 text-sm text-[#B42318]" role="alert">{error ?? "Crop not found."}</div>;
+  return <div className="mx-auto max-w-2xl p-6"><h1 className="text-xl font-semibold text-[#17211B]">{crop.crop_name}{crop.variety ? ` · ${crop.variety}` : ""}</h1><p className="mt-1 text-sm text-[#5F6B63]">{crop.expected_harvest_date ? `Expected harvest: ${crop.expected_harvest_date}` : "Harvest date not set"}</p>{crop.crop_calendar_notes && <div className="mt-4 rounded-md border border-gray-200 p-3"><p className="text-xs font-medium text-[#5F6B63]">Crop calendar notes</p><p className="mt-1 text-sm text-[#17211B]">{crop.crop_calendar_notes}</p></div>}<div className="mt-6 rounded-md border border-gray-200 p-4"><h2 className="text-sm font-semibold text-[#17211B]">Crop Health</h2><p className="mt-1 text-xs text-[#5F6B63]">Recorded observations only — this is not an automated disease diagnosis.</p><div className="mt-3 flex flex-wrap gap-2">{HEALTH_OPTIONS.map((opt) => <button key={opt.value} onClick={() => updateHealth(opt.value)} disabled={savingHealth} className={`rounded-full px-3 py-1.5 text-xs font-medium ${crop.health_status === opt.value ? "bg-[#1B4332] text-white" : "border border-gray-300 text-[#5F6B63]"}`}>{opt.label}</button>)}</div><textarea placeholder="Notes / observations (optional)" value={healthNotes} onChange={(e) => setHealthNotes(e.target.value)} onBlur={() => updateHealth(crop.health_status)} className="mt-3 w-full rounded-md border border-gray-300 px-3 py-2 text-sm" rows={3} /></div></div>;
+}
