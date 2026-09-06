@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 const farmPlugUrl = 'https://farmplugaisxd.vercel.app';
-const forest = Color(0xFF0F2A1E);
-const green = Color(0xFF1B4332);
-const gold = Color(0xFFC9A227);
-const cream = Color(0xFFF7F8F2);
-const muted = Color(0xFF5F6B63);
+const bg = Color(0xFF0B0B0B);
+const surface = Color(0xFF171817);
+const surface2 = Color(0xFF222422);
+const green = Color(0xFF2E9E4F);
+const greenDark = Color(0xFF1E7A3D);
+const gold = Color(0xFFD6AD45);
+const text = Color(0xFFF5F5F0);
+const muted = Color(0xFFA7ACA7);
+const danger = Color(0xFFE05252);
+const warning = Color(0xFFE1A83A);
 
 void main() => runApp(const FarmPlugApp());
 
@@ -17,201 +22,80 @@ class FarmPlugApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'FarmPlug AI',
-      theme: ThemeData(useMaterial3: true, scaffoldBackgroundColor: cream, colorScheme: ColorScheme.fromSeed(seedColor: green)),
+      theme: ThemeData(
+        useMaterial3: true,
+        scaffoldBackgroundColor: bg,
+        colorScheme: ColorScheme.fromSeed(seedColor: green, brightness: Brightness.dark),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true, fillColor: surface2,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFF343734))),
+          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: green, width: 1.5)),
+          labelStyle: const TextStyle(color: muted),
+        ),
+      ),
       home: const SplashPage(),
     );
   }
 }
 
-Future<void> openWebsite(BuildContext context, [String path = '']) async {
+Future<void> openWebsite(BuildContext context, [String path = '/signin']) async {
   final ok = await launchUrl(Uri.parse('$farmPlugUrl$path'), mode: LaunchMode.externalApplication);
-  if (!ok && context.mounted) {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Unable to open FarmPlug')));
-  }
+  if (!ok && context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Unable to open FarmPlug')));
 }
 
-class SplashPage extends StatefulWidget {
-  const SplashPage({super.key});
-  @override State<SplashPage> createState() => _SplashState();
-}
-
+class SplashPage extends StatefulWidget { const SplashPage({super.key}); @override State<SplashPage> createState() => _SplashState(); }
 class _SplashState extends State<SplashPage> {
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(milliseconds: 1200), () {
-      if (mounted) Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const WelcomePage()));
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: forest,
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.eco_rounded, color: gold, size: 76),
-            SizedBox(height: 18),
-            Text('FARMPLUG AI', style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w900, letterSpacing: 1)),
-            SizedBox(height: 8),
-            Text('From Farm Intelligence to the Right Market.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white70, fontSize: 13)),
-            SizedBox(height: 24),
-            SizedBox(width: 28, height: 28, child: CircularProgressIndicator(strokeWidth: 2, color: gold)),
-          ],
-        ),
-      ),
-    );
-  }
+  @override void initState() { super.initState(); Future.delayed(const Duration(milliseconds: 1000), () { if (mounted) Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginPage())); }); }
+  @override Widget build(BuildContext context) => const Scaffold(backgroundColor: bg, body: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.eco_rounded, color: gold, size: 64), SizedBox(height: 16), Text('FarmPlug AI', style: TextStyle(color: text, fontSize: 30, fontWeight: FontWeight.w800)), SizedBox(height: 7), Text('Smart farming. Better decisions. Greater yields.', textAlign: TextAlign.center, style: TextStyle(color: muted, fontSize: 13)), SizedBox(height: 26), SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: green))]));
 }
 
-class WelcomePage extends StatelessWidget {
-  const WelcomePage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: forest,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(22),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Spacer(),
-              const Icon(Icons.agriculture_rounded, color: gold, size: 68),
-              const SizedBox(height: 20),
-              const Text('From Farm Intelligence\nto the Right Market.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 31, height: 1.08, fontWeight: FontWeight.w900)),
-              const SizedBox(height: 14),
-              const Text('One connected FarmPlug AI ecosystem for farmers, FPOs and buyers.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white70, height: 1.5)),
-              const SizedBox(height: 30),
-              const _GlassCard(child: Column(children: [_FlowRow(icon: Icons.eco_rounded, text: 'Farm data'), _FlowRow(icon: Icons.auto_graph_rounded, text: 'Market intelligence'), _FlowRow(icon: Icons.handshake_rounded, text: 'Buyer matching'), _FlowRow(icon: Icons.local_shipping_rounded, text: 'Order & logistics')])),
-              const SizedBox(height: 22),
-              FilledButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AppFlowPage())), child: const Text('Start FarmPlug', style: TextStyle(fontWeight: FontWeight.w800))),
-              const SizedBox(height: 10),
-              OutlinedButton(onPressed: () => openWebsite(context, '/signin'), style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white30)), child: const Text('Sign in / Create account')),
-              const SizedBox(height: 10),
-              TextButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DemoPage())), child: const Text('Try a Demo', style: TextStyle(color: gold, fontWeight: FontWeight.w800))),
-              const Spacer(),
-              const Text('DEMO DATA IS ALWAYS LABELLED', textAlign: TextAlign.center, style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 1)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
+  @override Widget build(BuildContext context) => AuthShell(title: 'Welcome back', subtitle: 'Sign in to manage your farm and orders.', child: Column(children: [const TextField(keyboardType: TextInputType.phone, decoration: InputDecoration(labelText: 'Phone number', prefixIcon: Icon(Icons.phone_outlined))), const SizedBox(height: 14), const TextField(obscureText: true, decoration: InputDecoration(labelText: 'Password', prefixIcon: Icon(Icons.lock_outline))), const SizedBox(height: 8), Align(alignment: Alignment.centerRight, child: TextButton(onPressed: () => openWebsite(context, '/forgot-password'), child: const Text('Forgot Password?'))), const SizedBox(height: 8), PrimaryButton(label: 'Login', onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomePage()))), const SizedBox(height: 14), TextButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SignupPage())), child: const Text('New to FarmPlug? Sign Up')), const SizedBox(height: 4), TextButton(onPressed: () => openWebsite(context), child: const Text('Continue with FarmPlug website'))]));
 }
 
-class _FlowRow extends StatelessWidget {
-  final IconData icon; final String text;
-  const _FlowRow({required this.icon, required this.text});
-  @override Widget build(BuildContext context) => Padding(padding: const EdgeInsets.symmetric(vertical: 7), child: Row(children: [Icon(icon, color: gold, size: 21), const SizedBox(width: 12), Expanded(child: Text(text, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700))), const Icon(Icons.arrow_forward_rounded, color: Colors.white38, size: 18)]));
+class SignupPage extends StatelessWidget {
+  const SignupPage({super.key});
+  @override Widget build(BuildContext context) => AuthShell(title: 'Create your account', subtitle: 'Set up your FarmPlug workspace in a few minutes.', child: Column(children: [const TextField(decoration: InputDecoration(labelText: 'Full name', prefixIcon: Icon(Icons.person_outline))), const SizedBox(height: 12), const TextField(keyboardType: TextInputType.phone, decoration: InputDecoration(labelText: 'Phone number', prefixIcon: Icon(Icons.phone_outlined))), const SizedBox(height: 12), const TextField(obscureText: true, decoration: InputDecoration(labelText: 'Password', prefixIcon: Icon(Icons.lock_outline))), const SizedBox(height: 12), const TextField(obscureText: true, decoration: InputDecoration(labelText: 'Confirm password', prefixIcon: Icon(Icons.lock_reset_outlined))), const SizedBox(height: 8), CheckboxListTile(value: true, onChanged: (_) {}, contentPadding: EdgeInsets.zero, controlAffinity: ListTileControlAffinity.leading, title: const Text('I agree to the Terms and Conditions', style: TextStyle(fontSize: 13))), const SizedBox(height: 10), PrimaryButton(label: 'Sign Up', onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomePage())))]));
 }
 
-class _GlassCard extends StatelessWidget {
-  final Widget child;
-  const _GlassCard({required this.child});
-  @override Widget build(BuildContext context) => Container(padding: const EdgeInsets.all(17), decoration: BoxDecoration(color: Colors.white.withOpacity(.10), borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white.withOpacity(.18))), child: child);
+class AuthShell extends StatelessWidget {
+  final String title, subtitle; final Widget child;
+  const AuthShell({super.key, required this.title, required this.subtitle, required this.child});
+  @override Widget build(BuildContext context) => Scaffold(backgroundColor: bg, body: SafeArea(child: SingleChildScrollView(padding: const EdgeInsets.fromLTRB(22, 42, 22, 28), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Icon(Icons.eco_rounded, color: gold, size: 38), const SizedBox(height: 34), Text(title, style: const TextStyle(color: text, fontSize: 29, fontWeight: FontWeight.w800)), const SizedBox(height: 8), Text(subtitle, style: const TextStyle(color: muted, height: 1.45)), const SizedBox(height: 30), child])));
 }
 
-const pages = <String>['Onboarding','Farm Setup','Sign In','Sign Up','Google Login','Role Selection','Profile Completion','Farmer Home','My Farm','Crops','Crop Details','Crop Health','Farm Intelligence','AI Decision Center','FarmPlug Intelligence','Market','Buyer Marketplace','Buyer Details','Add Produce','My Listings','Listing Details','Buyer Matches','Offers','Offer Details','Accept Offer','Orders','Order Details','Order Tracking','Aggregation','Aggregation Details','Collection Center','Logistics','Delivery Details','Notifications','Profile','Settings','Language','Security','Help','Logout Confirmation','Demo Role Selection','Demo Workspace','Error','Offline','Empty State Screens'];
-
-class AppFlowPage extends StatefulWidget {
-  const AppFlowPage({super.key});
-  @override State<AppFlowPage> createState() => _FlowState();
+class HomePage extends StatefulWidget { const HomePage({super.key}); @override State<HomePage> createState() => _HomeState(); }
+class _HomeState extends State<HomePage> {
+  int tab = 0;
+  final pages = const [HomeBody(), AiPage(), FarmPage(), OrdersPage(), ProfilePage()];
+  @override Widget build(BuildContext context) => Scaffold(body: SafeArea(child: pages[tab]), bottomNavigationBar: NavigationBar(backgroundColor: surface, indicatorColor: green.withOpacity(.22), selectedIndex: tab, onDestinationSelected: (i) => setState(() => tab = i), destinations: const [NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'), NavigationDestination(icon: Icon(Icons.auto_awesome_outlined), selectedIcon: Icon(Icons.auto_awesome), label: 'AI Center'), NavigationDestination(icon: Icon(Icons.agriculture_outlined), selectedIcon: Icon(Icons.agriculture), label: 'My Farm'), NavigationDestination(icon: Icon(Icons.receipt_long_outlined), selectedIcon: Icon(Icons.receipt_long), label: 'Orders'), NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profile')]));
 }
 
-class _FlowState extends State<AppFlowPage> {
-  int index = 0;
-  @override
-  Widget build(BuildContext context) {
-    final title = pages[index];
-    final isAi = title.contains('Intelligence') || title.contains('Decision');
-    final isDemo = title.contains('Demo');
-    return Scaffold(
-      appBar: AppBar(backgroundColor: forest, foregroundColor: Colors.white, title: Text(title, style: const TextStyle(fontWeight: FontWeight.w800)), leading: index > 0 ? IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => setState(() => index--)) : null),
-      body: SafeArea(child: Column(children: [
-        LinearProgressIndicator(value: (index + 1) / pages.length, minHeight: 3, color: gold),
-        Expanded(child: ListView(padding: const EdgeInsets.all(18), children: [
-          if (isDemo) const _Badge(text: 'DEMO MODE'),
-          _HeroCard(title: title, ai: isAi),
-          if (isAi) const _TrustCard(),
-          ..._cards(title),
-          if (title == 'Sign In' || title == 'Sign Up' || title == 'Google Login') _WebsiteAction(onTap: () => openWebsite(context, '/signin')),
-        ])),
-        Padding(padding: const EdgeInsets.fromLTRB(18, 8, 18, 14), child: Row(children: [
-          if (index > 0) Expanded(child: OutlinedButton(onPressed: () => setState(() => index--), child: const Text('Back'))),
-          if (index > 0) const SizedBox(width: 10),
-          Expanded(child: FilledButton(onPressed: () { if (index == pages.length - 1) Navigator.pop(context); else setState(() => index++); }, child: Text(index == pages.length - 1 ? 'Finish' : 'Next'))),
-        ])),
-      ])),
-      bottomNavigationBar: NavigationBar(selectedIndex: index % 5, destinations: const [NavigationDestination(icon: Icon(Icons.home_rounded), label: 'Home'), NavigationDestination(icon: Icon(Icons.storefront_rounded), label: 'Market'), NavigationDestination(icon: Icon(Icons.auto_awesome_rounded), label: 'AI'), NavigationDestination(icon: Icon(Icons.receipt_long_rounded), label: 'Orders'), NavigationDestination(icon: Icon(Icons.person_rounded), label: 'Profile')]),
-    );
-  }
-
-  List<Widget> _cards(String title) {
-    final data = title == 'Buyer Matches'
-        ? ['Match score 92%', 'Grade A • 1,200 kg', 'Delivery: estimated', 'Why this match: quantity + quality + location']
-        : (title == 'Orders' || title == 'Order Tracking')
-            ? ['Quote Pending → Accepted → Confirmed', 'Collecting → Pickup → Transit', 'Delivered → Completed', 'PAYMENT SIMULATION • ESTIMATED LOGISTICS']
-            : title == 'Aggregation'
-                ? ['1,200 kg + 1,800 kg + 2,000 kg = 5,000 kg', 'Participating farmers', 'Lot traceability', 'Collection center']
-                : ['Farm profile', 'Crop information', 'Market & buyer information', 'Status and next action'];
-    return data.map((x) => Card(elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18), side: const BorderSide(color: Color(0xFFD9E2DA))), child: ListTile(leading: Icon(_iconFor(x), color: x.contains('92') ? gold : green), title: Text(x, style: const TextStyle(fontWeight: FontWeight.w700)), trailing: const Icon(Icons.chevron_right_rounded)))).toList();
-  }
-
-  IconData _iconFor(String x) {
-    if (x.contains('Market') || x.contains('buyer')) return Icons.storefront_rounded;
-    if (x.contains('kg')) return Icons.scale_rounded;
-    if (x.contains('logistics') || x.contains('Transit')) return Icons.local_shipping_rounded;
-    if (x.contains('Farm')) return Icons.agriculture_rounded;
-    return Icons.check_circle_outline_rounded;
-  }
+class HomeBody extends StatelessWidget { const HomeBody({super.key});
+  @override Widget build(BuildContext context) => AppScroll(title: 'Good morning, farmer', subtitle: 'Here is what needs your attention today.', children: [WeatherCard(), const SectionTitle('Farm overview'), GridView.count(crossAxisCount: 2, shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), crossAxisSpacing: 10, mainAxisSpacing: 10, childAspectRatio: 1.45, children: const [StatCard(icon: Icons.agriculture_outlined, value: '3', label: 'Farms'), StatCard(icon: Icons.spa_outlined, value: '6', label: 'Crops'), StatCard(icon: Icons.local_shipping_outlined, value: '2', label: 'Active orders'), StatCard(icon: Icons.notifications_none, value: '1', label: 'Alert', accent: warning)]), const SizedBox(height: 24), SectionTitle('Today’s tasks', trailing: 'View all'), TaskCard(icon: Icons.water_drop_outlined, title: 'Irrigation check', subtitle: 'Tomato plot · due today', color: green), TaskCard(icon: Icons.sell_outlined, title: 'Review market price', subtitle: 'Tomato · local market', color: gold), TaskCard(icon: Icons.health_and_safety_outlined, title: 'Crop health review', subtitle: 'One crop needs attention', color: warning)]);
 }
 
-class _HeroCard extends StatelessWidget {
-  final String title; final bool ai;
-  const _HeroCard({required this.title, required this.ai});
-  @override Widget build(BuildContext context) => Container(margin: const EdgeInsets.only(bottom: 14), padding: const EdgeInsets.all(19), decoration: BoxDecoration(color: ai ? forest : Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: const [BoxShadow(blurRadius: 20, color: Color(0x120F2A1E))]), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(ai ? Icons.auto_awesome_rounded : Icons.eco_rounded, color: ai ? gold : green, size: 32), const SizedBox(height: 13), Text(title, style: TextStyle(color: ai ? Colors.white : forest, fontSize: 22, fontWeight: FontWeight.w900)), const SizedBox(height: 6), Text('Focused, touch-friendly FarmPlug workflow with clear status and next action.', style: TextStyle(color: ai ? Colors.white70 : muted, height: 1.45))]));
-}
+class WeatherCard extends StatelessWidget { @override Widget build(BuildContext context) => Container(padding: const EdgeInsets.all(18), decoration: BoxDecoration(color: greenDark, borderRadius: BorderRadius.circular(16)), child: const Row(children: [Icon(Icons.wb_sunny_outlined, color: gold, size: 42), SizedBox(width: 16), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('28°C · Partly cloudy', style: TextStyle(color: text, fontSize: 19, fontWeight: FontWeight.w800)), SizedBox(height: 4), Text('Coimbatore · Today', style: TextStyle(color: Colors.white70)), Text('Good conditions for field work', style: TextStyle(color: Colors.white70, fontSize: 12))]))])); }
 
-class _TrustCard extends StatelessWidget {
-  const _TrustCard();
-  @override Widget build(BuildContext context) => Container(margin: const EdgeInsets.only(bottom: 14), padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: const Color(0xFFEAF2E9), borderRadius: BorderRadius.circular(18), border: Border.all(color: const Color(0xFFD1E1D4))), child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('RECOMMENDATION', style: TextStyle(color: green, fontWeight: FontWeight.w900, fontSize: 11)), SizedBox(height: 6), Text('Consider the recommended selling window.', style: TextStyle(fontWeight: FontWeight.w800)), SizedBox(height: 9), Text('WHY • market signals and farm context', style: TextStyle(color: muted, fontSize: 12)), Text('CONFIDENCE • DATA STATUS • REVIEW DETAILS', style: TextStyle(color: muted, fontSize: 12))]));
-}
+class AiPage extends StatelessWidget { const AiPage({super.key}); @override Widget build(BuildContext context) => AppScroll(title: 'AI Assistant', subtitle: 'Practical guidance based on your farm information.', children: [Container(padding: const EdgeInsets.all(18), decoration: BoxDecoration(color: surface, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFF303330))), child: const Row(crossAxisAlignment: CrossAxisAlignment.start, children: [CircleAvatar(backgroundColor: green, child: Icon(Icons.auto_awesome, color: Colors.white)), SizedBox(width: 12), Expanded(child: Text('What would you like help with today?', style: TextStyle(color: text, fontSize: 17, fontWeight: FontWeight.w700)))])), const SizedBox(height: 18), const SectionTitle('Quick actions'), QuickAction(icon: Icons.bug_report_outlined, title: 'Crop Disease Diagnosis', subtitle: 'Understand symptoms and next steps'), QuickAction(icon: Icons.eco_outlined, title: 'Fertilizer Recommendation', subtitle: 'Plan nutrition for your crop'), QuickAction(icon: Icons.trending_up, title: 'Market Price Insights', subtitle: 'Review available market signals'), QuickAction(icon: Icons.cloud_outlined, title: 'Weather Forecast', subtitle: 'Plan field work around weather'), QuickAction(icon: Icons.chat_bubble_outline, title: 'Ask Anything', subtitle: 'Describe your farming question'), const SizedBox(height: 12), TextField(decoration: InputDecoration(hintText: 'Ask FarmPlug AI…', suffixIcon: IconButton(onPressed: () {}, icon: const Icon(Icons.send_rounded))))]); }
 
-class _Badge extends StatelessWidget {
-  final String text;
-  const _Badge({required this.text});
-  @override Widget build(BuildContext context) => Container(margin: const EdgeInsets.only(bottom: 12), padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7), decoration: BoxDecoration(color: const Color(0xFFFFF5D6), borderRadius: BorderRadius.circular(99)), child: Text(text, style: const TextStyle(color: Color(0xFF8A6A00), fontWeight: FontWeight.w900, fontSize: 11)));
-}
+class FarmPage extends StatelessWidget { const FarmPage({super.key}); @override Widget build(BuildContext context) => AppScroll(title: 'My Farm', subtitle: 'Manage your plots and crops in one place.', children: [Align(alignment: Alignment.centerRight, child: FilledButton.icon(onPressed: () {}, icon: const Icon(Icons.add), label: const Text('Add Farm'))), const SizedBox(height: 12), FarmCard(name: 'North Field', acres: '2.5 acres', location: 'Coimbatore', status: 'Healthy', statusColor: green), FarmCard(name: 'Greenhouse Plot', acres: '1.2 acres', location: 'Coimbatore', status: 'Needs Attention', statusColor: warning), const SectionTitle('Crops'), CropCard(name: 'Tomato', detail: '1.4 acres · 42 days to harvest', health: 'Healthy'), CropCard(name: 'Chilli', detail: '0.8 acres · 58 days to harvest', health: 'Healthy')]); }
 
-class _WebsiteAction extends StatelessWidget {
-  final VoidCallback onTap;
-  const _WebsiteAction({required this.onTap});
-  @override Widget build(BuildContext context) => Padding(padding: const EdgeInsets.only(top: 8), child: OutlinedButton.icon(onPressed: onTap, icon: const Icon(Icons.open_in_new_rounded), label: const Text('Continue on FarmPlug website')));
-}
+class OrdersPage extends StatelessWidget { const OrdersPage({super.key}); @override Widget build(BuildContext context) => AppScroll(title: 'Orders', subtitle: 'Track your produce sales from confirmation to delivery.', children: [SingleChildScrollView(scrollDirection: Axis.horizontal, child: Row(children: ['All','Pending','Confirmed','Completed'].map((x) => Padding(padding: const EdgeInsets.only(right: 8), child: ChoiceChip(label: Text(x), selected: x == 'All', onSelected: (_) {}))).toList())), const SizedBox(height: 14), OrderCard(id: '#FP-1042', item: 'Tomato · 500 kg', date: 'Today', status: 'Confirmed', color: green), OrderCard(id: '#FP-1038', item: 'Chilli · 250 kg', date: 'Yesterday', status: 'Pending', color: warning), OrderCard(id: '#FP-1027', item: 'Tomato · 300 kg', date: '28 Aug', status: 'Completed', color: green)]); }
 
-class DemoPage extends StatelessWidget {
-  const DemoPage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: forest,
-      appBar: AppBar(backgroundColor: forest, foregroundColor: Colors.white, title: const Text('Demo Workspace')),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          const _Badge(text: 'DEMO MODE'),
-          const SizedBox(height: 18),
-          const Text('Explore a safe simulated FarmPlug workspace.', style: TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.w900)),
-          const SizedBox(height: 14),
-          const Text('DEMO DATA • SIMULATED FORECAST • ESTIMATED LOGISTICS • PAYMENT SIMULATION', style: TextStyle(color: Colors.white70, height: 1.5)),
-          const Spacer(),
-          FilledButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AppFlowPage())), child: const Text('Open Demo Workspace')),
-          OutlinedButton(onPressed: () => openWebsite(context, '/demo'), style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white30)), child: const Text('Open web demo')),
-        ]),
-      ),
-    );
-  }
-}
+class ProfilePage extends StatelessWidget { const ProfilePage({super.key}); @override Widget build(BuildContext context) => AppScroll(title: 'Profile', subtitle: 'Keep your account and farming details up to date.', children: [Container(padding: const EdgeInsets.all(18), decoration: BoxDecoration(color: surface, borderRadius: BorderRadius.circular(16)), child: const Row(children: [CircleAvatar(radius: 28, backgroundColor: green, child: Icon(Icons.person, color: Colors.white, size: 30)), SizedBox(width: 14), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Farm owner', style: TextStyle(color: text, fontSize: 18, fontWeight: FontWeight.w800)), SizedBox(height: 4), Text('Coimbatore, Tamil Nadu', style: TextStyle(color: muted))])])), const SizedBox(height: 18), const SectionTitle('Account'), MenuTile(icon: Icons.agriculture_outlined, title: 'My Farms'), MenuTile(icon: Icons.account_balance_outlined, title: 'Bank Details'), MenuTile(icon: Icons.location_on_outlined, title: 'Address'), MenuTile(icon: Icons.payments_outlined, title: 'Payment History'), MenuTile(icon: Icons.help_outline, title: 'Help & Support'), const SizedBox(height: 12), const SectionTitle('Preferences'), MenuTile(icon: Icons.settings_outlined, title: 'Settings'), MenuTile(icon: Icons.logout, title: 'Log out', danger: true)]); }
+
+class AppScroll extends StatelessWidget { final String title, subtitle; final List<Widget> children; const AppScroll({super.key, required this.title, required this.subtitle, required this.children}); @override Widget build(BuildContext context) => ListView(padding: const EdgeInsets.fromLTRB(18, 18, 18, 24), children: [Text(title, style: const TextStyle(color: text, fontSize: 27, fontWeight: FontWeight.w800)), const SizedBox(height: 6), Text(subtitle, style: const TextStyle(color: muted, height: 1.4)), const SizedBox(height: 20), ...children.map((w) => Padding(padding: const EdgeInsets.only(bottom: 10), child: w))]); }
+class SectionTitle extends StatelessWidget { final String title; final String? trailing; const SectionTitle(this.title, {super.key, this.trailing}); @override Widget build(BuildContext context) => Padding(padding: const EdgeInsets.only(top: 8, bottom: 4), child: Row(children: [Expanded(child: Text(title, style: const TextStyle(color: text, fontSize: 18, fontWeight: FontWeight.w800))), if (trailing != null) TextButton(onPressed: () {}, child: Text(trailing!))])); }
+class StatCard extends StatelessWidget { final IconData icon; final String value, label; final Color accent; const StatCard({super.key, required this.icon, required this.value, required this.label, this.accent = green}); @override Widget build(BuildContext context) => Container(padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xFF303330))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(icon, color: accent), const Spacer(), Text(value, style: const TextStyle(color: text, fontSize: 24, fontWeight: FontWeight.w800)), Text(label, style: const TextStyle(color: muted, fontSize: 12))]); }
+class TaskCard extends StatelessWidget { final IconData icon; final String title, subtitle; final Color color; const TaskCard({super.key, required this.icon, required this.title, required this.subtitle, required this.color}); @override Widget build(BuildContext context) => Card(color: surface, margin: EdgeInsets.zero, child: ListTile(contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 3), leading: CircleAvatar(backgroundColor: color.withOpacity(.16), child: Icon(icon, color: color)), title: Text(title, style: const TextStyle(color: text, fontWeight: FontWeight.w700)), subtitle: Text(subtitle, style: const TextStyle(color: muted)), trailing: const Icon(Icons.chevron_right, color: muted))); }
+class QuickAction extends StatelessWidget { final IconData icon; final String title, subtitle; const QuickAction({super.key, required this.icon, required this.title, required this.subtitle}); @override Widget build(BuildContext context) => Card(color: surface, margin: EdgeInsets.zero, child: ListTile(leading: const Icon(Icons.auto_awesome, color: gold), title: Text(title, style: const TextStyle(color: text, fontWeight: FontWeight.w700)), subtitle: Text(subtitle, style: const TextStyle(color: muted)), trailing: const Icon(Icons.chevron_right, color: muted))); }
+class FarmCard extends StatelessWidget { final String name, acres, location, status; final Color statusColor; const FarmCard({super.key, required this.name, required this.acres, required this.location, required this.status, required this.statusColor}); @override Widget build(BuildContext context) => Card(color: surface, margin: EdgeInsets.zero, child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Row(children: [const Icon(Icons.agriculture, color: green), const SizedBox(width: 10), Expanded(child: Text(name, style: const TextStyle(color: text, fontSize: 17, fontWeight: FontWeight.w800))), StatusPill(text: status, color: statusColor)]), const SizedBox(height: 12), Text('$acres · $location', style: const TextStyle(color: muted)), const SizedBox(height: 8), const Text('View farm details  ›', style: TextStyle(color: green, fontWeight: FontWeight.w700))]))); }
+class CropCard extends StatelessWidget { final String name, detail, health; const CropCard({super.key, required this.name, required this.detail, required this.health}); @override Widget build(BuildContext context) => Card(color: surface, margin: EdgeInsets.zero, child: ListTile(leading: const CircleAvatar(backgroundColor: Color(0x2232A852), child: Icon(Icons.spa, color: green)), title: Text(name, style: const TextStyle(color: text, fontWeight: FontWeight.w700)), subtitle: Text(detail, style: const TextStyle(color: muted)), trailing: StatusPill(text: health, color: green))); }
+class OrderCard extends StatelessWidget { final String id, item, date, status; final Color color; const OrderCard({super.key, required this.id, required this.item, required this.date, required this.status, required this.color}); @override Widget build(BuildContext context) => Card(color: surface, margin: EdgeInsets.zero, child: ListTile(contentPadding: const EdgeInsets.all(14), title: Row(children: [Expanded(child: Text(id, style: const TextStyle(color: text, fontWeight: FontWeight.w800))), StatusPill(text: status, color: color)]), subtitle: Padding(padding: const EdgeInsets.only(top: 8), child: Text('$item\n$date', style: const TextStyle(color: muted, height: 1.45))), trailing: const Icon(Icons.chevron_right, color: muted))); }
+class MenuTile extends StatelessWidget { final IconData icon; final String title; final bool danger; const MenuTile({super.key, required this.icon, required this.title, this.danger = false}); @override Widget build(BuildContext context) => Card(color: surface, margin: EdgeInsets.zero, child: ListTile(leading: Icon(icon, color: danger ? dangerColor : green), title: Text(title, style: TextStyle(color: danger ? dangerColor : text, fontWeight: FontWeight.w600)), trailing: const Icon(Icons.chevron_right, color: muted))); }
+const dangerColor = danger;
+class StatusPill extends StatelessWidget { final String text; final Color color; const StatusPill({super.key, required this.text, required this.color}); @override Widget build(BuildContext context) => Container(padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5), decoration: BoxDecoration(color: color.withOpacity(.14), borderRadius: BorderRadius.circular(99)), child: Text(text, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w800))); }
+class PrimaryButton extends StatelessWidget { final String label; final VoidCallback onPressed; const PrimaryButton({super.key, required this.label, required this.onPressed}); @override Widget build(BuildContext context) => SizedBox(width: double.infinity, height: 52, child: FilledButton(onPressed: onPressed, style: FilledButton.styleFrom(backgroundColor: green, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))), child: Text(label, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)))); }
