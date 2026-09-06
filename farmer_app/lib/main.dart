@@ -2,26 +2,386 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 const farmPlugUrl = 'https://farmplugaisxd.vercel.app';
-void main() => runApp(const FarmPlugApp());
+
+void main() {
+  runApp(const FarmPlugApp());
+}
 
 class FarmPlugApp extends StatelessWidget {
   const FarmPlugApp({super.key});
-  @override Widget build(BuildContext context) => MaterialApp(debugShowCheckedModeBanner:false,title:'FarmPlug AI',theme:ThemeData(useMaterial3:true,colorSchemeSeed:const Color(0xFF2E7D32)),home:const SplashPage());
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'FarmPlug AI',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: const Color(0xFF2E7D32),
+      ),
+      home: const SplashPage(),
+    );
+  }
 }
 
-Future<void> openWebsite(BuildContext context,[String path='']) async { final ok=await launchUrl(Uri.parse('$farmPlugUrl$path'),mode:LaunchMode.externalApplication); if(!ok&&context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('Unable to open FarmPlug'))); }
+Future<void> openWebsite(BuildContext context, [String path = '']) async {
+  final ok = await launchUrl(
+    Uri.parse('$farmPlugUrl$path'),
+    mode: LaunchMode.externalApplication,
+  );
+  if (!ok && context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Unable to open FarmPlug')),
+    );
+  }
+}
 
-class SplashPage extends StatefulWidget { const SplashPage({super.key}); @override State<SplashPage> createState()=>_SplashState(); }
-class _SplashState extends State<SplashPage>{ @override void initState(){super.initState();Future.delayed(const Duration(seconds:2),(){if(mounted)Navigator.pushReplacement(context,MaterialPageRoute(builder:(_)=>const WelcomePage()));});} @override Widget build(BuildContext c)=>const Scaffold(body:Center(child:Column(mainAxisSize:MainAxisSize.min,children:[Icon(Icons.agriculture_rounded,size:80),SizedBox(height:18),Text('FarmPlug AI',style:TextStyle(fontSize:32,fontWeight:FontWeight.bold)),SizedBox(height:20),CircularProgressIndicator()]))); }
+class SplashPage extends StatefulWidget {
+  const SplashPage({super.key});
 
-class WelcomePage extends StatelessWidget{const WelcomePage({super.key});@override Widget build(BuildContext c)=>Scaffold(body:SafeArea(child:Padding(padding:const EdgeInsets.all(24),child:Center(child:SingleChildScrollView(child:Column(children:[const Icon(Icons.agriculture_rounded,size:80),const SizedBox(height:20),const Text('Welcome to FarmPlug AI',textAlign:TextAlign.center,style:TextStyle(fontSize:30,fontWeight:FontWeight.bold)),const SizedBox(height:12),const Text('From farm intelligence to better markets.',textAlign:TextAlign.center),const SizedBox(height:32),FilledButton(onPressed:()=>Navigator.push(c,MaterialPageRoute(builder:(_)=>const AppFlowPage())),child:const SizedBox(width:double.infinity,child:Padding(padding:EdgeInsets.all(14),child:Text('Start FarmPlug',textAlign:TextAlign.center)))),const SizedBox(height:12),OutlinedButton(onPressed:()=>openWebsite(c,'/signin'),child:const SizedBox(width:double.infinity,child:Padding(padding:EdgeInsets.all(14),child:Text('Open Existing Website',textAlign:TextAlign.center))))]))))));}
+  @override
+  State<SplashPage> createState() => _SplashState();
+}
 
-const pages=<String>['Splash Screen','Welcome Screen','Onboarding Screen','Farm Setup Screen','Sign In Screen','Sign Up Screen','Google Login Screen','Role Selection Screen','Profile Completion Screen','Farmer Home Screen','My Farm Screen','Crops Screen','Crop Details Screen','Crop Health Screen','Farm Intelligence Screen','AI Decision Center','FarmPlug Intelligence Screen','Market Screen','Buyer Marketplace Screen','Buyer Details Screen','Add Produce Screen','My Listings Screen','Listing Details Screen','Buyer Matches Screen','Offers Screen','Offer Details Screen','Accept Offer Screen','Orders Screen','Order Details Screen','Order Tracking Screen','Aggregation Screen','Aggregation Details Screen','Collection Center Screen','Logistics Screen','Delivery Details Screen','Notifications Screen','Profile Screen','Settings Screen','Language Screen','Security Screen','Help Screen','Logout Confirmation Screen','Demo Role Selection Screen','Demo Workspace Screen','Error Screen','Offline Screen','Empty State Screens'];
-const descriptions=<String>['Launch and authentication session check','Introduction, sign in, account creation and demo','Choose farming and market goals','Set farmer, farm, crop and harvest details','Email/password authentication','Create account and confirm password','Google OAuth loading, error and retry','Choose Farmer, Buyer or FPO role','Complete account and farm details','Farm summary, listings, matches, offers and orders','Farm profile, crops, calendar and storage','Manage crops and harvest dates','Variety, area, quantity and crop actions','Health status, observations, images and recommendations','Market data, price trends, demand and selling window','AI recommendations, opportunities and risk alerts','Ask questions about crops, orders, markets and buyers','Browse markets with crop, quantity and quality filters','Buyer requirements and match score','Buyer requirements, trust and delivery terms','Create and publish produce listing','Manage draft and published listings','Listing details and buyer matches','Matching buyers and match explanations','Received and sent offers','Offer price, quantity, quality and buyer','Accept one offer and create one order','Order lifecycle from quote to completion','Order number, payment and logistics status','Collection to destination tracking','Aggregated lots and participating farmers','Contributions, lots and traceability','Collection location and pickup schedule','Route, distance, cost and delivery status','Delivery timeline and payment simulation','Buyer, offer, order and selling-window alerts','Profile and completeness','Language, notifications, privacy and security','Select app language','Password, connected accounts and sessions','FAQs and support','Confirm or cancel logout','Demo Farmer, FPO, Buyer or Admin','Seeded demo data with DEMO MODE','Friendly error and retry','Offline mode and draft preservation','Empty states for crops, listings, matches, offers, orders and notifications'];
+class _SplashState extends State<SplashPage> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 2), () {
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const WelcomePage()),
+      );
+    });
+  }
 
-class AppFlowPage extends StatefulWidget{const AppFlowPage({super.key});@override State<AppFlowPage> createState()=>_FlowState();}
-class _FlowState extends State<AppFlowPage>{int index=2;@override Widget build(BuildContext c){final title=pages[index];return Scaffold(appBar:AppBar(title:Text('${index+1}. $title'),leading:index>2?IconButton(icon:const Icon(Icons.arrow_back),onPressed:()=>setState(()=>index--)):null),body:SafeArea(child:Padding(padding:const EdgeInsets.all(20),child:Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[LinearProgressIndicator(value:(index+1)/pages.length),const SizedBox(height:20),Text(title,style:Theme.of(c).textTheme.headlineSmall?.copyWith(fontWeight:FontWeight.bold)),const SizedBox(height:8),Text(descriptions[index]),const SizedBox(height:18),Expanded(child:ListView(children:[_summary(title),..._items(index),if(index>=4&&index<=6)_web(c)])),Row(children:[if(index>2)Expanded(child:OutlinedButton(onPressed:()=>setState(()=>index--),child:const Text('Back'))),if(index>2)const SizedBox(width:12),Expanded(child:FilledButton(onPressed:index==pages.length-1?()=>Navigator.pop(c):()=>setState(()=>index++),child:Text(index==pages.length-1?'Finish':'Next')))])])));}
-Widget _summary(String t)=>Card(child:Padding(padding:const EdgeInsets.all(18),child:Row(children:[const Icon(Icons.agriculture_rounded,size:34),const SizedBox(width:14),Expanded(child:Text('FarmPlug AI • ${t.replaceAll(' Screen','')}',style:const TextStyle(fontWeight:FontWeight.w600)))])));
-List<Widget> _items(int i){final items=i==2?['Get better prices','Find buyers','Know when to sell','Manage FPO']:['Farm profile','Crop information','Market and buyer information','Status and recommendations'];return items.map((x)=>Card(child:ListTile(leading:const Icon(Icons.check_circle_outline),title:Text(x),subtitle:Text('Manage ${x.toLowerCase()}'),trailing:const Icon(Icons.chevron_right)))).toList();}
-Widget _web(BuildContext c)=>Padding(padding:const EdgeInsets.symmetric(vertical:12),child:OutlinedButton.icon(onPressed:()=>openWebsite(c,'/signin'),icon:const Icon(Icons.open_in_new),label:const Text('Continue with existing FarmPlug website')));
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.agriculture_rounded, size: 80),
+            SizedBox(height: 18),
+            Text(
+              'FarmPlug AI',
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 20),
+            CircularProgressIndicator(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class WelcomePage extends StatelessWidget {
+  const WelcomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Center(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const Icon(Icons.agriculture_rounded, size: 80),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Welcome to FarmPlug AI',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'From farm intelligence to better markets.',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
+                  FilledButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AppFlowPage()),
+                      );
+                    },
+                    child: const SizedBox(
+                      width: double.infinity,
+                      child: Padding(
+                        padding: EdgeInsets.all(14),
+                        child: Text('Start FarmPlug', textAlign: TextAlign.center),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton(
+                    onPressed: () => openWebsite(context, '/signin'),
+                    child: const SizedBox(
+                      width: double.infinity,
+                      child: Padding(
+                        padding: EdgeInsets.all(14),
+                        child: Text(
+                          'Open Existing Website',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+const pages = <String>[
+  'Splash Screen',
+  'Welcome Screen',
+  'Onboarding Screen',
+  'Farm Setup Screen',
+  'Sign In Screen',
+  'Sign Up Screen',
+  'Google Login Screen',
+  'Role Selection Screen',
+  'Profile Completion Screen',
+  'Farmer Home Screen',
+  'My Farm Screen',
+  'Crops Screen',
+  'Crop Details Screen',
+  'Crop Health Screen',
+  'Farm Intelligence Screen',
+  'AI Decision Center',
+  'FarmPlug Intelligence Screen',
+  'Market Screen',
+  'Buyer Marketplace Screen',
+  'Buyer Details Screen',
+  'Add Produce Screen',
+  'My Listings Screen',
+  'Listing Details Screen',
+  'Buyer Matches Screen',
+  'Offers Screen',
+  'Offer Details Screen',
+  'Accept Offer Screen',
+  'Orders Screen',
+  'Order Details Screen',
+  'Order Tracking Screen',
+  'Aggregation Screen',
+  'Aggregation Details Screen',
+  'Collection Center Screen',
+  'Logistics Screen',
+  'Delivery Details Screen',
+  'Notifications Screen',
+  'Profile Screen',
+  'Settings Screen',
+  'Language Screen',
+  'Security Screen',
+  'Help Screen',
+  'Logout Confirmation Screen',
+  'Demo Role Selection Screen',
+  'Demo Workspace Screen',
+  'Error Screen',
+  'Offline Screen',
+  'Empty State Screens',
+];
+
+const descriptions = <String>[
+  'Launch and authentication session check',
+  'Introduction, sign in, account creation and demo',
+  'Choose farming and market goals',
+  'Set farmer, farm, crop and harvest details',
+  'Email/password authentication',
+  'Create account and confirm password',
+  'Google OAuth loading, error and retry',
+  'Choose Farmer, Buyer or FPO role',
+  'Complete account and farm details',
+  'Farm summary, listings, matches, offers and orders',
+  'Farm profile, crops, calendar and storage',
+  'Manage crops and harvest dates',
+  'Variety, area, quantity and crop actions',
+  'Health status, observations, images and recommendations',
+  'Market data, price trends, demand and selling window',
+  'AI recommendations, opportunities and risk alerts',
+  'Ask questions about crops, orders, markets and buyers',
+  'Browse markets with crop, quantity and quality filters',
+  'Buyer requirements and match score',
+  'Buyer requirements, trust and delivery terms',
+  'Create and publish produce listing',
+  'Manage draft and published listings',
+  'Listing details and buyer matches',
+  'Matching buyers and match explanations',
+  'Received and sent offers',
+  'Offer price, quantity, quality and buyer',
+  'Accept one offer and create one order',
+  'Order lifecycle from quote to completion',
+  'Order number, payment and logistics status',
+  'Collection to destination tracking',
+  'Aggregated lots and participating farmers',
+  'Contributions, lots and traceability',
+  'Collection location and pickup schedule',
+  'Route, distance, cost and delivery status',
+  'Delivery timeline and payment simulation',
+  'Buyer, offer, order and selling-window alerts',
+  'Profile and completeness',
+  'Language, notifications, privacy and security',
+  'Select app language',
+  'Password, connected accounts and sessions',
+  'FAQs and support',
+  'Confirm or cancel logout',
+  'Demo Farmer, FPO, Buyer or Admin',
+  'Seeded demo data with DEMO MODE',
+  'Friendly error and retry',
+  'Offline mode and draft preservation',
+  'Empty states for crops, listings, matches, offers, orders and notifications',
+];
+
+class AppFlowPage extends StatefulWidget {
+  const AppFlowPage({super.key});
+
+  @override
+  State<AppFlowPage> createState() => _FlowState();
+}
+
+class _FlowState extends State<AppFlowPage> {
+  int index = 2;
+
+  @override
+  Widget build(BuildContext context) {
+    final title = pages[index];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('${index + 1}. $title'),
+        leading: index > 2
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => setState(() => index--),
+              )
+            : null,
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              LinearProgressIndicator(value: (index + 1) / pages.length),
+              const SizedBox(height: 20),
+              Text(
+                title,
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineSmall
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Text(descriptions[index]),
+              const SizedBox(height: 18),
+              Expanded(
+                child: ListView(
+                  children: [
+                    _summary(title),
+                    ..._items(index),
+                    if (index >= 4 && index <= 6) _web(context),
+                  ],
+                ),
+              ),
+              Row(
+                children: [
+                  if (index > 2)
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => setState(() => index--),
+                        child: const Text('Back'),
+                      ),
+                    ),
+                  if (index > 2) const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () {
+                        if (index == pages.length - 1) {
+                          Navigator.pop(context);
+                        } else {
+                          setState(() => index++);
+                        }
+                      },
+                      child: Text(index == pages.length - 1 ? 'Finish' : 'Next'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _summary(String title) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Row(
+          children: [
+            const Icon(Icons.agriculture_rounded, size: 34),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                'FarmPlug AI • ${title.replaceAll(' Screen', '')}',
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _items(int pageIndex) {
+    final items = pageIndex == 2
+        ? <String>[
+            'Get better prices',
+            'Find buyers',
+            'Know when to sell',
+            'Manage FPO',
+          ]
+        : <String>[
+            'Farm profile',
+            'Crop information',
+            'Market and buyer information',
+            'Status and recommendations',
+          ];
+
+    return items
+        .map(
+          (item) => Card(
+            child: ListTile(
+              leading: const Icon(Icons.check_circle_outline),
+              title: Text(item),
+              subtitle: Text('Manage ${item.toLowerCase()}'),
+              trailing: const Icon(Icons.chevron_right),
+            ),
+          ),
+        )
+        .toList();
+  }
+
+  Widget _web(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: OutlinedButton.icon(
+        onPressed: () => openWebsite(context, '/signin'),
+        icon: const Icon(Icons.open_in_new),
+        label: const Text('Continue with existing FarmPlug website'),
+      ),
+    );
+  }
 }
