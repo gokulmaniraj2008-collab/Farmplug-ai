@@ -11,10 +11,11 @@ export async function GET() {
   const supabase = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
   const { data, error } = await supabase
     .from('farmplug_buyer_requirements')
-    .select('id,buyer_name,crop,quantity_kg,quality,location,delivery_days,status,created_at')
+    .select('id,buyer_name,crop,quantity_kg,quality,location,delivery_days,status,created_at,is_verified')
     .eq('status', 'open')
     .order('created_at', { ascending: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ requirements: data ?? [] }, { headers: { 'Cache-Control': 'no-store' } });
+  const requirements = (data ?? []).map(item => ({ ...item, buyer_name: item.is_verified ? `✓ Verified · ${item.buyer_name}` : item.buyer_name }));
+  return NextResponse.json({ requirements }, { headers: { 'Cache-Control': 'no-store' } });
 }
