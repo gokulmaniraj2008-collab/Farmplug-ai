@@ -1,64 +1,52 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
 export async function GET() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { data, error } = await supabase
-    .from('aggregation_members')
-    .select('*, aggregation_groups(*)')
-    .eq('farmer_id', user.id)
-    .order('joined_at', { ascending: false });
+  const [{ data: aggregations, error }, { data: listings, error: listingError }] = await Promise.all([
+    supabase.from('supply_aggregations').select('*').in('status', ['forming', 'ready', 'pickup_scheduled']).order('created_at', { ascending: false }),
+    supabase.from('farmplug_supply_listings').select('id,crop,quantity_kg,quality,location,status,created_by').eq('created_by', user.id),
+  ]);
+  if (error || listingError) return NextResponse.json({ error: 'Unable to load aggregation data.' }, { status: 500 });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ memberships: data ?? [] });
+  const ownedListingIds = new Set((listings ?? []).map((listing) => listing.id));
+  const memberships = (aggregations ?? []).filter((aggregation) =>
+    Array.isArray(aggregation.selected_listings) && aggregation.selected_listings.some((item: unknown) => {
+      if (typeof item === 'string') return ownedListingIds.has(item);
+      if (item && typeof item === 'object' && 'listing_id' in item) return ownedListingIds.has(String((item as { listing_id: string }).listing_id));
+      return false;
+    }),
+  );
+
+  return NextResponse.json({ aggregations: aggregations ?? [], memberships });
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const body = await req.json();
-  const groupId = String(body.groupId ?? '');
-  const contributionKg = Number(body.contributionKg ?? 0);
-  if (!groupId || contributionKg <= 0) {
-    return NextResponse.json({ error: 'groupId and a positive contributionKg are required' }, { status: 400 });
+  const body = await req.json().catch(() => null);
+  const aggregationId = String(body?.aggregationId ?? body?.groupId ?? '');
+  const listingId = String(body?.listingId ?? '');
+  const contributionKg = Number(body?.contributionKg ?? 0);
+  if (!aggregationId || !listingId || contributionKg <= 0) {
+    return NextResponse.json({ error: 'aggregationId, listingId and a positive contributionKg are required' }, { status: 400 });
   }
 
-  const { data: group, error: groupError } = await supabase
-    .from('aggregation_groups')
-    .select('id,target_quantity_kg,current_quantity_kg,status')
-    .eq('id', groupId)
-    .maybeSingle();
-  if (groupError) return NextResponse.json({ error: groupError.message }, { status: 500 });
-  if (!group) return NextResponse.json({ error: 'Aggregation group not found' }, { status: 404 });
-  if (group.status === 'COMPLETED' || group.status === 'CANCELLED') {
-    return NextResponse.json({ error: 'This aggregation is no longer accepting contributions' }, { status: 409 });
+  const { data, error } = await supabase.rpc('contribute_to_supply_aggregation', {
+    p_aggregation_id: aggregationId,
+    p_listing_id: listingId,
+    p_contribution_kg: contributionKg,
+  });
+  if (error) {
+    const message = error.message || 'Unable to contribute to aggregation.';
+    const status = /not found|not owned/i.test(message) ? 404 : /closed|exceeds|available/i.test(message) ? 409 : 500;
+    return NextResponse.json({ error: status === 500 ? 'Unable to contribute to aggregation.' : message }, { status });
   }
 
-  const { data: existing } = await supabase
-    .from('aggregation_members')
-    .select('id,contribution_kg')
-    .eq('aggregation_id', groupId)
-    .eq('farmer_id', user.id)
-    .maybeSingle();
-
-  const nextContribution = contributionKg + Number(existing?.contribution_kg ?? 0);
-  const memberPayload = { aggregation_id: groupId, farmer_id: user.id, contribution_kg: nextContribution, status: 'JOINED' };
-  const { data: member, error: memberError } = existing
-    ? await supabase.from('aggregation_members').update(memberPayload).eq('id', existing.id).select().single()
-    : await supabase.from('aggregation_members').insert(memberPayload).select().single();
-  if (memberError) return NextResponse.json({ error: memberError.message }, { status: 500 });
-
-  const { data: members, error: membersError } = await supabase
-    .from('aggregation_members').select('contribution_kg').eq('aggregation_id', groupId).neq('status', 'CANCELLED');
-  if (membersError) return NextResponse.json({ error: membersError.message }, { status: 500 });
-  const current = (members ?? []).reduce((sum, m) => sum + Number(m.contribution_kg ?? 0), 0);
-  const status = current >= Number(group.target_quantity_kg) ? 'READY' : current > 0 ? 'FILLING' : 'OPEN';
-  await supabase.from('aggregation_groups').update({ current_quantity_kg: current, status }).eq('id', groupId);
-
-  return NextResponse.json({ member, currentQuantityKg: current, status });
+  return NextResponse.json({ aggregation: data });
 }
