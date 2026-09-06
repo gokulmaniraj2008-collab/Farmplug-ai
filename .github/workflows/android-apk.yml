@@ -20,6 +20,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.11.1'
+      - name: Record source commit
+        run: echo "Building FarmPlug AI from commit $GITHUB_SHA"
       - name: Build signed debug APK for direct installation
         working-directory: android
         run: gradle assembleDebug --no-daemon
@@ -31,12 +33,15 @@ jobs:
           echo "Using APK: $APK_PATH"
           cp "$APK_PATH" FarmPlug-AI.apk
           test -s FarmPlug-AI.apk
+          sha256sum FarmPlug-AI.apk
       - name: Publish APK release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: apk-latest
           name: FarmPlug AI APK
-          body: Signed Android APK for direct installation. Built from the FarmPlug AI Android wrapper.
+          body: |
+            Signed Android APK for direct installation.
+            Built from commit $GITHUB_SHA of the FarmPlug AI Android wrapper.
           prerelease: false
           make_latest: true
           overwrite_files: true
