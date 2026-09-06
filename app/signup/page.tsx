@@ -10,12 +10,10 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [success, setSuccess] = useState(false);
 
   async function createAccount(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage("");
-    setSuccess(false);
     if (password.length < 6) return setMessage("Password must be at least 6 characters.");
     if (password !== confirmPassword) return setMessage("Passwords do not match.");
 
@@ -32,27 +30,27 @@ export default function SignUpPage() {
       return;
     }
 
-    if (data.session && data.user) {
-      const { error: profileError } = await supabase.from("profiles").upsert({
-        id: data.user.id,
-        email: data.user.email,
-        auth_provider: "email",
-        role: "user",
-        farm_role: "farmer",
-        profile_complete: false,
-      }, { onConflict: "id" });
-      if (profileError) {
-        setMessage(`Account created, but profile setup failed: ${profileError.message}`);
-        setLoading(false);
-        return;
-      }
-      window.location.href = "/onboarding/role-selection";
+    if (!data.session || !data.user) {
+      setMessage("Account creation did not start a session. Please try signing in directly, or try creating the account again.");
+      setLoading(false);
       return;
     }
 
-    setSuccess(true);
-    setMessage("Account created. Check your email to confirm your account, then log in.");
-    setLoading(false);
+    const { error: profileError } = await supabase.from("profiles").upsert({
+      id: data.user.id,
+      email: data.user.email,
+      auth_provider: "email",
+      role: "user",
+      farm_role: "farmer",
+      profile_complete: false,
+    }, { onConflict: "id" });
+    if (profileError) {
+      setMessage(`Account created, but profile setup failed: ${profileError.message}`);
+      setLoading(false);
+      return;
+    }
+
+    window.location.href = "/onboarding/role-selection";
   }
 
   return (
@@ -62,7 +60,7 @@ export default function SignUpPage() {
           <Link href="/" className="text-sm font-bold tracking-tight text-[#1B4332]">FARMPLUG AI</Link>
           <h1 className="mt-8 text-2xl font-bold text-gray-900">Create account</h1>
           <p className="mt-2 text-sm text-[#5F6B63]">Join FarmPlug AI with your email and password.</p>
-          {message && <p className={`mt-4 rounded-lg p-3 text-sm ${success ? "bg-green-50 text-green-800" : "bg-gray-100 text-gray-700"}`} role="alert">{message}</p>}
+          {message && <p className="mt-4 rounded-lg bg-gray-100 p-3 text-sm text-gray-700" role="alert">{message}</p>}
           <form onSubmit={createAccount} className="mt-6 space-y-4">
             <label className="block"><span className="mb-1.5 block text-sm font-medium text-gray-700">Email</span><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" placeholder="you@example.com" className="w-full rounded-lg border border-gray-300 px-3 py-3 text-sm outline-none focus:border-[#1B4332]" /></label>
             <label className="block"><span className="mb-1.5 block text-sm font-medium text-gray-700">Password</span><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} autoComplete="new-password" placeholder="At least 6 characters" className="w-full rounded-lg border border-gray-300 px-3 py-3 text-sm outline-none focus:border-[#1B4332]" /></label>
