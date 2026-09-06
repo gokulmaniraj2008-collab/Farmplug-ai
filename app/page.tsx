@@ -1,17 +1,17 @@
 import Link from "next/link";
 
-const features = [
-  ["Farm Intelligence", "Turn farm and crop data into clear, practical decisions."],
-  ["Better Market Access", "Publish available produce and discover relevant buyer demand."],
-  ["Offers & Orders", "Move from matched supply to transparent offers and confirmed orders."],
-  ["Logistics", "Coordinate collection, delivery and order progress in one workflow."],
+const capabilities = [
+  ["01", "Crop Health", "Capture crop observations and images. Keep diagnosis clearly marked as model-backed, calculated, or demo until a validated model is connected."],
+  ["02", "Market Intelligence", "Compare market signals, demand, historical trends and selling-window guidance with visible data status."],
+  ["03", "Buyer Matching", "Match farmer supply with buyer requirements using quantity, quality, location and delivery constraints."],
+  ["04", "Aggregation & Logistics", "Combine compatible supply into traceable lots and move accepted orders through collection, pickup, transit and delivery."],
 ];
 
 const steps = [
-  ["01", "Set up your farm", "Add your farm and crop details once."],
-  ["02", "Understand your crop", "Use intelligence to plan harvest and selling decisions."],
-  ["03", "Find the right market", "Match available supply with buyer requirements."],
-  ["04", "Complete the order", "Track offers, logistics and delivery to completion."],
+  ["01", "Set up your farm", "Add farm, crop, harvest and storage details."],
+  ["02", "Understand your crop", "Review crop-health observations and decision support."],
+  ["03", "Find the right market", "Compare demand and match supply with buyer requirements."],
+  ["04", "Complete the order", "Move from quote to aggregation, logistics and delivery."],
 ];
 
 export default function HomePage() {
@@ -32,16 +32,16 @@ export default function HomePage() {
         <div className="grid gap-10 py-14 sm:py-20 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:gap-16">
           <div>
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#cfe3d3] bg-[#eef6ef] px-3 py-1.5 text-xs font-bold text-[#17633a]">
-              <span className="h-2 w-2 rounded-full bg-[#18794e]" /> Built for practical agriculture
+              <span className="h-2 w-2 rounded-full bg-[#18794e]" /> One connected agriculture workflow
             </div>
-            <h1 className="max-w-3xl text-4xl font-black leading-[1.05] tracking-[-.035em] text-[#142019] sm:text-6xl">From <span className="text-[#17633a]">farm intelligence</span> to a better market.</h1>
-            <p className="mt-6 max-w-2xl text-base leading-7 text-[#647067] sm:text-lg sm:leading-8">FarmPlug AI connects farm operations, crop intelligence, produce supply, buyer demand, orders and logistics in one simple flow.</p>
+            <h1 className="max-w-3xl text-4xl font-black leading-[1.05] tracking-[-.035em] text-[#142019] sm:text-6xl">From <span className="text-[#17633a]">farm intelligence</span> to the right market.</h1>
+            <p className="mt-6 max-w-2xl text-base leading-7 text-[#647067] sm:text-lg sm:leading-8">FarmPlug AI connects farm data, crop decision support, market intelligence, buyer matching, aggregation, orders and logistics in one farmer-first ecosystem.</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link href="/onboarding/role-selection" className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[#17633a] px-6 text-sm font-extrabold text-white no-underline shadow-[0_10px_25px_rgba(23,99,58,.18)]">Start with FarmPlug AI →</Link>
               <Link href="/marketplace" className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#dfe8e1] bg-white px-6 text-sm font-bold text-[#142019] no-underline shadow-sm">Explore marketplace</Link>
             </div>
             <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs font-semibold text-[#647067]">
-              <span>✓ Farmer-first workflows</span><span>✓ Transparent recommendations</span><span>✓ Shared Supabase data</span>
+              <span>✓ Farmer-first workflows</span><span>✓ Explainable recommendations</span><span>✓ Shared Supabase ecosystem</span>
             </div>
           </div>
 
@@ -51,10 +51,10 @@ export default function HomePage() {
               <div className="rounded-[1.15rem] bg-[#f4f8f4] p-5 sm:p-6">
                 <div className="flex items-start justify-between gap-4">
                   <div><p className="text-[11px] font-extrabold uppercase tracking-[.16em] text-[#647067]">Farm-to-market flow</p><p className="mt-1 text-xl font-extrabold text-[#142019]">One connected journey</p></div>
-                  <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-[#18794e] shadow-sm">LIVE WORKFLOW</span>
+                  <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-[#18794e] shadow-sm">WORKFLOW</span>
                 </div>
                 <div className="mt-5 space-y-2.5">
-                  {["Farm & crop", "Crop intelligence", "Buyer demand", "Offer & order", "Logistics & delivery"].map((item, index) => (
+                  {["Farm & crop", "Crop health & intelligence", "Buyer demand", "Offer & order", "Aggregation & logistics"].map((item, index) => (
                     <div key={item} className="flex items-center gap-3 rounded-xl border border-[#e7eee8] bg-white px-3.5 py-3 shadow-sm">
                       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#17633a] text-xs font-black text-white">{index + 1}</span>
                       <span className="text-sm font-bold text-[#142019]">{item}</span>
@@ -63,8 +63,8 @@ export default function HomePage() {
                   ))}
                 </div>
                 <div className="mt-5 rounded-xl border border-[#cfe3d3] bg-[#eef6ef] p-3.5">
-                  <p className="text-xs font-bold text-[#17633a]">Decision support</p>
-                  <p className="mt-1 text-sm leading-5 text-[#526058]">Every AI recommendation is designed to show the reason, confidence and data status before action.</p>
+                  <p className="text-xs font-bold text-[#17633a]">Trust by design</p>
+                  <p className="mt-1 text-sm leading-5 text-[#526058]">Recommendations show reason, confidence and data status. Simulated or estimated values are explicitly labelled.</p>
                 </div>
               </div>
             </div>
@@ -72,11 +72,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="border-y border-[#dfe8e1] bg-white" aria-labelledby="features-heading">
+      <section className="border-y border-[#dfe8e1] bg-white" aria-labelledby="capabilities-heading">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-18">
-          <div className="max-w-2xl"><p className="text-xs font-extrabold uppercase tracking-[.16em] text-[#17633a]">Everything connected</p><h2 id="features-heading" className="mt-2 text-3xl font-black tracking-tight text-[#142019]">Less switching. More clarity.</h2><p className="mt-3 text-sm leading-6 text-[#647067]">A consistent interface across farmer, buyer, FPO and admin workflows.</p></div>
+          <div className="max-w-3xl"><p className="text-xs font-extrabold uppercase tracking-[.16em] text-[#17633a]">Core capabilities</p><h2 id="capabilities-heading" className="mt-2 text-3xl font-black tracking-tight text-[#142019]">The product now tells the complete story.</h2><p className="mt-3 text-sm leading-6 text-[#647067]">Crop decision support and market connectivity are presented as one workflow, without pretending demo data is live production data.</p></div>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {features.map(([title, text], index) => <article key={title} className="group rounded-2xl border border-[#dfe8e1] bg-[#fbfdfb] p-5 shadow-sm"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#eef6ef] text-sm font-black text-[#17633a]">0{index + 1}</div><h3 className="mt-5 font-extrabold text-[#142019]">{title}</h3><p className="mt-2 text-sm leading-6 text-[#647067]">{text}</p></article>)}
+            {capabilities.map(([number, title, text]) => <article key={title} className="rounded-2xl border border-[#dfe8e1] bg-[#fbfdfb] p-5 shadow-sm"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#eef6ef] text-sm font-black text-[#17633a]">{number}</div><h3 className="mt-5 font-extrabold text-[#142019]">{title}</h3><p className="mt-2 text-sm leading-6 text-[#647067]">{text}</p></article>)}
           </div>
         </div>
       </section>
@@ -91,7 +91,7 @@ export default function HomePage() {
       </section>
 
       <footer className="border-t border-[#dfe8e1] bg-white">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-7 text-sm text-[#647067] sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"><div><span className="font-extrabold text-[#142019]">FARMPLUG AI</span><span className="ml-2">Practical agricultural connectivity.</span></div><div className="flex gap-4"><Link href="/about" className="no-underline hover:text-[#17633a]">About</Link><Link href="/signin" className="no-underline hover:text-[#17633a]">Sign in</Link></div></div>
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-7 text-sm text-[#647067] sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"><div><span className="font-extrabold text-[#142019]">FARMPLUG AI</span><span className="ml-2">From farm intelligence to the right market.</span></div><div className="flex gap-4"><Link href="/about" className="no-underline hover:text-[#17633a]">About</Link><Link href="/signin" className="no-underline hover:text-[#17633a]">Sign in</Link></div></div>
       </footer>
     </main>
   );
