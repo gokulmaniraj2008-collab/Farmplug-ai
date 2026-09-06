@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
             settings.setSupportZoom(false)
             settings.allowFileAccess = false
             settings.allowContentAccess = false
-            settings.userAgentString = settings.userAgentString + " FarmPlugFarmer/1.1.0"
+            settings.userAgentString = settings.userAgentString + " FarmPlugFarmer/1.2.0"
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean = false
 
