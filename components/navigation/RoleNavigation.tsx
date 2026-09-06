@@ -7,19 +7,23 @@ type Role = "farmer" | "buyer" | "fpo" | "admin";
 
 type Item = { href: string; label: string; icon: string };
 
-const config: Record<Role, { title: string; items: Item[] }> = {
+type RoleConfig = { title: string; profileHref: string; items: Item[] };
+
+const config: Record<Role, RoleConfig> = {
   farmer: {
     title: "Farmer",
+    profileHref: "/dashboard/farmer/profile",
     items: [
       { href: "/dashboard/farmer", label: "Home", icon: "⌂" },
       { href: "/dashboard/farmer/farm", label: "Farm", icon: "🌱" },
       { href: "/dashboard/farmer/intelligence", label: "AI", icon: "✦" },
       { href: "/dashboard/farmer/listings", label: "Market", icon: "🛒" },
-      { href: "/dashboard/farmer/orders", label: "Profile", icon: "●" },
+      { href: "/dashboard/farmer/profile", label: "Profile", icon: "●" },
     ],
   },
   buyer: {
     title: "Buyer",
+    profileHref: "/dashboard/buyer/settings",
     items: [
       { href: "/dashboard/buyer", label: "Home", icon: "⌂" },
       { href: "/dashboard/buyer/requirements", label: "Discover", icon: "⌕" },
@@ -30,6 +34,7 @@ const config: Record<Role, { title: string; items: Item[] }> = {
   },
   fpo: {
     title: "FPO",
+    profileHref: "/dashboard/fpo",
     items: [
       { href: "/dashboard/fpo", label: "Home", icon: "⌂" },
       { href: "/dashboard/fpo/farmers", label: "Farmers", icon: "♟" },
@@ -40,6 +45,7 @@ const config: Record<Role, { title: string; items: Item[] }> = {
   },
   admin: {
     title: "Admin",
+    profileHref: "/dashboard/admin/settings",
     items: [
       { href: "/dashboard/admin", label: "Dashboard", icon: "⌂" },
       { href: "/dashboard/admin/users", label: "Users", icon: "♟" },
@@ -52,7 +58,7 @@ const config: Record<Role, { title: string; items: Item[] }> = {
 
 export default function RoleNavigation({ role }: { role: Role }) {
   const pathname = usePathname();
-  const { title, items } = config[role];
+  const { title, profileHref, items } = config[role];
 
   return (
     <>
@@ -62,8 +68,7 @@ export default function RoleNavigation({ role }: { role: Role }) {
           <span><strong>FARMPLUG AI</strong><small>{title} workspace</small></span>
         </Link>
         <div className="fp-header-actions">
-          <button type="button" aria-label="Notifications" className="fp-icon-button">♢</button>
-          <Link href="/signin" className="fp-profile-dot" aria-label="Account">●</Link>
+          <Link href={profileHref} className="fp-profile-dot" aria-label="Profile">●</Link>
         </div>
       </header>
 
