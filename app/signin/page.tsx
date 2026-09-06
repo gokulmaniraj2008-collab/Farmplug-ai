@@ -15,14 +15,16 @@ export default function SignInPage() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
+    if (!supabase) return;
     let active = true;
     const check = async () => {
-      if (!supabase) return;
       const { data } = await supabase.auth.getSession();
       if (active && data.session) router.replace('/app-v2');
     };
-    check();
-    return () => { active = false; };
+    void check();
+    return () => {
+      active = false;
+    };
   }, [router]);
 
   const signInWithGoogle = async () => {
@@ -33,11 +35,10 @@ export default function SignInPage() {
 
     setGoogleBusy(true);
     setMessage('');
-
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/app-v2`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/app-v2`,
       },
     });
 
@@ -88,13 +89,7 @@ export default function SignInPage() {
       <h1>Welcome back.</h1>
       <p className="muted">Sign in securely to your FarmPlug AI farmer workspace.</p>
 
-      <button
-        className="mainBtn"
-        type="button"
-        onClick={signInWithGoogle}
-        disabled={googleBusy || busy}
-        style={{ marginTop: 24 }}
-      >
+      <button className="mainBtn" type="button" onClick={signInWithGoogle} disabled={googleBusy || busy} style={{ marginTop: 24 }}>
         {googleBusy ? <><Loader2 className="spin" size={18} /> Connecting to Google…</> : <><Chrome size={18} /> Continue with Google</>}
       </button>
 
@@ -123,9 +118,7 @@ export default function SignInPage() {
         New farmer? <Link href="/signup" style={{ fontWeight: 800 }}>Create an account</Link>
       </p>
 
-      <Link href="/onboarding" style={{ marginTop: 8, textAlign: 'center' }}>
-        Review onboarding again
-      </Link>
+      <Link href="/onboarding" style={{ marginTop: 8, textAlign: 'center' }}>Review onboarding again</Link>
     </main>
   );
 }
