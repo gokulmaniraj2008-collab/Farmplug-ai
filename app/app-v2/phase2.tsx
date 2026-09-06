@@ -1,43 +1,98 @@
 'use client';
-import { useEffect, useState, type FormEvent } from 'react';
-import { ArrowRight, Bell, Check, ChevronLeft, Home, Leaf, LogOut, Package, Search, Settings, ShoppingBag, Sparkles, User, Wheat } from 'lucide-react';
+
+import { ArrowRight, Bell, Leaf, LogOut, Package, Settings, ShoppingBag, Sparkles, User, Wheat } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 
-type Screen='home'|'farm'|'market'|'orders'|'notifications'|'profile'|'settings'|'crop';
-type Row=Record<string,unknown>;
-const nav:[Screen,string,typeof Home][]=[['home','Home',Home],['farm','Farm',Wheat],['market','Market',ShoppingBag],['orders','Orders',Package],['profile','Profile',User]];
+const destinations = [
+  { href: '/crop-health', title: 'Crop Health', description: 'AI-assisted crop risk screening.', icon: Wheat },
+  { href: '/farm-intelligence', title: 'Farm Intelligence', description: 'Review farm insights and decisions.', icon: Leaf },
+  { href: '/offers', title: 'Offers & Market', description: 'Review buyer offers and market opportunities.', icon: ShoppingBag },
+  { href: '/orders', title: 'Orders', description: 'Track accepted trades and order status.', icon: Package },
+  { href: '/notifications', title: 'Notifications', description: 'See important FarmPlug alerts.', icon: Bell },
+  { href: '/settings', title: 'Settings', description: 'Manage FarmPlug preferences.', icon: Settings },
+];
 
-export default function FarmerAppPhase2(){
- const client=supabase;
- const [screen,setScreen]=useState<Screen>('home'); const [session,setSession]=useState<Awaited<ReturnType<NonNullable<typeof supabase>['auth']['getSession']>>['data']['session']>(null);
- const [name,setName]=useState('Farmer'); const [farm,setFarm]=useState<Row|null>(null); const [farms,setFarms]=useState<Row[]>([]); const [crops,setCrops]=useState<Row[]>([]); const [requirements,setRequirements]=useState<Row[]>([]); const [orders,setOrders]=useState<Row[]>([]); const [notifications,setNotifications]=useState<Row[]>([]); const [prices,setPrices]=useState<Row[]>([]); const [busy,setBusy]=useState(false); const [message,setMessage]=useState(''); const [crop,setCrop]=useState('Tomato'); const [qty,setQty]=useState('500');
- if(!client)return <main className="v2 auth"><div className="notice"><b>FarmPlug AI is not configured.</b><p>Add the public Supabase environment variables to enable the farmer workspace.</p></div></main>;
- const go=(next:Screen)=>{setMessage('');setScreen(next)};
- const authHeaders=async():Promise<Record<string,string>>=>{const {data}=await client.auth.getSession();return {Authorization:`Bearer ${data.session?.access_token??''}`,'Content-Type':'application/json'}};
- const load=async(uid:string)=>{const [profile,farmsResult,cropsResult,requirementsResult,ordersResult,notificationResult,priceResult]=await Promise.all([
-  client.from('farmer_profiles').select('full_name').eq('id',uid).maybeSingle(),
-  client.from('farms').select('*').eq('owner_id',uid).order('created_at'),
-  client.from('crops').select('*').order('created_at',{ascending:false}),
-  client.from('farmplug_buyer_requirements').select('*').eq('status','open').order('created_at',{ascending:false}),
-  client.from('farmplug_orders').select('*').eq('farmer_id',uid).order('created_at',{ascending:false}),
-  client.from('notifications').select('*').eq('user_id',uid).order('created_at',{ascending:false}).limit(30),
-  client.from('market_prices').select('*').order('price_date',{ascending:false}).limit(20)
- ]);setName(String(profile.data?.full_name||'Farmer'));setFarms(farmsResult.data||[]);setFarm(farmsResult.data?.[0]||null);setCrops(cropsResult.data||[]);setRequirements(requirementsResult.data||[]);setOrders(ordersResult.data||[]);setNotifications(notificationResult.data||[]);setPrices(priceResult.data||[])};
- useEffect(()=>{let active=true;const boot=async()=>{const {data}=await client.auth.getSession();if(!active)return;if(data.session){setSession(data.session);await load(data.session.user.id)}else go('home')};void boot();const {data}=client.auth.onAuthStateChange((_event,next)=>{if(!active)return;setSession(next);if(next)void load(next.user.id)});return()=>{active=false;data.subscription.unsubscribe()};},[]);
- const createFarm=async(e:FormEvent<HTMLFormElement>)=>{e.preventDefault();if(!session)return;const fd=new FormData(e.currentTarget);const location=String(fd.get('location')||'').trim();const area=Number(fd.get('area'));if(!location||area<=0){setMessage('Enter a valid location and area.');return}setBusy(true);const {error}=await client.from('farms').insert({owner_id:session.user.id,name:String(fd.get('name')||'My Farm'),location,area_acres:area});setBusy(false);if(error)setMessage('Could not save the farm.');else{await load(session.user.id);go('farm')}};
- const createCrop=async(e:FormEvent<HTMLFormElement>)=>{e.preventDefault();if(!session||!farm){setMessage('Add a farm first.');return}const fd=new FormData(e.currentTarget);const cropName=String(fd.get('crop')||'').trim();const quantity=Number(fd.get('quantity'));if(!cropName||quantity<0){setMessage('Enter crop and valid quantity.');return}setBusy(true);const {error}=await client.from('crops').insert({farm_id:farm.id,crop_name:cropName,available_quantity_kg:quantity,area_acres:Number(fd.get('area'))||null,harvest_date:String(fd.get('harvest')||'')||null,quality_grade:String(fd.get('quality')||'Grade A'),status:'harvest_ready'});setBusy(false);if(error)setMessage('Could not save the crop.');else{await load(session.user.id);go('crop')}};
- const publish=async()=>{if(!session||!farm){setMessage('Add a farm first.');return}const quantity=Number(qty);if(quantity<=0){setMessage('Enter a positive quantity.');return}setBusy(true);const {error}=await client.from('farmplug_supply_listings').insert({farmer_name:name,crop,quantity_kg:quantity,quality:'Grade A',location:String(farm.location||''),created_by:session.user.id,status:'available'});setBusy(false);if(error)setMessage('Could not publish produce.');else{setMessage('Produce published. Buyer matching can now use this listing.');await load(session.user.id)}};
- const signOut=async()=>{await client.auth.signOut();setSession(null);go('home')};
- if(!session)return <div className="v2 auth"><div className="authLogo"><Leaf/></div><p className="kicker">FARMPLUG AI FARMER APP</p><h1>Sign in to your farm workspace.</h1><p className="muted">Use the main FarmPlug sign-in flow to continue.</p><a className="mainBtn" href="/signin">Sign in <ArrowRight/></a></div>;
- return <div className="v2 appShell"><header className="appTop"><button onClick={()=>go('home')}><ChevronLeft/> FarmPlug AI</button><button onClick={()=>go('settings')}><Settings/></button></header><main className="appBody">
- {message&&<div className="notice"><b>FarmPlug update</b><p>{message}</p></div>}
- {screen==='home'&&<><div className="aiHero"><div className="bot"><Leaf/></div><h1>Vanakkam, {name} 👋</h1><p>Detect crop risk, make farm decisions, find buyers and move produce to the right market.</p></div><div className="cards2"><button onClick={()=>go('crop')}><Wheat/><b>Crop Health</b><span>{crops.length} crop records</span></button><button onClick={()=>go('market')}><ShoppingBag/><b>Market</b><span>{requirements.length} open buyer needs</span></button></div><div className="stats"><div><small>FARMS</small><strong>{farms.length}</strong><span>My farms</span></div><div><small>BUYERS</small><strong>{requirements.length}</strong><span>Open needs</span></div><div><small>ORDERS</small><strong>{orders.length}</strong><span>Orders</span></div></div><button className="listCard" onClick={()=>go('crop')}><Leaf/><div><b>Next best action</b><p>Upload a crop image in Crop Health or review your farm records.</p></div><ArrowRight/></button></>}
- {screen==='farm'&&<><h1>My Farm</h1><div className="weather"><div><small>FARM LOCATION</small><b>{String(farm?.location||'Add your farm')}</b></div><div><b>{String(farm?.area_acres||0)} acres</b></div></div>{farms.map(f=><div className="marketCard" key={String(f.id)}><Wheat/><div><b>{String(f.name||'Farm')}</b><p>{String(f.location||'Location pending')} • {String(f.area_acres||0)} acres</p></div></div>)}<form onSubmit={createFarm}><label>Farm name</label><input name="name" defaultValue="My Farm"/><label>Location</label><input name="location" placeholder="Coimbatore, Tamil Nadu" required/><label>Area (acres)</label><input name="area" type="number" min="0.01" step="0.01" required/><button className="mainBtn" disabled={busy}>{busy?'Saving…':'Add farm'} <Check/></button></form></>}
- {screen==='crop'&&<><h1>Crop Health & Harvest</h1><p className="muted">Keep crop records here and use the dedicated image-assisted Crop Health screen for risk screening.</p>{crops.map(c=><div className="marketCard" key={String(c.id)}><Leaf/><div><b>{String(c.crop_name||'Crop')}</b><p>{String(c.available_quantity_kg||0)} kg • {String(c.quality_grade||'Grade')}</p><small>Harvest: {String(c.harvest_date||'Not set')}</small></div></div>)}<form onSubmit={createCrop}><label>Crop</label><input name="crop" placeholder="Tomato" required/><label>Quantity (kg)</label><input name="quantity" type="number" min="0" required/><label>Area (acres)</label><input name="area" type="number" min="0" step="0.01"/><label>Quality</label><select name="quality" defaultValue="Grade A"><option>Grade A</option><option>Grade B</option><option>Grade C</option></select><label>Harvest date</label><input name="harvest" type="date"/><button className="mainBtn" disabled={busy}>{busy?'Saving…':'Save crop'} <Check/></button></form><a className="outlineBtn" href="/crop-health">Open Crop Health AI <Sparkles/></a></>}
- {screen==='market'&&<><h1>Market</h1><div className="search"><Search/><input placeholder="Search crop or buyer"/></div>{requirements.map(r=><article className="marketCard" key={String(r.id)}><ShoppingBag/><div><b>{String(r.buyer_name||'Buyer')}</b><p>{String(r.crop||'Produce')} • {String(r.quantity_kg||0)} kg</p><small>{String(r.quality||'Any quality')} • {String(r.location||'Location pending')} • {r.is_verified===true?'✓ Verified buyer':'Unverified buyer'}</small></div></article>)}{requirements.length===0&&<div className="notice">No open buyer requirements are available.</div>}<div className="sectionTitle"><b>Market prices</b><span>{prices.length}</span></div>{prices.slice(0,8).map(p=><div className="marketRow" key={String(p.id)}><div><b>{String(p.crop||'Crop')}</b><div>{String(p.price_date||'')} • {String(p.source||'Source')}</div></div><strong>₹{Number(p.price_per_kg||0).toFixed(2)}/kg</strong></div>)}<label>Listing crop</label><input value={crop} onChange={e=>setCrop(e.target.value)}/><label>Quantity (kg)</label><input type="number" min="1" value={qty} onChange={e=>setQty(e.target.value)}/><button className="mainBtn" disabled={busy} onClick={()=>void publish()}>{busy?'Publishing…':'List produce'} <ArrowRight/></button></>}
- {screen==='orders'&&<><h1>Orders</h1>{orders.map(o=><div className="marketCard" key={String(o.id)}><Package/><div><b>Order #{String(o.id).slice(0,8)}</b><p>{String(o.quantity_kg||0)} kg • ₹{Number(o.unit_price||0).toFixed(2)}/kg</p><small>Status: {String(o.status||'pending')}</small></div></div>)}{orders.length===0&&<div className="notice">No farmer orders yet. Accepted buyer offers will appear here.</div>}</>}
- {screen==='notifications'&&<><h1>Notifications</h1>{notifications.map(n=><div className="marketCard" key={String(n.id)}><Bell/><div><b>{String(n.title||'FarmPlug alert')}</b><p>{String(n.body||'')}</p><small>{String(n.created_at||'')}</small></div></div>)}{notifications.length===0&&<div className="notice">No notifications yet.</div>}</>}
- {screen==='profile'&&<><h1>Profile</h1><div className="aiHero"><div className="bot"><User/></div><h2>{name}</h2><p>{session.user.email}</p></div><button className="mainBtn" onClick={()=>void signOut()}><LogOut/> Sign out</button></>}
- {screen==='settings'&&<><h1>Settings</h1><div className="marketCard"><Settings/><div><b>Preferences</b><p>Language, notifications and theme are managed here.</p></div></div><div className="marketCard"><Sparkles/><div><b>AI safety</b><p>Crop-health outputs remain prototype advisory signals and are not professional diagnoses.</p></div></div><button className="outlineBtn" onClick={()=>go('notifications')}><Bell/> Notifications</button></>}
- </main><nav className="bottomNav">{nav.map(([key,label,Icon])=><button key={key} onClick={()=>go(key)}><Icon size={18}/><span>{label}</span></button>)}</nav></div>;
+export default function FarmerAppPhase2() {
+  const router = useRouter();
+  const [name, setName] = useState('Farmer');
+
+  useEffect(() => {
+    let active = true;
+    const loadProfile = async () => {
+      if (!supabase) return;
+      const { data } = await supabase.auth.getSession();
+      if (!active || !data.session) return;
+      const { data: profile } = await supabase
+        .from('farmer_profiles')
+        .select('full_name')
+        .eq('id', data.session.user.id)
+        .maybeSingle();
+      if (active && profile?.full_name) setName(String(profile.full_name));
+    };
+    void loadProfile();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const signOut = async () => {
+    if (supabase) await supabase.auth.signOut();
+    router.replace('/splash');
+  };
+
+  return (
+    <div className="v2 appShell">
+      <header className="appTop">
+        <button onClick={() => router.push('/dashboard')} aria-label="Back to dashboard">
+          <Leaf /> FarmPlug AI
+        </button>
+        <button onClick={() => router.push('/settings')} aria-label="Open settings">
+          <Settings />
+        </button>
+      </header>
+
+      <main className="appBody">
+        <section className="aiHero">
+          <div className="bot"><Leaf /></div>
+          <p className="kicker">FARMPLUG AI FARMER APP</p>
+          <h1>Vanakkam, {name} 👋</h1>
+          <p>One farmer workspace, with every feature opening the same canonical FarmPlug pages.</p>
+        </section>
+
+        <div className="cards2">
+          {destinations.map(({ href, title, description, icon: Icon }) => (
+            <button key={href} onClick={() => router.push(href)} aria-label={`Open ${title}`}>
+              <Icon />
+              <b>{title}</b>
+              <span>{description}</span>
+              <ArrowRight />
+            </button>
+          ))}
+        </div>
+
+        <div className="notice">
+          <b>Canonical navigation</b>
+          <p>
+            FarmPlug AI no longer maintains a second copy of Crop Health, Farm Intelligence, Market, Orders,
+            Notifications, or Settings inside this shell. Each action opens the corresponding routed page.
+          </p>
+        </div>
+
+        <button className="outlineBtn" onClick={() => void signOut()}>
+          <LogOut /> Sign out
+        </button>
+
+        <div className="marketCard">
+          <User />
+          <div>
+            <b>Farmer workspace</b>
+            <p>Your authenticated FarmPlug session controls access to the operational pages.</p>
+          </div>
+          <Sparkles />
+        </div>
+      </main>
+    </div>
+  );
 }
