@@ -3,15 +3,16 @@ import { createClient } from '@/lib/supabase/server';
 
 const normalize = (v: unknown) => String(v ?? '').toLowerCase();
 const orderTransitions: Record<string, string[]> = {
-  pending: ['confirmed', 'cancelled'],
-  confirmed: ['aggregating', 'pickup', 'cancelled'],
-  aggregating: ['pickup', 'cancelled'],
-  pickup: ['in_transit', 'cancelled'],
-  in_transit: ['delivered'],
+  quote_pending: ['quote_accepted', 'cancelled'],
+  quote_accepted: ['order_confirmed', 'cancelled'],
+  order_confirmed: ['collecting', 'cancelled'],
+  collecting: ['in_transit', 'cancelled'],
+  in_transit: ['delivered', 'cancelled'],
   delivered: ['completed'],
   completed: [],
   cancelled: [],
 };
+const validOrderStatuses = Object.keys(orderTransitions);
 
 export async function POST(req: Request) {
   const supabase = await createClient();
@@ -41,15 +42,16 @@ export async function POST(req: Request) {
   if (action === 'update_order') {
     const id = String(body.id || '');
     const next = normalize(body.status);
-    if (!id || !next) return NextResponse.json({ error: 'Order id and status are required' }, { status: 400 });
+    if (!id || !validOrderStatuses.includes(next)) return NextResponse.json({ error: 'Order id and a valid order status are required' }, { status: 400 });
     if (!isAdmin && !isBuyer && !isFpo) return NextResponse.json({ error: 'Portal action not allowed for this role' }, { status: 403 });
     const { data: order, error: findError } = await supabase.from('farmplug_orders').select('id,buyer_id,farmer_id,status').eq('id', id).maybeSingle();
     if (findError) return NextResponse.json({ error: findError.message }, { status: 500 });
     if (!order) return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     if (isBuyer && order.buyer_id !== user.id) return NextResponse.json({ error: 'You can only update your own buyer orders' }, { status: 403 });
     const current = normalize(order.status);
+    if (!validOrderStatuses.includes(current)) return NextResponse.json({ error: `Order has unsupported status: ${current}` }, { status: 409 });
     if (!isAdmin && !orderTransitions[current]?.includes(next)) return NextResponse.json({ error: `Invalid transition: ${current} → ${next}` }, { status: 409 });
-    const { data, error } = await supabase.from('farmplug_orders').update({ status: next.toUpperCase() }).eq('id', id).select('*').maybeSingle();
+    const { data, error } = await supabase.from('farmplug_orders').update({ status: next }).eq('id', id).select('*').maybeSingle();
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ data });
   }
