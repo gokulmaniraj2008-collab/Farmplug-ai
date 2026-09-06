@@ -2,22 +2,16 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
 const normalize = (v: unknown) => String(v ?? '').toLowerCase();
-const orderTransitions: Record<string, string[]> = {
-  quote_pending: ['quote_accepted', 'cancelled'],
-  quote_accepted: ['order_confirmed', 'cancelled'],
-  order_confirmed: ['collecting', 'cancelled'],
-  collecting: ['in_transit', 'cancelled'],
-  in_transit: ['delivered', 'cancelled'],
-  delivered: ['completed'],
-  completed: [],
-  cancelled: [],
-};
-const validOrderStatuses = Object.keys(orderTransitions);
+const validOrderStatuses = new Set([
+  'quote_pending', 'quote_accepted', 'order_confirmed', 'collecting',
+  'in_transit', 'delivered', 'completed', 'cancelled',
+]);
 
 export async function POST(req: Request) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   const { data: profile } = await supabase.from('profiles').select('role,farm_role').eq('id', user.id).maybeSingle();
   const role = normalize(profile?.role);
   const farmRole = normalize(profile?.farm_role);
@@ -30,11 +24,12 @@ export async function POST(req: Request) {
   if (action === 'update_requirement') {
     if (!isBuyer && !isAdmin) return NextResponse.json({ error: 'Buyer or admin access required' }, { status: 403 });
     const id = String(body.id || '');
-    const status = String(body.status || '').toUpperCase();
-    if (!id || !['OPEN', 'PAUSED', 'CLOSED', 'CANCELLED'].includes(status)) return NextResponse.json({ error: 'Invalid requirement update' }, { status: 400 });
-    const query = supabase.from('farmplug_buyer_requirements').update({ status }).eq('id', id);
-    const { data, error } = isAdmin ? await query.select('*').maybeSingle() : await query.eq('created_by', user.id).select('*').maybeSingle();
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    const status = String(body.status || '').toLowerCase();
+    if (!id || !['open', 'paused', 'closed', 'cancelled'].includes(status)) return NextResponse.json({ error: 'Invalid requirement update' }, { status: 400 });
+    let query = supabase.from('farmplug_buyer_requirements').update({ status }).eq('id', id);
+    if (!isAdmin) query = query.eq('created_by', user.id);
+    const { data, error } = await query.select('*').maybeSingle();
+    if (error) return NextResponse.json({ error: 'Unable to update requirement.' }, { status: 500 });
     if (!data) return NextResponse.json({ error: 'Requirement not found or not owned by this account' }, { status: 404 });
     return NextResponse.json({ data });
   }
@@ -42,17 +37,21 @@ export async function POST(req: Request) {
   if (action === 'update_order') {
     const id = String(body.id || '');
     const next = normalize(body.status);
-    if (!id || !validOrderStatuses.includes(next)) return NextResponse.json({ error: 'Order id and a valid order status are required' }, { status: 400 });
+    if (!id || !validOrderStatuses.has(next)) return NextResponse.json({ error: 'Order id and a valid order status are required' }, { status: 400 });
     if (!isAdmin && !isBuyer && !isFpo) return NextResponse.json({ error: 'Portal action not allowed for this role' }, { status: 403 });
-    const { data: order, error: findError } = await supabase.from('farmplug_orders').select('id,buyer_id,farmer_id,status').eq('id', id).maybeSingle();
-    if (findError) return NextResponse.json({ error: findError.message }, { status: 500 });
-    if (!order) return NextResponse.json({ error: 'Order not found' }, { status: 404 });
-    if (isBuyer && order.buyer_id !== user.id) return NextResponse.json({ error: 'You can only update your own buyer orders' }, { status: 403 });
-    const current = normalize(order.status);
-    if (!validOrderStatuses.includes(current)) return NextResponse.json({ error: `Order has unsupported status: ${current}` }, { status: 409 });
-    if (!isAdmin && !orderTransitions[current]?.includes(next)) return NextResponse.json({ error: `Invalid transition: ${current} → ${next}` }, { status: 409 });
-    const { data, error } = await supabase.from('farmplug_orders').update({ status: next }).eq('id', id).select('*').maybeSingle();
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+    const { data, error } = await supabase.rpc('transition_farmplug_order', {
+      p_order_id: id,
+      p_next_status: next,
+    });
+    if (error) {
+      const message = error.message || 'Order transition failed.';
+      const status = /not authorized/i.test(message) ? 403
+        : /not found/i.test(message) ? 404
+        : /invalid order transition/i.test(message) ? 409
+        : 500;
+      return NextResponse.json({ error: status === 500 ? 'Order transition failed.' : message }, { status });
+    }
     return NextResponse.json({ data });
   }
 
@@ -61,10 +60,10 @@ export async function POST(req: Request) {
     const requirementId = String(body.requirement_id || '');
     if (!requirementId) return NextResponse.json({ error: 'Requirement is required' }, { status: 400 });
     const { data: requirement, error: reqError } = await supabase.from('farmplug_buyer_requirements').select('id,quantity_kg,status').eq('id', requirementId).maybeSingle();
-    if (reqError) return NextResponse.json({ error: reqError.message }, { status: 500 });
+    if (reqError) return NextResponse.json({ error: 'Unable to load requirement.' }, { status: 500 });
     if (!requirement) return NextResponse.json({ error: 'Requirement not found' }, { status: 404 });
     const { data, error } = await supabase.from('supply_aggregations').insert({ requirement_id: requirement.id, total_quantity_kg: 0, status: 'forming', selected_listings: [] }).select('*').single();
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return NextResponse.json({ error: 'Unable to create aggregation.' }, { status: 500 });
     return NextResponse.json({ data });
   }
 
@@ -74,7 +73,7 @@ export async function POST(req: Request) {
     const status = normalize(body.status);
     if (!id || !['forming', 'ready', 'pickup_scheduled', 'completed', 'cancelled'].includes(status)) return NextResponse.json({ error: 'Invalid aggregation update' }, { status: 400 });
     const { data, error } = await supabase.from('supply_aggregations').update({ status, updated_at: new Date().toISOString() }).eq('id', id).select('*').maybeSingle();
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return NextResponse.json({ error: 'Unable to update aggregation.' }, { status: 500 });
     if (!data) return NextResponse.json({ error: 'Aggregation not found' }, { status: 404 });
     return NextResponse.json({ data });
   }
@@ -85,7 +84,7 @@ export async function POST(req: Request) {
     const eventType = String(body.event_type || '').trim();
     if (!orderId || !eventType) return NextResponse.json({ error: 'Order and event type are required' }, { status: 400 });
     const { data, error } = await supabase.from('delivery_events').insert({ order_id: orderId, event_type: eventType, location: body.location || null, notes: body.notes || null }).select('*').single();
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return NextResponse.json({ error: 'Unable to create delivery event.' }, { status: 500 });
     return NextResponse.json({ data });
   }
 
