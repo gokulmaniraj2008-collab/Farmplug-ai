@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Leaf, Loader2 } from 'lucide-react';
+import { ArrowRight, Chrome, Leaf, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
 
@@ -13,7 +13,28 @@ export default function SignUpPage() {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [busy, setBusy] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
   const [message, setMessage] = useState('');
+
+  const signUpWithGoogle = async () => {
+    if (!supabase) {
+      setMessage('Authentication is not configured. Please contact the administrator.');
+      return;
+    }
+    setGoogleBusy(true);
+    setMessage('');
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?next=/app-v2`,
+        queryParams: { access_type: 'offline', prompt: 'select_account' },
+      },
+    });
+    if (error) {
+      setMessage(error.message);
+      setGoogleBusy(false);
+    }
+  };
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -53,7 +74,17 @@ export default function SignUpPage() {
       <h1>Join FarmPlug AI.</h1>
       <p className="muted">Create your secure farmer workspace and continue to your farm dashboard.</p>
 
-      <form onSubmit={submit} style={{ display: 'grid', gap: 10, marginTop: 24 }}>
+      <button className="mainBtn" type="button" onClick={signUpWithGoogle} disabled={googleBusy || busy} style={{ marginTop: 24 }}>
+        {googleBusy ? <><Loader2 className="spin" size={18} /> Connecting to Google…</> : <><Chrome size={18} /> Continue with Google</>}
+      </button>
+
+      <div className="muted" style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '18px 0' }}>
+        <span style={{ flex: 1, height: 1, background: 'currentColor', opacity: 0.2 }} />
+        <span>or create with email</span>
+        <span style={{ flex: 1, height: 1, background: 'currentColor', opacity: 0.2 }} />
+      </div>
+
+      <form onSubmit={submit} style={{ display: 'grid', gap: 10 }}>
         <label htmlFor="signup-name">Full name</label>
         <input id="signup-name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" />
         <label htmlFor="signup-email">Email</label>
@@ -63,7 +94,7 @@ export default function SignUpPage() {
         <label htmlFor="signup-confirm">Confirm password</label>
         <input id="signup-confirm" type="password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="Repeat password" />
         {message && <p className="formMessage" role="alert">{message}</p>}
-        <button className="mainBtn" type="submit" disabled={busy}>
+        <button className="mainBtn" type="submit" disabled={busy || googleBusy}>
           {busy ? <><Loader2 className="spin" size={18} /> Creating…</> : <>Create account <ArrowRight size={18} /></>}
         </button>
       </form>
