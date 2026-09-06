@@ -1,67 +1,692 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
-const bg=Color(0xFFF7FAF7),surface=Colors.white,green=Color(0xFF2E9E4F),gold=Color(0xFFD6AD45),text=Color(0xFF172019),muted=Color(0xFF667066),warning=Color(0xFFD58A00),danger=Color(0xFFC83C3C),border=Color(0xFFDCE5DC),site='https://farmplugaisxd.vercel.app';
-void main()=>runApp(const FarmPlug());
-void go(BuildContext c,Widget p)=>Navigator.push(c,MaterialPageRoute(builder:(_)=>p));
-void home(BuildContext c)=>Navigator.pushAndRemoveUntil(c,MaterialPageRoute(builder:(_)=>const HomeShell()),(_)=>false);
-Future<void> openSite(BuildContext c,String path)async{final ok=await launchUrl(Uri.parse('$site$path'),mode:LaunchMode.externalApplication);if(!ok&&c.mounted)ScaffoldMessenger.of(c).showSnackBar(const SnackBar(content:Text('Unable to open FarmPlug')));}
-class FarmPlug extends StatelessWidget{const FarmPlug({super.key});@override Widget build(BuildContext c)=>MaterialApp(debugShowCheckedModeBanner:false,title:'FarmPlug AI',theme:ThemeData(useMaterial3:true,brightness:Brightness.light,scaffoldBackgroundColor:bg,colorScheme:ColorScheme.fromSeed(seedColor:green,brightness:Brightness.light),cardTheme:const CardThemeData(color:surface,elevation:0),inputDecorationTheme:const InputDecorationTheme(filled:true,fillColor:surface,border:OutlineInputBorder(borderRadius:BorderRadius.all(Radius.circular(14)),borderSide:BorderSide(color:border)),enabledBorder:OutlineInputBorder(borderRadius:BorderRadius.all(Radius.circular(14)),borderSide:BorderSide(color:border)),focusedBorder:OutlineInputBorder(borderRadius:BorderRadius.all(Radius.circular(14)),borderSide:BorderSide(color:green,width:1.5)))),home:const Splash());}
-class Splash extends StatefulWidget{const Splash({super.key});@override State<Splash> createState()=>_SplashState();}
-class _SplashState extends State<Splash>{@override void initState(){super.initState();Future.delayed(const Duration(milliseconds:600),(){if(!mounted)return;Navigator.pushReplacement(context,MaterialPageRoute(builder:(_)=>const Welcome()));});}@override Widget build(BuildContext c)=>const Scaffold(body:Center(child:Column(mainAxisSize:MainAxisSize.min,children:[Icon(Icons.eco_rounded,color:green,size:64),SizedBox(height:14),Text('FarmPlug AI',style:TextStyle(color:text,fontSize:30,fontWeight:FontWeight.w800)),SizedBox(height:8),Text('Smart farming. Better decisions. Greater yields.',textAlign:TextAlign.center,style:TextStyle(color:muted)),SizedBox(height:22),CircularProgressIndicator(color:green)])));}
-class PageFrame extends StatelessWidget{final String title,subtitle;final List<Widget> children;const PageFrame({super.key,required this.title,required this.subtitle,required this.children});@override Widget build(BuildContext c)=>Scaffold(appBar:AppBar(title:Text(title,style:const TextStyle(fontWeight:FontWeight.w800)),backgroundColor:bg,foregroundColor:text,elevation:0,leading:Navigator.canPop(c)?const BackButton():null),body:SafeArea(child:GestureDetector(onTap:()=>FocusScope.of(c).unfocus(),child:ListView(padding:const EdgeInsets.fromLTRB(20,12,20,28),keyboardDismissBehavior:ScrollViewKeyboardDismissBehavior.onDrag,children:[Text(subtitle,style:const TextStyle(color:muted,height:1.35)),const SizedBox(height:18),...children.map((x)=>Padding(padding:const EdgeInsets.only(bottom:14),child:x))]))));}
-Widget action(String label,String detail,IconData icon,VoidCallback onTap,{Color color=green})=>Card(child:ListTile(onTap:onTap,contentPadding:const EdgeInsets.symmetric(horizontal:14,vertical:4),leading:CircleAvatar(backgroundColor:color.withAlpha(26),foregroundColor:color,child:Icon(icon)),title:Text(label,style:const TextStyle(color:text,fontWeight:FontWeight.w700)),subtitle:Text(detail,style:const TextStyle(color:muted)),trailing:const Icon(Icons.chevron_right,color:muted)));
-Widget primary(String label,VoidCallback onTap)=>SizedBox(width:double.infinity,height:52,child:FilledButton(onPressed:onTap,style:FilledButton.styleFrom(backgroundColor:green,foregroundColor:Colors.white,shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(14))),child:Text(label,style:const TextStyle(fontWeight:FontWeight.w700))));
-Widget outline(String label,VoidCallback onTap)=>SizedBox(width:double.infinity,height:50,child:OutlinedButton(onPressed:onTap,style:OutlinedButton.styleFrom(foregroundColor:green,side:const BorderSide(color:green),shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(14))),child:Text(label,style:const TextStyle(fontWeight:FontWeight.w700))));
-Widget field(String label,IconData icon,{TextEditingController? controller,bool obscure=false,TextInputType? type,String? Function(String?)? validator})=>TextFormField(controller:controller,obscureText:obscure,keyboardType:type,validator:validator,autocorrect:!obscure,decoration:InputDecoration(labelText:label,prefixIcon:Icon(icon),contentPadding:const EdgeInsets.symmetric(horizontal:14,vertical:15)));
-Widget info(String a,String b)=>Container(width:double.infinity,padding:const EdgeInsets.symmetric(vertical:12),decoration:const BoxDecoration(border:Border(bottom:BorderSide(color:border))),child:Row(children:[SizedBox(width:110,child:Text(a,style:const TextStyle(color:muted))),Expanded(child:Text(b,textAlign:TextAlign.right,style:const TextStyle(color:text,fontWeight:FontWeight.w700)))]));
-Widget status(String a,String b,Color color)=>Container(width:double.infinity,padding:const EdgeInsets.all(14),decoration:BoxDecoration(color:color.withAlpha(20),borderRadius:BorderRadius.circular(14),border:Border.all(color:color.withAlpha(60))),child:Row(crossAxisAlignment:CrossAxisAlignment.start,children:[Icon(Icons.check_circle_outline,color:color),const SizedBox(width:10),Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text(a,style:TextStyle(color:color,fontWeight:FontWeight.w800)),const SizedBox(height:3),Text(b,style:const TextStyle(color:text))]))]));
-class Welcome extends StatelessWidget{const Welcome({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Welcome to FarmPlug AI',subtitle:'From Farm Intelligence to the Right Market.',children:[const Icon(Icons.agriculture_rounded,color:green,size:78),const Text('One workspace for your farm, AI guidance, produce sales and orders.',style:TextStyle(color:text,fontSize:18,height:1.4)),primary('Get Started',()=>go(c,const SignIn())),outline('Explore Demo',()=>go(c,const DemoRole()))]);}
-class SignIn extends StatefulWidget{const SignIn({super.key});@override State<SignIn> createState()=>_SignInState();}
-class _SignInState extends State<SignIn>{final f=GlobalKey<FormState>(),login=TextEditingController(),pass=TextEditingController();bool loading=false;@override void dispose(){login.dispose();pass.dispose();super.dispose();}@override Widget build(BuildContext c)=>PageFrame(title:'Sign In',subtitle:'Use your FarmPlug account.',children:[Form(key:f,child:Column(children:[field('Phone or email',Icons.person_outline,controller:login,validator:(v)=>v==null||v.trim().isEmpty?'Enter phone or email':null),field('Password',Icons.lock_outline,controller:pass,obscure:true,validator:(v)=>v==null||v.length<6?'Minimum 6 characters':null)])),Align(alignment:Alignment.centerRight,child:TextButton(onPressed:()=>go(c,const ForgotPassword()),child:const Text('Forgot password?'))),primary(loading?'Signing in...':'Sign In',loading?()=>{}:(){if(!f.currentState!.validate())return;setState(()=>loading=true);Future.delayed(const Duration(milliseconds:300),(){if(mounted)home(c);});}),outline('Continue with Google',()=>go(c,const GoogleLogin())),TextButton(onPressed:()=>go(c,const SignUp()),child:const Text('New to FarmPlug? Sign Up'))]);}}
-class SignUp extends StatefulWidget{const SignUp({super.key});@override State<SignUp> createState()=>_SignUpState();}
-class _SignUpState extends State<SignUp>{final f=GlobalKey<FormState>(),name=TextEditingController(),phone=TextEditingController(),pass=TextEditingController(),confirm=TextEditingController();@override void dispose(){name.dispose();phone.dispose();pass.dispose();confirm.dispose();super.dispose();}@override Widget build(BuildContext c)=>PageFrame(title:'Create Account',subtitle:'Create your farmer workspace.',children:[Form(key:f,child:Column(children:[field('Full name',Icons.person_outline,controller:name,validator:(v)=>v==null||v.trim().isEmpty?'Enter your name':null),field('Phone number',Icons.phone_outlined,controller:phone,type:TextInputType.phone,validator:(v)=>v==null||v.trim().length<10?'Enter valid phone':null),field('Password',Icons.lock_outline,controller:pass,obscure:true,validator:(v)=>v==null||v.length<6?'Minimum 6 characters':null),field('Confirm password',Icons.lock_reset_outlined,controller:confirm,obscure:true,validator:(v)=>v!=pass.text?'Passwords do not match':null)])),const Text('By continuing you agree to the Terms and Privacy Policy.',style:TextStyle(color:muted,fontSize:12)),primary('Create Account',(){if(f.currentState!.validate())home(c);})]);}
-class GoogleLogin extends StatelessWidget{const GoogleLogin({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Google Login',subtitle:'Google sign-in.',children:[const Icon(Icons.account_circle,color:green,size:72),const Text('Google authentication is not connected in this demo build.',style:TextStyle(color:muted)),primary('Continue',()=>go(c,const RoleSelection()))]);}}
-class ForgotPassword extends StatefulWidget{const ForgotPassword({super.key});@override State<ForgotPassword> createState()=>_ForgotPasswordState();}
-class _ForgotPasswordState extends State<ForgotPassword>{final email=TextEditingController();bool sent=false;@override void dispose(){email.dispose();super.dispose();}@override Widget build(BuildContext c)=>PageFrame(title:'Forgot Password',subtitle:'Request a password reset.',children:[field('Phone or email',Icons.person_outline,controller:email),primary(sent?'Request sent':'Send reset request',(){setState(()=>sent=true);}),if(sent)status('Request created','Check your registered contact.',green)]);}}
-class RoleSelection extends StatelessWidget{const RoleSelection({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Choose Your Role',subtitle:'Select how you use FarmPlug.',children:[action('Farmer','Manage farms, crops and sales',Icons.agriculture,()=>home(c)),action('Buyer','Source verified produce',Icons.storefront,()=>go(c,const Marketplace())),action('FPO','Aggregate farmers and supply',Icons.groups,()=>go(c,const Aggregation()))]);}}
-class DemoRole extends StatelessWidget{const DemoRole({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Demo Role',subtitle:'Explore seeded FarmPlug workflows.',children:[action('Farmer Demo','Farmer workspace',Icons.agriculture,()=>home(c)),action('Buyer Demo','Marketplace and requirements',Icons.storefront,()=>go(c,const Marketplace())),action('FPO Demo','Aggregation and collection',Icons.groups,()=>go(c,const Aggregation()))]);}}
-class HomeShell extends StatefulWidget{const HomeShell({super.key});@override State<HomeShell> createState()=>_HomeShellState();}
-class _HomeShellState extends State<HomeShell>{int tab=0;final pages=const[FarmerHome(),AiCenter(),MyFarm(),Orders(),Profile()];@override Widget build(BuildContext c)=>Scaffold(body:SafeArea(child:pages[tab]),bottomNavigationBar:NavigationBar(backgroundColor:surface,selectedIndex:tab,indicatorColor:green.withAlpha(35),onDestinationSelected:(i)=>setState(()=>tab=i),destinations:const[NavigationDestination(icon:Icon(Icons.home_outlined),selectedIcon:Icon(Icons.home),label:'Home'),NavigationDestination(icon:Icon(Icons.auto_awesome_outlined),selectedIcon:Icon(Icons.auto_awesome),label:'AI Center'),NavigationDestination(icon:Icon(Icons.agriculture_outlined),selectedIcon:Icon(Icons.agriculture),label:'My Farm'),NavigationDestination(icon:Icon(Icons.receipt_long_outlined),selectedIcon:Icon(Icons.receipt_long),label:'Orders'),NavigationDestination(icon:Icon(Icons.person_outline),selectedIcon:Icon(Icons.person),label:'Profile')]));}}
-class FarmerHome extends StatelessWidget{const FarmerHome({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Good morning, farmer',subtitle:'Your farm at a glance.',children:[status('Farm health','Healthy · 3 farms · 6 crops',green),info('Weather','28°C · Demo data'),action('Irrigation check','Tomato plot · due today',Icons.water_drop,()=>go(c,const CropHealth())),action('Review market price','Tomato · local signal',Icons.trending_up,()=>go(c,const Marketplace()),color:gold),action('Notifications','View latest updates',Icons.notifications_none,()=>go(c,const Notifications()))]);}}
-class AiCenter extends StatefulWidget{const AiCenter({super.key});@override State<AiCenter> createState()=>_AiCenterState();}
-class _AiCenterState extends State<AiCenter>{final q=TextEditingController();String answer='';@override void dispose(){q.dispose();super.dispose();}void ask(){final s=q.text.trim();if(s.isEmpty)return;setState(()=>answer=s.toLowerCase().contains('water')?'Check soil moisture before irrigation and avoid waterlogging.':'Check crop stage, soil moisture, weather and market conditions before deciding.');}@override Widget build(BuildContext c)=>PageFrame(title:'AI Center',subtitle:'Ask a farm question.',children:[status('FarmPlug Intelligence','Practical recommendations for your next decision.',green),TextField(controller:q,onSubmitted:(_)=>ask(),decoration:InputDecoration(labelText:'Ask FarmPlug AI',hintText:'When should I irrigate tomato?',prefixIcon:const Icon(Icons.chat_bubble_outline),suffixIcon:IconButton(onPressed:ask,icon:const Icon(Icons.send,color:green)))),if(answer.isNotEmpty)status('FarmPlug AI',answer,green),action('Disease diagnosis','Check crop symptoms',Icons.bug_report,()=>go(c,const CropHealth())),action('Market prices','See price signals',Icons.trending_up,()=>go(c,const Marketplace()),color:gold)]);}}
-class MyFarm extends StatelessWidget{const MyFarm({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'My Farm',subtitle:'Manage farms, crops and health.',children:[action('North Field','2.5 acres · Coimbatore · Healthy',Icons.agriculture,()=>go(c,const Crops())),action('Greenhouse Plot','1.2 acres · Needs attention',Icons.agriculture,()=>go(c,const Crops())),action('Tomato','North Field · 1.4 acres · Healthy',Icons.spa,()=>go(c,const CropDetails())),action('Chilli','North Field · 0.8 acres · Healthy',Icons.spa,()=>go(c,const CropDetails()))]);}}
-class Crops extends StatelessWidget{const Crops({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Crops',subtitle:'All crops across your farms.',children:[action('Tomato','North Field · 1.4 acres · Healthy',Icons.spa,()=>go(c,const CropDetails())),action('Chilli','North Field · 0.8 acres · Healthy',Icons.spa,()=>go(c,const CropDetails())),primary('Add Crop',()=>go(c,const CropDetails()))]);}}
-class CropDetails extends StatelessWidget{const CropDetails({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Crop Details',subtitle:'Tomato · North Field · 1.4 acres',children:[status('Crop Health','Healthy · 42 days to harvest',green),info('Sowing date','20 Jul 2026'),info('Irrigation','Check today'),info('Area','1.4 acres'),primary('Open Crop Health',()=>go(c,const CropHealth())),outline('Farm Intelligence',()=>go(c,const FarmIntelligence()))]);}}
-class CropHealth extends StatelessWidget{const CropHealth({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Crop Health',subtitle:'Monitor symptoms and actions.',children:[status('Healthy','No critical issue detected.',green),info('Latest check','Today'),info('Risk','Low'),info('Action','Continue planned irrigation'),primary('Get AI Diagnosis',()=>go(c,const AiDecision()))]);}}
-class FarmIntelligence extends StatelessWidget{const FarmIntelligence({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Farm Intelligence',subtitle:'Signals for your next decision.',children:[info('Weather','28°C · Demo data'),info('Water','Irrigation check due'),info('Market','Tomato signal positive'),info('Crop','Tomato healthy'),primary('Open AI Decision Center',()=>go(c,const AiDecision()))]);}}
-class AiDecision extends StatelessWidget{const AiDecision({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'AI Decision Center',subtitle:'Recommended next actions.',children:[status('Recommendation','Check tomato irrigation today and review tomato prices before listing.',green),primary('Open Market',()=>go(c,const Marketplace()))]);}}
-class Marketplace extends StatefulWidget{const Marketplace({super.key});@override State<Marketplace> createState()=>_MarketplaceState();}
-class _MarketplaceState extends State<Marketplace>{String q='',cat='All';final data=const[{'n':'Tomato','p':'₹42/kg','t':'Vegetables'},{'n':'Chilli','p':'₹86/kg','t':'Vegetables'},{'n':'Banana','p':'₹34/kg','t':'Fruits'},{'n':'Rice','p':'₹58/kg','t':'Grains'}];@override Widget build(BuildContext c){final items=data.where((x)=>(cat=='All'||x['t']==cat)&&('${x['n']} ${x['t']}'.toLowerCase().contains(q.toLowerCase()))).toList();return PageFrame(title:'Marketplace',subtitle:'Search produce and prices.',children:[TextField(onChanged:(v)=>setState(()=>q=v),decoration:const InputDecoration(labelText:'Search produce',hintText:'Tomato, chilli…',prefixIcon:Icon(Icons.search))),Wrap(spacing:8,children:['All','Vegetables','Fruits','Grains'].map((x)=>ChoiceChip(label:Text(x),selected:cat==x,onSelected:(_)=>setState(()=>cat=x))).toList()),if(items.isEmpty)status('No results','Try another search or category.',warning),...items.map((x)=>action(x['n']!,'${x['p']} · ${x['t']}',Icons.inventory_2,()=>go(c,const ListingDetails()))),primary('List My Produce',()=>go(c,const AddProduce()))]);}}
-class AddProduce extends StatefulWidget{const AddProduce({super.key});@override State<AddProduce> createState()=>_AddProduceState();}
-class _AddProduceState extends State<AddProduce>{final f=GlobalKey<FormState>(),produce=TextEditingController(),qty=TextEditingController(),price=TextEditingController();@override void dispose(){produce.dispose();qty.dispose();price.dispose();super.dispose();}@override Widget build(BuildContext c)=>PageFrame(title:'List Produce',subtitle:'Create a clear listing.',children:[Form(key:f,child:Column(children:[field('Produce type',Icons.spa,controller:produce,validator:(v)=>v==null||v.isEmpty?'Required':null),field('Quantity (kg)',Icons.scale,controller:qty,type:TextInputType.number,validator:(v)=>double.tryParse(v??'')==null?'Enter quantity':null),field('Price per kg',Icons.currency_rupee,controller:price,type:TextInputType.number,validator:(v)=>double.tryParse(v??'')==null?'Enter price':null)])),status('Photo','Photo upload will connect to Supabase Storage in the backend build.',green),primary('Publish Listing',(){if(f.currentState!.validate())go(c,const MyListings());})]);}}
-class MyListings extends StatelessWidget{const MyListings({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'My Listings',subtitle:'Manage active produce listings.',children:[action('Tomato','500 kg · ₹42/kg · Active',Icons.inventory_2,()=>go(c,const ListingDetails())),action('Chilli','250 kg · ₹86/kg · Active',Icons.inventory_2,()=>go(c,const ListingDetails())),primary('Add Another Listing',()=>go(c,const AddProduce()))]);}}
-class ListingDetails extends StatelessWidget{const ListingDetails({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Listing Details',subtitle:'Tomato · Fresh produce',children:[info('Quantity','500 kg'),info('Price','₹42/kg'),info('Location','Coimbatore'),status('Active','Visible to matched buyers.',green),primary('View Buyer Matches',()=>go(c,const BuyerMatches()))]);}}
-class BuyerMatches extends StatelessWidget{const BuyerMatches({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Buyer Matches',subtitle:'Matched buyers.',children:[action('Fresh Foods Pvt Ltd','300 kg · ₹42/kg',Icons.handshake,()=>go(c,const BuyerDetails())),action('Coimbatore Retail Hub','200 kg · ₹41/kg',Icons.handshake,()=>go(c,const BuyerDetails())),primary('View Offers',()=>go(c,const Offers()))]);}}
-class BuyerDetails extends StatelessWidget{const BuyerDetails({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Buyer Details',subtitle:'Verified buyer profile.',children:[status('Fresh Foods Pvt Ltd','Verified buyer · Coimbatore',green),info('Demand','300 kg tomato'),info('Expected rate','₹42/kg'),primary('View Offers',()=>go(c,const Offers()))]);}}
-class Offers extends StatelessWidget{const Offers({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Offers',subtitle:'Review buyer offers.',children:[action('#OF-204 · Fresh Foods Pvt Ltd','500 kg · ₹42/kg',Icons.local_offer,()=>go(c,const OfferDetails())),action('#OF-199 · Retail Hub','200 kg · ₹41/kg',Icons.local_offer,()=>go(c,const OfferDetails()))]);}}
-class OfferDetails extends StatelessWidget{const OfferDetails({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Offer Details',subtitle:'#OF-204 · Fresh Foods Pvt Ltd',children:[info('Quantity','500 kg'),info('Rate','₹42/kg'),info('Payment','Bank transfer'),primary('Accept Offer',()=>go(c,const AcceptOffer())),outline('Decline',()=>Navigator.pop(c))]);}}
-class AcceptOffer extends StatelessWidget{const AcceptOffer({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Accept Offer',subtitle:'Confirm sale details.',children:[status('Ready to confirm','500 kg Tomato · ₹21,000',green),primary('Confirm Offer',()=>go(c,const Orders())),outline('Cancel',()=>Navigator.pop(c))]);}}
-class Orders extends StatefulWidget{const Orders({super.key});@override State<Orders> createState()=>_OrdersState();}
-class _OrdersState extends State<Orders>{String filter='All';final orders=const[{'id':'#FP-1042','item':'Tomato · 500 kg','s':'Confirmed'},{'id':'#FP-1038','item':'Chilli · 250 kg','s':'Pending'},{'id':'#FP-1022','item':'Banana · 100 kg','s':'Completed'}];@override Widget build(BuildContext c){final list=orders.where((x)=>filter=='All'||x['s']==filter).toList();return PageFrame(title:'Orders',subtitle:'Track sales from confirmation to delivery.',children:[Wrap(spacing:8,children:['All','Pending','Confirmed','Completed'].map((x)=>ChoiceChip(label:Text(x),selected:filter==x,onSelected:(_)=>setState(()=>filter=x))).toList()),if(list.isEmpty)status('No orders','There are no orders in this status.',warning),...list.map((o)=>action('${o['id']} · ${o['s']}',o['item']!,Icons.receipt_long,()=>go(c,const OrderDetails()))) ]);}}
-class OrderDetails extends StatelessWidget{const OrderDetails({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Order Details',subtitle:'#FP-1042 · Today',children:[info('Buyer','Fresh Foods Pvt Ltd'),info('Item','Tomato · 500 kg'),info('Payment','₹21,000 · Bank transfer'),status('Confirmed','Ready for collection.',green),primary('Track Order',()=>go(c,const OrderTracking())),outline('View Notifications',()=>go(c,const Notifications()))]);}}
-class OrderTracking extends StatelessWidget{const OrderTracking({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Order Tracking',subtitle:'#FP-1042 · Delivery progress',children:[status('Order confirmed','Completed',green),status('Ready for collection','Completed',green),status('In transit','Pending',muted),status('Delivered','Pending',muted)]);}}
-class Notifications extends StatelessWidget{const Notifications({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Notifications',subtitle:'Updates that need your attention.',children:[action('Order confirmed','#FP-1042 · 500 kg Tomato',Icons.check_circle_outline,()=>go(c,const OrderDetails())),action('Market signal','Tomato prices look positive',Icons.trending_up,()=>go(c,const Marketplace()),color:gold),action('Crop reminder','Check tomato irrigation today',Icons.water_drop,()=>go(c,const CropDetails()))]);}}
-class Profile extends StatelessWidget{const Profile({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Profile',subtitle:'Account and preferences.',children:[status('Farm owner','Farmer · Coimbatore · Demo profile',green),action('Settings','Account and app preferences',Icons.settings_outlined,()=>go(c,const SettingsPage())),action('Language','English',Icons.language,()=>go(c,const LanguagePage())),action('Security','Password and sign-in',Icons.lock_outline,()=>go(c,const SecurityPage())),action('Download Farmer App','Open FarmPlug download page',Icons.download_outlined,()=>openSite(c,'/download-app'),color:gold),action('Log out','Clear demo session',Icons.logout,()=>go(c,const LogoutConfirm()),color:danger)]);}}
-class SettingsPage extends StatelessWidget{const SettingsPage({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Settings',subtitle:'Control your preferences.',children:[action('Language','English',Icons.language,()=>go(c,const LanguagePage())),action('Units','Acres and kilograms',Icons.straighten,()=>go(c,const UnitsPage())),action('Security','Password and sign-in',Icons.security,()=>go(c,const SecurityPage())),action('Notifications','Manage updates',Icons.notifications,()=>go(c,const Notifications()))]);}}
-class LanguagePage extends StatefulWidget{const LanguagePage({super.key});@override State<LanguagePage> createState()=>_LanguagePageState();}
-class _LanguagePageState extends State<LanguagePage>{String value='English';@override Widget build(BuildContext c)=>PageFrame(title:'Language',subtitle:'Choose your app language.',children:[...['English','Tamil','Hindi'].map((x)=>RadioListTile<String>(value:x,groupValue:value,onChanged:(v)=>setState(()=>value=v!),title:Text(x))),primary('Save Language',()=>Navigator.pop(c))]);}}
-class UnitsPage extends StatelessWidget{const UnitsPage({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Units',subtitle:'Farm measurement units.',children:[info('Area','Acres'),info('Weight','Kilograms'),primary('Save Units',()=>Navigator.pop(c))]);}}
-class SecurityPage extends StatelessWidget{const SecurityPage({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Security',subtitle:'Keep your account protected.',children:[status('Account security','Use a strong password and never share verification codes.',green),action('Change password','Update your password',Icons.lock_reset,()=>go(c,const ChangePassword()))]);}}
-class ChangePassword extends StatefulWidget{const ChangePassword({super.key});@override State<ChangePassword> createState()=>_ChangePasswordState();}
-class _ChangePasswordState extends State<ChangePassword>{final f=GlobalKey<FormState>(),a=TextEditingController(),b=TextEditingController();@override void dispose(){a.dispose();b.dispose();super.dispose();}@override Widget build(BuildContext c)=>PageFrame(title:'Change Password',subtitle:'Choose a password with at least 6 characters.',children:[Form(key:f,child:Column(children:[field('New password',Icons.lock_outline,controller:a,obscure:true,validator:(v)=>v==null||v.length<6?'Minimum 6 characters':null),field('Confirm password',Icons.lock_reset,controller:b,obscure:true,validator:(v)=>v!=a.text?'Passwords do not match':null)])),primary('Save Password',(){if(f.currentState!.validate())Navigator.pop(c);})]);}}
-class LogoutConfirm extends StatelessWidget{const LogoutConfirm({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Log Out',subtitle:'You can sign in again anytime.',children:[status('Ready to log out','The current demo session will be cleared.',warning),primary('Log Out',()=>Navigator.pushAndRemoveUntil(c,MaterialPageRoute(builder:(_)=>const Welcome()),(_)=>false)),outline('Cancel',()=>Navigator.pop(c))]);}}
-class Aggregation extends StatelessWidget{const Aggregation({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Aggregation',subtitle:'Group farmer supply for efficient selling.',children:[status('Demo batch','Tomato · 5,000 kg target',green),info('Farmer 1','1,200 kg'),info('Farmer 2','1,800 kg'),info('Farmer 3','2,000 kg'),primary('Open Collection Center',()=>go(c,const CollectionCenter()))]);}}
-class CollectionCenter extends StatelessWidget{const CollectionCenter({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Collection Center',subtitle:'Coordinate pickup and quality checks.',children:[info('Location','Coimbatore demo center'),status('Ready','Produce can be scheduled for collection.',green),primary('Open Logistics',()=>go(c,const Logistics()))]);}}
-class Logistics extends StatelessWidget{const Logistics({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Logistics',subtitle:'Track pickup and delivery coordination.',children:[status('Route planned','Pickup → collection → buyer',green),info('Estimated cost','₹4,500 · demo estimate'),primary('Delivery Details',()=>go(c,const DeliveryDetails()))]);}}
-class DeliveryDetails extends StatelessWidget{const DeliveryDetails({super.key});@override Widget build(BuildContext c)=>PageFrame(title:'Delivery Details',subtitle:'Delivery schedule and handover information.',children:[info('Status','Pickup scheduled'),info('Destination','Coimbatore buyer'),status('Payment simulation','Demo only · no real payment.',gold)]);}
+
+const bg = Color(0xFFF7FAF7);
+const surface = Colors.white;
+const green = Color(0xFF2E9E4F);
+const gold = Color(0xFFD6AD45);
+const text = Color(0xFF172019);
+const muted = Color(0xFF667066);
+const border = Color(0xFFDCE5DC);
+
+void main() {
+  runApp(const FarmPlugApp());
+}
+
+void push(BuildContext context, Widget page) {
+  Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
+}
+
+void replaceHome(BuildContext context) {
+  Navigator.of(context).pushAndRemoveUntil(
+    MaterialPageRoute(builder: (_) => const HomeShell()),
+    (_) => false,
+  );
+}
+
+class FarmPlugApp extends StatelessWidget {
+  const FarmPlugApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'FarmPlug AI',
+      theme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: bg,
+        colorScheme: ColorScheme.fromSeed(seedColor: green, brightness: Brightness.light),
+        appBarTheme: const AppBarTheme(backgroundColor: bg, foregroundColor: text, elevation: 0),
+        cardTheme: const CardThemeData(color: surface, elevation: 0),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: surface,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(14)),
+            borderSide: BorderSide(color: border),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(14)),
+            borderSide: BorderSide(color: border),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(14)),
+            borderSide: BorderSide(color: green, width: 1.5),
+          ),
+        ),
+      ),
+      home: const SplashPage(),
+    );
+  }
+}
+
+class SplashPage extends StatefulWidget {
+  const SplashPage({super.key});
+
+  @override
+  State<SplashPage> createState() => _SplashPageState();
+}
+
+class _SplashPageState extends State<SplashPage> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const WelcomePage()));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.eco_rounded, color: green, size: 64),
+            SizedBox(height: 14),
+            Text('FarmPlug AI', style: TextStyle(color: text, fontSize: 30, fontWeight: FontWeight.w800)),
+            SizedBox(height: 8),
+            Text('Smart farming. Better decisions. Greater yields.', textAlign: TextAlign.center, style: TextStyle(color: muted)),
+            SizedBox(height: 22),
+            CircularProgressIndicator(color: green),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class PageFrame extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final List<Widget> children;
+
+  const PageFrame({super.key, required this.title, required this.subtitle, required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
+        leading: Navigator.canPop(context) ? const BackButton() : null,
+      ),
+      body: SafeArea(
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            children: [
+              Text(subtitle, style: const TextStyle(color: muted, height: 1.35)),
+              const SizedBox(height: 18),
+              ...children.map((child) => Padding(padding: const EdgeInsets.only(bottom: 14), child: child)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+Widget primaryButton(String label, VoidCallback onPressed) {
+  return SizedBox(
+    width: double.infinity,
+    height: 52,
+    child: FilledButton(
+      onPressed: onPressed,
+      style: FilledButton.styleFrom(
+        backgroundColor: green,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+      child: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+    ),
+  );
+}
+
+Widget outlineButton(String label, VoidCallback onPressed) {
+  return SizedBox(
+    width: double.infinity,
+    height: 50,
+    child: OutlinedButton(
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: green,
+        side: const BorderSide(color: green),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+      child: Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+    ),
+  );
+}
+
+Widget textField(String label, IconData icon, {TextEditingController? controller, bool obscure = false, TextInputType? keyboardType, String? Function(String?)? validator}) {
+  return TextFormField(
+    controller: controller,
+    obscureText: obscure,
+    keyboardType: keyboardType,
+    validator: validator,
+    autocorrect: !obscure,
+    decoration: InputDecoration(labelText: label, prefixIcon: Icon(icon), contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15)),
+  );
+}
+
+Widget statusBox(String title, String message, {Color color = green}) {
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(14),
+    decoration: BoxDecoration(color: color.withAlpha(20), borderRadius: BorderRadius.circular(14), border: Border.all(color: color.withAlpha(60))),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(Icons.check_circle_outline, color: color),
+        const SizedBox(width: 10),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: TextStyle(color: color, fontWeight: FontWeight.w800)), const SizedBox(height: 3), Text(message, style: const TextStyle(color: text))])),
+      ],
+    ),
+  );
+}
+
+Widget infoRow(String label, String value) {
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.symmetric(vertical: 12),
+    decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: border))),
+    child: Row(children: [SizedBox(width: 105, child: Text(label, style: const TextStyle(color: muted))), Expanded(child: Text(value, textAlign: TextAlign.right, style: const TextStyle(color: text, fontWeight: FontWeight.w700)))])
+  );
+}
+
+Widget actionTile(String title, String detail, IconData icon, VoidCallback onTap, {Color color = green}) {
+  return Card(
+    child: ListTile(
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+      leading: CircleAvatar(backgroundColor: color.withAlpha(26), foregroundColor: color, child: Icon(icon)),
+      title: Text(title, style: const TextStyle(color: text, fontWeight: FontWeight.w700)),
+      subtitle: Text(detail, style: const TextStyle(color: muted)),
+      trailing: const Icon(Icons.chevron_right, color: muted),
+    ),
+  );
+}
+
+class WelcomePage extends StatelessWidget {
+  const WelcomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'Welcome to FarmPlug AI', subtitle: 'From Farm Intelligence to the Right Market.', children: [
+      const Icon(Icons.agriculture_rounded, color: green, size: 78),
+      const Text('One workspace for your farm, AI guidance, produce sales and orders.', style: TextStyle(color: text, fontSize: 18, height: 1.4)),
+      primaryButton('Get Started', () => push(context, const SignInPage())),
+      outlineButton('Explore Demo', () => push(context, const DemoRolePage())),
+    ]);
+  }
+}
+
+class SignInPage extends StatefulWidget {
+  const SignInPage({super.key});
+
+  @override
+  State<SignInPage> createState() => _SignInPageState();
+}
+
+class _SignInPageState extends State<SignInPage> {
+  final formKey = GlobalKey<FormState>();
+  final login = TextEditingController();
+  final password = TextEditingController();
+
+  @override
+  void dispose() {
+    login.dispose();
+    password.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'Sign In', subtitle: 'Use your FarmPlug account.', children: [
+      Form(key: formKey, child: Column(children: [
+        textField('Phone or email', Icons.person_outline, controller: login, validator: (value) => value == null || value.trim().isEmpty ? 'Enter phone or email' : null),
+        const SizedBox(height: 12),
+        textField('Password', Icons.lock_outline, controller: password, obscure: true, validator: (value) => value == null || value.length < 6 ? 'Minimum 6 characters' : null),
+      ])),
+      Align(alignment: Alignment.centerRight, child: TextButton(onPressed: () => push(context, const ForgotPasswordPage()), child: const Text('Forgot password?'))),
+      primaryButton('Sign In', () { if (formKey.currentState!.validate()) replaceHome(context); }),
+      outlineButton('Continue with Google', () => push(context, const GoogleLoginPage())),
+      TextButton(onPressed: () => push(context, const SignUpPage()), child: const Text('New to FarmPlug? Sign Up')),
+    ]);
+  }
+}
+
+class SignUpPage extends StatefulWidget {
+  const SignUpPage({super.key});
+
+  @override
+  State<SignUpPage> createState() => _SignUpPageState();
+}
+
+class _SignUpPageState extends State<SignUpPage> {
+  final formKey = GlobalKey<FormState>();
+  final name = TextEditingController();
+  final phone = TextEditingController();
+  final password = TextEditingController();
+  final confirm = TextEditingController();
+
+  @override
+  void dispose() {
+    name.dispose();
+    phone.dispose();
+    password.dispose();
+    confirm.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'Create Account', subtitle: 'Create your farmer workspace.', children: [
+      Form(key: formKey, child: Column(children: [
+        textField('Full name', Icons.person_outline, controller: name, validator: (value) => value == null || value.trim().isEmpty ? 'Enter your name' : null),
+        const SizedBox(height: 12),
+        textField('Phone number', Icons.phone_outlined, controller: phone, keyboardType: TextInputType.phone, validator: (value) => value == null || value.trim().length < 10 ? 'Enter valid phone' : null),
+        const SizedBox(height: 12),
+        textField('Password', Icons.lock_outline, controller: password, obscure: true, validator: (value) => value == null || value.length < 6 ? 'Minimum 6 characters' : null),
+        const SizedBox(height: 12),
+        textField('Confirm password', Icons.lock_reset_outlined, controller: confirm, obscure: true, validator: (value) { if (value == null || value.isEmpty) return 'Confirm your password'; if (value != password.text) return 'Passwords do not match'; return null; }),
+      ])),
+      const Text('By continuing you agree to the FarmPlug Terms and Privacy Policy.', style: TextStyle(color: muted, fontSize: 12)),
+      primaryButton('Create Account', () { if (formKey.currentState!.validate()) replaceHome(context); }),
+    ]);
+  }
+}
+
+class GoogleLoginPage extends StatelessWidget {
+  const GoogleLoginPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'Google Login', subtitle: 'Google sign-in.', children: [
+      const Icon(Icons.account_circle, color: green, size: 72),
+      const Text('Google authentication is not connected in this demo build.', style: TextStyle(color: muted)),
+      primaryButton('Continue', () => push(context, const RoleSelectionPage())),
+    ]);
+  }
+}
+
+class ForgotPasswordPage extends StatefulWidget {
+  const ForgotPasswordPage({super.key});
+
+  @override
+  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
+}
+
+class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
+  final email = TextEditingController();
+  bool sent = false;
+
+  @override
+  void dispose() { email.dispose(); super.dispose(); }
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'Forgot Password', subtitle: 'Request a password reset.', children: [
+      textField('Phone or email', Icons.person_outline, controller: email),
+      primaryButton(sent ? 'Request Sent' : 'Send Reset Request', () => setState(() => sent = true)),
+      if (sent) statusBox('Request created', 'Check your registered contact.'),
+    ]);
+  }
+}
+
+class RoleSelectionPage extends StatelessWidget {
+  const RoleSelectionPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'Choose Your Role', subtitle: 'Select how you use FarmPlug.', children: [
+      actionTile('Farmer', 'Manage farms, crops and sales', Icons.agriculture, () => replaceHome(context)),
+      actionTile('Buyer', 'Source verified produce', Icons.storefront, () => push(context, const MarketplacePage())),
+      actionTile('FPO', 'Aggregate farmers and supply', Icons.groups, () => push(context, const AggregationPage())),
+    ]);
+  }
+}
+
+class DemoRolePage extends StatelessWidget {
+  const DemoRolePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'Demo Role', subtitle: 'Explore seeded FarmPlug workflows.', children: [
+      statusBox('DEMO MODE', 'Data is simulated and does not change production records.'),
+      actionTile('Farmer Demo', 'Farmer workspace', Icons.agriculture, () => replaceHome(context)),
+      actionTile('Buyer Demo', 'Marketplace and requirements', Icons.storefront, () => push(context, const MarketplacePage())),
+      actionTile('FPO Demo', 'Aggregation and collection', Icons.groups, () => push(context, const AggregationPage())),
+    ]);
+  }
+}
+
+class HomeShell extends StatefulWidget {
+  const HomeShell({super.key});
+
+  @override
+  State<HomeShell> createState() => _HomeShellState();
+}
+
+class _HomeShellState extends State<HomeShell> {
+  int tab = 0;
+
+  final pages = const [FarmerHomePage(), AiCenterPage(), MyFarmPage(), OrdersPage(), ProfilePage()];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(child: pages[tab]),
+      bottomNavigationBar: NavigationBar(
+        backgroundColor: surface,
+        selectedIndex: tab,
+        indicatorColor: green.withAlpha(35),
+        onDestinationSelected: (index) => setState(() => tab = index),
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
+          NavigationDestination(icon: Icon(Icons.auto_awesome_outlined), selectedIcon: Icon(Icons.auto_awesome), label: 'AI Center'),
+          NavigationDestination(icon: Icon(Icons.agriculture_outlined), selectedIcon: Icon(Icons.agriculture), label: 'My Farm'),
+          NavigationDestination(icon: Icon(Icons.receipt_long_outlined), selectedIcon: Icon(Icons.receipt_long), label: 'Orders'),
+          NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profile'),
+        ],
+      ),
+    );
+  }
+}
+
+class FarmerHomePage extends StatelessWidget {
+  const FarmerHomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'Good morning, farmer', subtitle: 'Your farm at a glance.', children: [
+      statusBox('Farm health', 'Healthy · 3 farms · 6 crops'),
+      infoRow('Weather', '28°C · Demo data'),
+      actionTile('Irrigation check', 'Tomato plot · due today', Icons.water_drop, () => push(context, const CropHealthPage())),
+      actionTile('Review market price', 'Tomato · local signal', Icons.trending_up, () => push(context, const MarketplacePage()), color: gold),
+      actionTile('Notifications', 'View latest updates', Icons.notifications_none, () => push(context, const NotificationsPage())),
+    ]);
+  }
+}
+
+class AiCenterPage extends StatefulWidget {
+  const AiCenterPage({super.key});
+
+  @override
+  State<AiCenterPage> createState() => _AiCenterPageState();
+}
+
+class _AiCenterPageState extends State<AiCenterPage> {
+  final query = TextEditingController();
+  String answer = '';
+
+  @override
+  void dispose() { query.dispose(); super.dispose(); }
+
+  void ask() {
+    final value = query.text.trim();
+    if (value.isEmpty) return;
+    setState(() { answer = value.toLowerCase().contains('water') ? 'Check soil moisture before irrigation and avoid waterlogging.' : 'Check crop stage, soil moisture, weather and market conditions before deciding.'; });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'AI Center', subtitle: 'Ask a farm question.', children: [
+      statusBox('FarmPlug Intelligence', 'Practical recommendations for your next decision.'),
+      TextField(controller: query, onSubmitted: (_) => ask(), decoration: InputDecoration(labelText: 'Ask FarmPlug AI', hintText: 'When should I irrigate tomato?', prefixIcon: const Icon(Icons.chat_bubble_outline), suffixIcon: IconButton(onPressed: ask, icon: const Icon(Icons.send, color: green)))),
+      if (answer.isNotEmpty) statusBox('FarmPlug AI', answer),
+      actionTile('Disease diagnosis', 'Check crop symptoms', Icons.bug_report, () => push(context, const CropHealthPage())),
+      actionTile('Market prices', 'See price signals', Icons.trending_up, () => push(context, const MarketplacePage()), color: gold),
+    ]);
+  }
+}
+
+class MyFarmPage extends StatelessWidget {
+  const MyFarmPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'My Farm', subtitle: 'Manage farms, crops and health.', children: [
+      actionTile('North Field', '2.5 acres · Coimbatore · Healthy', Icons.agriculture, () => push(context, const CropsPage())),
+      actionTile('Greenhouse Plot', '1.2 acres · Needs attention', Icons.agriculture, () => push(context, const CropsPage())),
+      actionTile('Tomato', 'North Field · 1.4 acres · Healthy', Icons.spa, () => push(context, const CropDetailsPage())),
+      actionTile('Chilli', 'North Field · 0.8 acres · Healthy', Icons.spa, () => push(context, const CropDetailsPage())),
+    ]);
+  }
+}
+
+class CropsPage extends StatelessWidget {
+  const CropsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'Crops', subtitle: 'All crops across your farms.', children: [
+      actionTile('Tomato', 'North Field · 1.4 acres · Healthy', Icons.spa, () => push(context, const CropDetailsPage())),
+      actionTile('Chilli', 'North Field · 0.8 acres · Healthy', Icons.spa, () => push(context, const CropDetailsPage())),
+      primaryButton('Add Crop', () => push(context, const CropDetailsPage())),
+    ]);
+  }
+}
+
+class CropDetailsPage extends StatelessWidget {
+  const CropDetailsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'Crop Details', subtitle: 'Tomato · North Field · 1.4 acres', children: [
+      statusBox('Crop Health', 'Healthy · 42 days to harvest'),
+      infoRow('Sowing date', '20 Jul 2026'),
+      infoRow('Irrigation', 'Check today'),
+      infoRow('Area', '1.4 acres'),
+      primaryButton('Open Crop Health', () => push(context, const CropHealthPage())),
+      outlineButton('Farm Intelligence', () => push(context, const FarmIntelligencePage())),
+    ]);
+  }
+}
+
+class CropHealthPage extends StatelessWidget {
+  const CropHealthPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'Crop Health', subtitle: 'Monitor symptoms and actions.', children: [
+      statusBox('Healthy', 'No critical issue detected.'),
+      infoRow('Latest check', 'Today'),
+      infoRow('Risk', 'Low'),
+      infoRow('Action', 'Continue planned irrigation'),
+      primaryButton('Get AI Diagnosis', () => push(context, const AiDecisionPage())),
+    ]);
+  }
+}
+
+class FarmIntelligencePage extends StatelessWidget {
+  const FarmIntelligencePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'Farm Intelligence', subtitle: 'Signals for your next decision.', children: [
+      infoRow('Weather', '28°C · Demo data'),
+      infoRow('Water', 'Irrigation check due'),
+      infoRow('Market', 'Tomato signal positive'),
+      infoRow('Crop', 'Tomato healthy'),
+      primaryButton('Open AI Decision Center', () => push(context, const AiDecisionPage())),
+    ]);
+  }
+}
+
+class AiDecisionPage extends StatelessWidget {
+  const AiDecisionPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'AI Decision Center', subtitle: 'Recommended next actions.', children: [
+      statusBox('Recommendation', 'Check tomato irrigation today and review tomato prices before listing.'),
+      primaryButton('Open Market', () => push(context, const MarketplacePage())),
+    ]);
+  }
+}
+
+class MarketplacePage extends StatefulWidget {
+  const MarketplacePage({super.key});
+
+  @override
+  State<MarketplacePage> createState() => _MarketplacePageState();
+}
+
+class _MarketplacePageState extends State<MarketplacePage> {
+  String query = '';
+  String category = 'All';
+  final products = const [
+    {'name': 'Tomato', 'price': '₹42/kg', 'type': 'Vegetables'},
+    {'name': 'Chilli', 'price': '₹86/kg', 'type': 'Vegetables'},
+    {'name': 'Banana', 'price': '₹34/kg', 'type': 'Fruits'},
+    {'name': 'Rice', 'price': '₹58/kg', 'type': 'Grains'},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final filtered = products.where((item) {
+      final matchesCategory = category == 'All' || item['type'] == category;
+      final haystack = '${item['name']} ${item['type']}'.toLowerCase();
+      return matchesCategory && haystack.contains(query.toLowerCase());
+    }).toList();
+
+    return PageFrame(title: 'Marketplace', subtitle: 'Explore produce and price signals.', children: [
+      TextField(onChanged: (value) => setState(() => query = value), decoration: const InputDecoration(labelText: 'Search produce', prefixIcon: Icon(Icons.search))),
+      Wrap(spacing: 8, children: ['All', 'Vegetables', 'Fruits', 'Grains'].map((value) => ChoiceChip(label: Text(value), selected: category == value, onSelected: (_) => setState(() => category = value))).toList()),
+      ...filtered.map((item) => actionTile(item['name']!, item['price']!, Icons.storefront, () => push(context, const ProduceDetailsPage()))),
+      if (filtered.isEmpty) statusBox('No results', 'Try another search or category.'),
+    ]);
+  }
+}
+
+class ProduceDetailsPage extends StatelessWidget {
+  const ProduceDetailsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'Produce Details', subtitle: 'Tomato · Grade A · Demo listing.', children: [
+      statusBox('Available', '1,200 kg · Farm verified · DEMO DATA'),
+      infoRow('Price', '₹42/kg'),
+      infoRow('Grade', 'A'),
+      infoRow('Quantity', '1,200 kg'),
+      primaryButton('Add to Requirement', () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Added to demo requirement')))),
+    ]);
+  }
+}
+
+class OrdersPage extends StatelessWidget {
+  const OrdersPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'Orders', subtitle: 'Track your produce orders.', children: [
+      actionTile('FP-1001', 'Tomato · 5,000 kg · In transit', Icons.local_shipping, () => push(context, const OrderDetailsPage())),
+      actionTile('FP-0998', 'Chilli · 800 kg · Completed', Icons.check_circle_outline, () => push(context, const OrderDetailsPage())),
+      statusBox('Order tracking', 'Pickup → Transit → Delivery → Completed'),
+    ]);
+  }
+}
+
+class OrderDetailsPage extends StatelessWidget {
+  const OrderDetailsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'Order Details', subtitle: 'FP-1001 · Tomato supply.', children: [
+      statusBox('In transit', 'Estimated delivery is shown as demo logistics data.'),
+      infoRow('Quantity', '5,000 kg'),
+      infoRow('Status', 'In transit'),
+      infoRow('Payment', 'Simulation'),
+      primaryButton('View Logistics', () => push(context, const LogisticsPage())),
+    ]);
+  }
+}
+
+class LogisticsPage extends StatelessWidget {
+  const LogisticsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'Logistics', subtitle: 'Demo route and delivery events.', children: [
+      infoRow('Route', 'Farm → Collection Center → Buyer'),
+      infoRow('Distance', '42 km'),
+      infoRow('Cost', 'Estimated ₹2,800'),
+      statusBox('Live status', 'Vehicle in transit · DEMO DATA'),
+    ]);
+  }
+}
+
+class NotificationsPage extends StatelessWidget {
+  const NotificationsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'Notifications', subtitle: 'Latest FarmPlug updates.', children: [
+      actionTile('Market alert', 'Tomato price signal increased', Icons.trending_up, () {}),
+      actionTile('Order update', 'FP-1001 is in transit', Icons.local_shipping, () => push(context, const OrderDetailsPage())),
+      actionTile('Crop reminder', 'Check tomato irrigation today', Icons.water_drop, () => push(context, const CropHealthPage())),
+    ]);
+  }
+}
+
+class ProfilePage extends StatelessWidget {
+  const ProfilePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'Profile', subtitle: 'Your FarmPlug account.', children: [
+      statusBox('Farmer account', 'Demo profile · Coimbatore'),
+      actionTile('Farm settings', 'Farm and crop details', Icons.settings, () => push(context, const SettingsPage())),
+      actionTile('Help & support', 'Get help with FarmPlug', Icons.help_outline, () => push(context, const HelpPage())),
+      actionTile('Sign out', 'Return to welcome screen', Icons.logout, () => Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (_) => const WelcomePage()), (_) => false)),
+    ]);
+  }
+}
+
+class SettingsPage extends StatelessWidget {
+  const SettingsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'Settings', subtitle: 'Manage your app preferences.', children: [
+      actionTile('Profile', 'Name and contact details', Icons.person_outline, () {}),
+      actionTile('Farm details', 'Location, area and crops', Icons.agriculture, () => push(context, const MyFarmPage())),
+      actionTile('Notifications', 'Alerts and updates', Icons.notifications_none, () => push(context, const NotificationsPage())),
+      actionTile('Security', 'Password and account security', Icons.security, () {}),
+      actionTile('Help', 'Support and FAQs', Icons.help_outline, () => push(context, const HelpPage())),
+    ]);
+  }
+}
+
+class HelpPage extends StatelessWidget {
+  const HelpPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'Help & Support', subtitle: 'FarmPlug assistance.', children: [
+      statusBox('Need help?', 'Use the website support channel for production account and integration issues.'),
+      infoRow('App mode', 'Light-only'),
+      infoRow('Data mode', 'Demo data'),
+      primaryButton('Back to Home', () => replaceHome(context)),
+    ]);
+  }
+}
+
+class AggregationPage extends StatelessWidget {
+  const AggregationPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PageFrame(title: 'Aggregation', subtitle: 'Combine farmer supply for buyer requirements.', children: [
+      statusBox('5,000 kg requirement', 'Farmer 1: 1,200 kg · Farmer 2: 1,800 kg · Farmer 3: 2,000 kg'),
+      infoRow('Match', 'Explainable match · DEMO DATA'),
+      infoRow('Quote', 'Digital quote · PAYMENT SIMULATION'),
+      primaryButton('Create Demo Order', () => push(context, const OrderDetailsPage())),
+    ]);
+  }
+}
