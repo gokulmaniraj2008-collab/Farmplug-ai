@@ -115,22 +115,26 @@ Flow:
 3. Analyze image
 4. Show result
 
-Result must include:
+The current repository implements this as an **image-assisted prototype heuristic**, not a validated ML disease classifier. The UI must make that boundary explicit and must never present the heuristic as a scientific diagnosis.
+
+Result includes:
 
 - Crop
-- Possible disease/pest
-- Confidence percentage
+- Possible disease/stress pattern
+- Prototype heuristic confidence percentage
 - Severity
-- Symptoms detected
+- Symptoms/signals detected
 - Recommended next action
 
-Example:
+Example presentation:
 
-**Possible Early Blight detected**
+**Possible early blight / leaf-spot stress**
 
-**Confidence: 91%**
+**Prototype confidence: 91%**
 
 **Severity: Moderate**
+
+The percentage is an implementation-generated heuristic score, not validated model accuracy.
 
 Clearly distinguish AI suggestions from professional diagnosis.
 
@@ -140,7 +144,7 @@ Actions: **Scan Again**, **View Recommendations**, **Contact Expert**.
 
 Show weather, temperature, humidity, rainfall, crop stage, disease/pest risk, irrigation recommendation, and actionable alerts.
 
-Use simple visual indicators instead of information-heavy charts.
+Use simple visual indicators instead of information-heavy charts. Current prototype weather/risk values must be labelled as prototype values until connected to validated live sources.
 
 ### 6. Market Intelligence
 
@@ -170,7 +174,7 @@ Buyer cards may include:
 
 Actions: **View Buyer**, **Send Offer**.
 
-Never display a buyer as verified unless the backend confirms verification.
+Never display a buyer as verified unless the backend confirms verification. The FarmPlug buyer-requirements model now contains an `is_verified` boolean that defaults to `false`.
 
 ### 8. Produce Listing
 
@@ -199,7 +203,7 @@ Statuses:
 - Negotiating
 - Completed
 
-Make the current status visually obvious.
+Make the current status visually obvious. The dedicated FarmPlug screen recognizes all five statuses; live state changes must continue through authenticated APIs.
 
 ### 10. Logistics
 
@@ -377,6 +381,10 @@ Every implemented screen must have:
 - Error state
 - Success state
 - Clear primary action
+
+## Current implementation boundary
+
+The current repository is an SIH prototype. Crop-health image analysis is deliberately transparent and heuristic until a validated agricultural ML model is integrated. Weather, market, routing and other demo outputs must retain their prototype/demo disclosure until connected to verified live data sources.
 
 ### Primary UX principle
 
