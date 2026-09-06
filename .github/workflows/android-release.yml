@@ -38,31 +38,38 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Build release APK
+      # Debug APKs are automatically signed by Android Gradle Plugin and are
+      # directly installable on Android devices. A production release keystore
+      # can be introduced later through GitHub Actions secrets.
+      - name: Build installable signed APK
         working-directory: android
-        run: gradle assembleRelease --stacktrace --no-daemon
+        run: gradle assembleDebug --stacktrace --no-daemon
 
-      - name: Locate APK
-        id: apk
+      - name: Validate APK
         run: |
-          APK=$(find android/app/build/outputs/apk/release -type f -name '*.apk' | head -n 1)
-          test -n "$APK"
-          echo "path=$APK" >> "$GITHUB_OUTPUT"
+          APK="android/app/build/outputs/apk/debug/app-debug.apk"
+          test -f "$APK"
+          test -s "$APK"
+          file "$APK"
+          unzip -t "$APK" >/dev/null
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
+
+      - name: Rename APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk FarmPlug-Farmer.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: FarmPlug-Farmer-Android-${{ github.run_number }}
-          path: ${{ steps.apk.outputs.path }}
+          path: FarmPlug-Farmer.apk
           if-no-files-found: error
 
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
-          APK_PATH: ${{ steps.apk.outputs.path }}
         run: |
           TAG="v1.1.${GITHUB_RUN_NUMBER}"
-          gh release create "$TAG" "$APK_PATH#FarmPlug-Farmer-${TAG}.apk" \
+          gh release create "$TAG" "FarmPlug-Farmer.apk#FarmPlug-Farmer-${TAG}.apk" \
             --repo "$GITHUB_REPOSITORY" \
             --title "FarmPlug Farmer Android ${TAG}" \
             --generate-notes
