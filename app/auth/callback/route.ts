@@ -1,12 +1,11 @@
 // File location: app/auth/callback/route.ts
 //
-// Implements: OAuth code exchange -> profile lookup/create -> role check
-// -> profile completion check -> redirect to correct workspace.
-// Preserves existing email/password flow; this route only handles the
-// OAuth (Google) redirect leg.
+// Google OAuth callback: exchange code -> ensure profile -> route to
+// role selection/profile completion/workspace. Workspace roles live in
+// profiles.farm_role; profiles.role is reserved for user/admin authority.
 
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server"; // adjust to your existing server client path
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -23,7 +22,8 @@ export async function GET(request: Request) {
   }
 
   const supabase = await createClient();
-  const { data: sessionData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+  const { data: sessionData, error: exchangeError } =
+    await supabase.auth.exchangeCodeForSession(code);
 
   if (exchangeError || !sessionData?.user) {
     return NextResponse.redirect(`${origin}/signin?error=oauth_exchange_failed`);
@@ -32,7 +32,7 @@ export async function GET(request: Request) {
   const user = sessionData.user;
   const { data: profile, error: profileFetchError } = await supabase
     .from("profiles")
-    .select("id, role, profile_complete")
+    .select("id, role, farm_role, profile_complete")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -41,23 +41,27 @@ export async function GET(request: Request) {
   }
 
   if (!profile) {
+    // The live schema requires both role and farm_role. Use the least-privileged
+    // temporary workspace value until the user explicitly chooses their role.
+    // profile_complete=false guarantees onboarding is required before dashboard access.
     const { error: insertError } = await supabase.from("profiles").insert({
       id: user.id,
       email: user.email,
-      full_name: user.user_metadata?.full_name ?? null,
       avatar_url: user.user_metadata?.avatar_url ?? null,
       auth_provider: "google",
-      role: null,
+      role: "user",
+      farm_role: "farmer",
       profile_complete: false,
     });
 
     if (insertError) {
       return NextResponse.redirect(`${origin}/signin?error=profile_create_failed`);
     }
+
     return NextResponse.redirect(`${origin}/onboarding/role-selection`);
   }
 
-  if (!profile.role) {
+  if (!profile.farm_role || profile.role === "user" && !profile.profile_complete) {
     return NextResponse.redirect(`${origin}/onboarding/role-selection`);
   }
 
@@ -72,6 +76,7 @@ export async function GET(request: Request) {
     admin: "/dashboard/admin",
   };
 
-  const destination = roleWorkspace[profile.role] ?? next;
+  const effectiveRole = profile.role === "admin" ? "admin" : profile.farm_role;
+  const destination = roleWorkspace[effectiveRole] ?? next;
   return NextResponse.redirect(`${origin}${destination}`);
 }
