@@ -1,0 +1,3 @@
+import Link from 'next/link';
+import { ShieldAlert } from 'lucide-react';
+export default function UnauthorizedPage(){return <main className="pageShell"><section className="pageHero"><span className="eyebrow"><ShieldAlert size={14}/> ACCESS CONTROL</span><h1>You don’t have access to this workspace.</h1><p>FarmPlug AI protects role-specific workspaces using authenticated sessions and server-side role checks.</p></section><section className="pageCard"><div style={{display:'flex',gap:10,flexWrap:'wrap'}}><Link href="/signin" className="btn primary">Sign in with another account</Link><Link href="/" className="btn secondary">Return home</Link></div></section></main>}
