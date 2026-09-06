@@ -21,10 +21,10 @@ jobs:
         with:
           gradle-version: '8.11.1'
       - name: Record source commit
-        run: echo "Building FarmPlug AI from commit $GITHUB_SHA"
+        run: echo "Building FarmPlug AI v2.0.0 from commit $GITHUB_SHA"
       - name: Build APK
         working-directory: android
-        run: gradle -PversionCode=$GITHUB_RUN_NUMBER -PversionName=1.1.0 assembleDebug --no-daemon
+        run: gradle -PversionCode=$GITHUB_RUN_NUMBER -PversionName=2.0.0 assembleDebug --no-daemon
       - name: Locate and prepare branded APK
         run: |
           set -e
@@ -38,12 +38,13 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: apk-latest
-          name: FarmPlug AI APK
+          name: FarmPlug AI APK v2
           body: |
-            Direct-install Android APK for FarmPlug AI.
+            Direct-install Android APK for FarmPlug AI v2.0.0.
+            SIH alignment: SIH26131 + SIH26132.
             Source commit: ${{ github.sha }}
             Workflow run: ${{ github.run_number }}
-            Version name: 1.1.0
+            Version name: 2.0.0
           prerelease: false
           make_latest: true
           overwrite_files: true
