@@ -1,43 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect,useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowRight, Check, Leaf, MapPin, Phone } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-
-export default function CompleteProfilePage() {
-  const router = useRouter();
-  const [role, setRole] = useState<string | null>(null);
-  const [phone, setPhone] = useState("");
-  const [location, setLocation] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-
-  useEffect(() => { (async () => {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { router.replace("/signin"); return; }
-    const { data } = await supabase.from("profiles").select("farm_role, role, phone, location_text, profile_complete").eq("id", user.id).maybeSingle();
-    if (!data?.farm_role && data?.role !== "admin") { router.replace("/onboarding/role-selection"); return; }
-    if (data.profile_complete) router.replace(data.role === "admin" ? "/dashboard/admin" : `/dashboard/${data.farm_role}`);
-    setRole(data.role === "admin" ? "admin" : data.farm_role);
-    setPhone(data.phone ?? ""); setLocation(data.location_text ?? "");
-  })(); }, [router]);
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault(); setSaving(true); setError("");
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user || !role) { router.replace("/signin"); return; }
-    const { error } = await supabase.from("profiles").update({ phone, location_text: location, profile_complete: true }).eq("id", user.id);
-    if (error) { setError(error.message); setSaving(false); return; }
-    router.replace(role === "admin" ? "/dashboard/admin" : `/dashboard/${role}`);
-  }
-  return <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center p-6">
-    <h1 className="text-2xl font-bold">Complete your profile</h1><p className="mt-2 text-sm text-gray-500">Workspace: <b className="capitalize">{role ?? "…"}</b></p>
-    <form onSubmit={submit} className="mt-6 space-y-4">
-      <input required placeholder="Phone number" value={phone} onChange={e => setPhone(e.target.value)} className="w-full rounded-xl border px-3 py-3" />
-      <input required placeholder="Village / District / Business location" value={location} onChange={e => setLocation(e.target.value)} className="w-full rounded-xl border px-3 py-3" />
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <button disabled={saving} className="w-full rounded-xl bg-green-600 px-4 py-3 font-semibold text-white disabled:opacity-50">{saving ? "Saving…" : "Finish setup"}</button>
-    </form>
-  </main>;
-}
+export default function CompleteProfilePage(){const router=useRouter();const[role,setRole]=useState<string|null>(null);const[phone,setPhone]=useState("");const[location,setLocation]=useState("");const[saving,setSaving]=useState(false);const[error,setError]=useState("");useEffect(()=>{(async()=>{const s=createClient();const{data:{user}}=await s.auth.getUser();if(!user){router.replace("/signin");return}const{data}=await s.from("profiles").select("farm_role, role, phone, location_text, profile_complete").eq("id",user.id).maybeSingle();if(!data?.farm_role&&data?.role!=="admin"){router.replace("/onboarding/role-selection");return}if(data.profile_complete)router.replace(data.role==="admin"?"/dashboard/admin":`/dashboard/${data.farm_role}`);setRole(data.role==="admin"?"admin":data.farm_role);setPhone(data.phone??"");setLocation(data.location_text??"")})()},[router]);async function submit(e:React.FormEvent){e.preventDefault();setSaving(true);setError("");const s=createClient();const{data:{user}}=await s.auth.getUser();if(!user||!role){router.replace("/signin");return}const{error}=await s.from("profiles").update({phone,location_text:location,profile_complete:true}).eq("id",user.id);if(error){setError(error.message);setSaving(false);return}router.replace(role==="admin"?"/dashboard/admin":`/dashboard/${role}`)}return <main className="min-h-screen bg-[#07130D] px-4 py-8 text-white sm:px-6"><div className="mx-auto max-w-2xl"><div className="flex items-center gap-2 text-sm font-bold"><span className="grid size-9 place-items-center rounded-xl bg-[#E3B341] text-[#07130D]"><Leaf size={19}/></span>FarmPlug AI</div><div className="mt-12"><div className="flex items-center gap-2 text-xs font-semibold text-[#7FD79B]"><span className="grid size-6 place-items-center rounded-full bg-[#7FD79B]/15"><Check size={14}/></span>Workspace selected</div><h1 className="mt-4 text-4xl font-semibold tracking-tight">Finish your profile</h1><p className="mt-3 text-sm leading-6 text-white/55">A couple of details help us tailor your FarmPlug workspace.</p></div><div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.05] p-5"><p className="text-xs text-white/40">Workspace</p><p className="mt-1 font-semibold capitalize">{role??"Loading…"}</p></div><form onSubmit={submit} className="mt-3 space-y-3"><label className="block rounded-2xl border border-white/10 bg-white/[0.04] p-4 focus-within:border-[#7FD79B]"><span className="flex items-center gap-2 text-sm font-medium"><Phone size={17} className="text-[#7FD79B]"/>Phone number</span><input required value={phone} onChange={e=>setPhone(e.target.value)} placeholder="Your phone number" inputMode="tel" autoComplete="tel" className="mt-3 w-full bg-transparent text-sm outline-none placeholder:text-white/30"/></label><label className="block rounded-2xl border border-white/10 bg-white/[0.04] p-4 focus-within:border-[#7FD79B]"><span className="flex items-center gap-2 text-sm font-medium"><MapPin size={17} className="text-[#7FD79B]"/>Village, district or business location</span><input required value={location} onChange={e=>setLocation(e.target.value)} placeholder="e.g. Coimbatore, Tamil Nadu" autoComplete="address-level2" className="mt-3 w-full bg-transparent text-sm outline-none placeholder:text-white/30"/></label>{error&&<p className="rounded-xl border border-red-400/20 bg-red-400/10 p-3 text-sm text-red-200" role="alert">{error}</p>}<button disabled={saving} className="group flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#E3B341] text-sm font-bold text-[#07130D] disabled:opacity-40">{saving?"Saving…":"Complete setup"}<ArrowRight size={17}/></button></form></div></main>}
