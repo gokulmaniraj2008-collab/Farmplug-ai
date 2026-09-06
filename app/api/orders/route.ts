@@ -27,8 +27,11 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({ orders: data ?? [] }, { headers: { 'Cache-Control': 'no-store' } });
 }
 
+// Keep API transitions identical to the database state machine.
 const transitions: Record<string, string[]> = {
-  confirmed: ['collecting', 'cancelled'],
+  quote_pending: ['quote_accepted', 'cancelled'],
+  quote_accepted: ['order_confirmed', 'cancelled'],
+  order_confirmed: ['collecting', 'cancelled'],
   collecting: ['in_transit', 'cancelled'],
   in_transit: ['delivered', 'cancelled'],
   delivered: ['completed'],
@@ -41,22 +44,22 @@ export async function PATCH(request: NextRequest) {
   const { data: { user }, error: authError } = await c.auth.auth.getUser(c.token);
   if (authError || !user) return NextResponse.json({ error: 'Your session is invalid or expired.' }, { status: 401 });
   const body = await request.json().catch(() => null);
-  const id = String(body?.id || ''); const nextStatus = String(body?.status || '');
+  const id = String(body?.id || ''); const nextStatus = String(body?.status || '').toLowerCase();
   if (!id || !Object.prototype.hasOwnProperty.call(transitions, nextStatus)) return NextResponse.json({ error: 'Valid order id and status are required.' }, { status: 400 });
-  const { data: order, error } = await c.admin.from('farmplug_orders').select('id,buyer_id,farmer_id,status').eq('id', id).maybeSingle();
+  const { data: order, error } = await c.admin.from('farmplug_orders').select('id,buyer_id,farmer_id,status,supply_listing_id').eq('id', id).maybeSingle();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!order) return NextResponse.json({ error: 'Order not found.' }, { status: 404 });
   const isBuyer = order.buyer_id === user.id; const isFarmer = order.farmer_id === user.id;
   if (!isBuyer && !isFarmer) return NextResponse.json({ error: 'You do not have access to this order.' }, { status: 403 });
-  if (!transitions[order.status]?.includes(nextStatus)) return NextResponse.json({ error: `Invalid order transition from ${order.status} to ${nextStatus}.` }, { status: 409 });
+  const currentStatus = String(order.status || '').toLowerCase();
+  if (!transitions[currentStatus]?.includes(nextStatus)) return NextResponse.json({ error: `Invalid order transition from ${currentStatus} to ${nextStatus}.` }, { status: 409 });
   if (nextStatus === 'collecting' && !isFarmer) return NextResponse.json({ error: 'Only the farmer/FPO can start collection.' }, { status: 403 });
   if (nextStatus === 'in_transit' && !isFarmer) return NextResponse.json({ error: 'Only the farmer/FPO can dispatch the order.' }, { status: 403 });
   if (nextStatus === 'delivered' && !isFarmer) return NextResponse.json({ error: 'Only the farmer/FPO can mark delivery complete.' }, { status: 403 });
   if (nextStatus === 'completed' && !isBuyer) return NextResponse.json({ error: 'Only the buyer can confirm completion.' }, { status: 403 });
-  if (nextStatus === 'cancelled' && !isBuyer && !isFarmer) return NextResponse.json({ error: 'Only an order participant can cancel.' }, { status: 403 });
   const { data: updated, error: updateError } = await c.admin.from('farmplug_orders').update({ status: nextStatus }).eq('id', id).select('*').single();
   if (updateError) return NextResponse.json({ error: updateError.message }, { status: 500 });
-  if (nextStatus === 'completed') await c.admin.from('farmplug_supply_listings').update({ status: 'sold' }).eq('id', updated.supply_listing_id).eq('created_by', user.id);
-  if (nextStatus === 'cancelled') await c.admin.from('farmplug_supply_listings').update({ status: 'available' }).eq('id', updated.supply_listing_id).eq('created_by', user.id).eq('status', 'reserved');
+  if (nextStatus === 'completed' && updated.supply_listing_id) await c.admin.from('farmplug_supply_listings').update({ status: 'sold' }).eq('id', updated.supply_listing_id).eq('created_by', user.id);
+  if (nextStatus === 'cancelled' && updated.supply_listing_id) await c.admin.from('farmplug_supply_listings').update({ status: 'available' }).eq('id', updated.supply_listing_id).eq('created_by', user.id).eq('status', 'reserved');
   return NextResponse.json({ order: updated });
 }
