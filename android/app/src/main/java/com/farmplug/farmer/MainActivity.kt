@@ -1,6 +1,7 @@
 package com.farmplug.farmer
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.graphics.Color
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -34,9 +35,18 @@ class MainActivity : AppCompatActivity() {
             settings.setSupportZoom(false)
             settings.allowFileAccess = false
             settings.allowContentAccess = false
-            settings.userAgentString = settings.userAgentString + " FarmPlugFarmer/1.2.0"
+            settings.javaScriptCanOpenWindowsAutomatically = false
+            settings.userAgentString = settings.userAgentString + " FarmPlugFarmer/2.0.0"
             webViewClient = object : WebViewClient() {
-                override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean = false
+                override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                    val uri = request.url
+                    return if (uri.scheme == "https" && uri.host == CANONICAL_HOST) {
+                        false
+                    } else {
+                        runCatching { startActivity(Intent(Intent.ACTION_VIEW, uri)) }
+                        true
+                    }
+                }
 
                 override fun onPageStarted(view: WebView, url: String, favicon: android.graphics.Bitmap?) {
                     launchOverlay.visibility = View.VISIBLE
@@ -84,8 +94,9 @@ class MainActivity : AppCompatActivity() {
             setTypeface(typeface, android.graphics.Typeface.BOLD)
             setBackgroundColor(Color.rgb(23, 99, 58))
         }
-        val markSize = (72 * resources.displayMetrics.density).toInt()
-        content.addView(mark, FrameLayout.LayoutParams(markSize, markSize, Gravity.CENTER_HORIZONTAL).apply { topMargin = (190 * resources.displayMetrics.density).toInt() })
+        val density = resources.displayMetrics.density
+        val markSize = (72 * density).toInt()
+        content.addView(mark, FrameLayout.LayoutParams(markSize, markSize, Gravity.CENTER_HORIZONTAL).apply { topMargin = (190 * density).toInt() })
 
         val title = TextView(this).apply {
             text = "FARMPLUG AI"
@@ -94,18 +105,18 @@ class MainActivity : AppCompatActivity() {
             gravity = Gravity.CENTER
             setTypeface(typeface, android.graphics.Typeface.BOLD)
         }
-        content.addView(title, FrameLayout.LayoutParams(-1, -2, Gravity.CENTER_HORIZONTAL).apply { topMargin = (280 * resources.displayMetrics.density).toInt() })
+        content.addView(title, FrameLayout.LayoutParams(-1, -2, Gravity.CENTER_HORIZONTAL).apply { topMargin = (280 * density).toInt() })
 
         val subtitle = TextView(this).apply {
-            text = "Farm intelligence • Market connection"
+            text = "Farmer workspace • Farm intelligence • Market"
             textColor = Color.rgb(100, 112, 103)
             textSize = 12f
             gravity = Gravity.CENTER
         }
-        content.addView(subtitle, FrameLayout.LayoutParams(-1, -2, Gravity.CENTER_HORIZONTAL).apply { topMargin = (314 * resources.displayMetrics.density).toInt() })
+        content.addView(subtitle, FrameLayout.LayoutParams(-1, -2, Gravity.CENTER_HORIZONTAL).apply { topMargin = (314 * density).toInt() })
 
         val progress = ProgressBar(this).apply { isIndeterminate = true }
-        content.addView(progress, FrameLayout.LayoutParams(40, 40, Gravity.CENTER_HORIZONTAL).apply { topMargin = (370 * resources.displayMetrics.density).toInt() })
+        content.addView(progress, FrameLayout.LayoutParams(40, 40, Gravity.CENTER_HORIZONTAL).apply { topMargin = (370 * density).toInt() })
         panel.addView(content, FrameLayout.LayoutParams(-1, -1))
         return panel
     }
@@ -118,6 +129,15 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         if (::webView.isInitialized && webView.url == null && isOnline()) webView.loadUrl(HOME_URL)
+    }
+
+    override fun onDestroy() {
+        if (::webView.isInitialized) {
+            webView.stopLoading()
+            webView.webViewClient = null
+            webView.destroy()
+        }
+        super.onDestroy()
     }
 
     private fun isOnline(): Boolean {
@@ -134,5 +154,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val HOME_URL = "https://farmplugaisxd.vercel.app/signin"
+        private const val CANONICAL_HOST = "farmplugaisxd.vercel.app"
     }
 }
