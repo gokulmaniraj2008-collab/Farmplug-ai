@@ -19,9 +19,9 @@ jobs:
 
       - name: Check Android project
         run: |
-          test -f android/settings.gradle
-          test -f android/build.gradle
-          test -f android/app/build.gradle
+          test -f android/settings.gradle.kts
+          test -f android/build.gradle.kts
+          test -f android/app/build.gradle.kts
           test -f android/app/src/main/AndroidManifest.xml
 
       - name: Set up JDK 17
@@ -61,7 +61,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           APK_PATH: ${{ steps.apk.outputs.path }}
         run: |
-          TAG="v1.0.${GITHUB_RUN_NUMBER}"
+          TAG="v1.1.${GITHUB_RUN_NUMBER}"
           gh release create "$TAG" "$APK_PATH#FarmPlug-Farmer-${TAG}.apk" \
             --repo "$GITHUB_REPOSITORY" \
             --title "FarmPlug Farmer Android ${TAG}" \
