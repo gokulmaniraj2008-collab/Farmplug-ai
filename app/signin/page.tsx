@@ -1,31 +1,13 @@
 'use client';
-
-import { useState } from 'react';
+import { FormEvent,useEffect,useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Building2, Leaf, ShieldCheck, Smartphone, UserRound } from 'lucide-react';
-
-const roles = [
-  ['Farmer / FPO','Open the farmer workspace','/farmer',Leaf],
-  ['Buyer','Open the buyer portal','/buyer',Building2],
-  ['Admin','Open the administration console','/admin',ShieldCheck],
-] as const;
+import { Loader2,LogIn,ShieldCheck } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 export default function SignInPage(){
-  const [role,setRole]=useState('Farmer / FPO');
-  const target=roles.find(r=>r[0]===role)?.[2]||'/farmer';
-  return <main className="pageShell">
-    <div className="mobilePageHead"><span>ACCOUNT</span><b>FarmPlug AI</b><span>Sign in</span></div>
-    <section className="pageHero">
-      <span className="eyebrow"><UserRound size={14}/> SECURE ACCESS</span>
-      <h1>Sign in to your FarmPlug workspace.</h1>
-      <p>Choose your role to continue. Production authentication should use the shared identity service with role-based access control.</p>
-    </section>
-    <section className="pageCard">
-      <h2><UserRound size={21}/> Choose your workspace</h2>
-      <div className="miniGrid">{roles.map(([name,desc,href,Icon])=><button key={name} onClick={()=>setRole(name)} style={{textAlign:'left',cursor:'pointer',border:role===name?'2px solid #166534':'1px solid #e3ece5',background:role===name?'#effaf1':'#fff',borderRadius:15,padding:17}}><Icon size={20}/><b style={{display:'block',marginTop:9}}>{name}</b><span className="mutedText">{desc}</span></button>)}</div>
-      <Link href={target} className="btn primary full" style={{marginTop:14}}>CONTINUE AS {role.toUpperCase()} <ArrowRight size={16}/></Link>
-      <div className="notice" style={{marginTop:14}}><Smartphone size={15}/> For the dedicated farmer mobile experience, use the FarmPlug Android app.</div>
-    </section>
-    <section className="pageCard"><h2><ShieldCheck size={21}/> Production readiness</h2><p className="mutedText">This role selector is the platform entry point. Connect it to Supabase Auth, server-side authorization and Row-Level Security before treating the portals as production authenticated surfaces.</p></section>
-  </main>;
+ const [email,setEmail]=useState(''); const [password,setPassword]=useState(''); const [show,setShow]=useState(false); const [busy,setBusy]=useState(false); const [google,setGoogle]=useState(false); const [error,setError]=useState('');
+ useEffect(()=>{ if(!supabase)return; supabase.auth.getSession().then(({data})=>{if(data.session) location.href='/auth/callback'}); },[]);
+ async function submit(e:FormEvent){e.preventDefault();setError('');if(!supabase){setError('Supabase authentication is not configured.');return}if(!email||!password){setError('Enter your email and password.');return}setBusy(true);const {error}=await supabase.auth.signInWithPassword({email:email.trim(),password});if(error){setError(error.message);setBusy(false);return}location.href='/auth/callback'}
+ async function googleLogin(){setError('');if(!supabase){setError('Supabase authentication is not configured.');return}setGoogle(true);const {error}=await supabase.auth.signInWithOAuth({provider:'google',options:{redirectTo:`${location.origin}/auth/callback`}});if(error){setError(error.message);setGoogle(false)}}
+ return <main className="pageShell"><div className="mobilePageHead"><span>ACCOUNT</span><b>FarmPlug AI</b><span>Sign in</span></div><section className="pageHero"><span className="eyebrow"><LogIn size={14}/> SECURE ACCESS</span><h1>Sign in to FarmPlug AI.</h1><p>Access your farmer, buyer, FPO, or authorized operations workspace.</p></section><section className="pageCard"><form onSubmit={submit}><h2><LogIn size={21}/> Sign in</h2><div className="field"><label htmlFor="email">Email</label><input id="email" type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} required /></div><div className="field"><label htmlFor="password">Password</label><div style={{display:'flex',gap:8}}><input id="password" type={show?'text':'password'} autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} required style={{flex:1}}/><button type="button" className="btn secondary" onClick={()=>setShow(!show)}>{show?'Hide':'Show'}</button></div></div>{error&&<div role="alert" className="notice" style={{color:'#8b1e1e',background:'#fff1f1'}}>{error}</div>}<button className="btn primary full" disabled={busy||google} type="submit">{busy?<><Loader2 size={16}/> Signing in…</>:<>Sign In <LogIn size={16}/></>}</button></form><div style={{display:'flex',alignItems:'center',gap:10,margin:'18px 0',color:'#64756a'}}> <span style={{height:1,background:'#e3ece5',flex:1}}/> OR <span style={{height:1,background:'#e3ece5',flex:1}}/></div><button className="btn secondary full" type="button" disabled={busy||google} onClick={googleLogin}>{google?<><Loader2 size={16}/> Connecting…</>:<>ⓖ Continue with Google</>}</button><div style={{display:'flex',justifyContent:'space-between',marginTop:15,fontSize:13}}><Link href="/forgot-password">Forgot password?</Link><Link href="/signup">Create account</Link></div><div className="notice"><ShieldCheck size={15}/> Google Login uses Supabase OAuth. Enable Google under Supabase Authentication → Providers.</div></section></main>;
 }
