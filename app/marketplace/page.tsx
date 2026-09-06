@@ -24,7 +24,7 @@ export default function Marketplace() {
           <b>FarmPlug AI</b>
           <span>Marketplace</span>
         </div>
-        <Store size={20} />
+        <Store size={20} aria-hidden="true" />
       </header>
 
       <section className="pageHero">
@@ -36,7 +36,6 @@ export default function Marketplace() {
       <section className="pageCard">
         <div className="searchBox">
           <Search size={17} aria-hidden="true" />
-          <label className="srOnly" htmlFor="marketplace-search">Search marketplace</label>
           <input
             id="marketplace-search"
             name="marketplace-search"
