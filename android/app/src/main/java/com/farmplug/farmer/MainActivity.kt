@@ -2,10 +2,10 @@ package com.farmplug.farmer
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -17,25 +17,36 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var webView: WebView
+    private lateinit var container: FrameLayout
+    private var webView: WebView? = null
     private lateinit var progress: ProgressBar
 
-    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val root = FrameLayout(this)
-        webView = WebView(this)
+        container = FrameLayout(this)
         progress = ProgressBar(this).apply { isIndeterminate = true }
-
-        root.addView(webView, FrameLayout.LayoutParams(-1, -1))
-        root.addView(progress, FrameLayout.LayoutParams(56, 56).apply {
+        container.addView(progress, FrameLayout.LayoutParams(56, 56).apply {
             gravity = android.view.Gravity.CENTER
         })
+        setContentView(container)
 
-        setContentView(root)
+        createWebView()
+    }
 
-        webView.settings.apply {
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun createWebView() {
+        webView?.let { old ->
+            container.removeView(old)
+            old.stopLoading()
+            old.destroy()
+        }
+
+        val view = WebView(this)
+        webView = view
+        container.addView(view, 0, FrameLayout.LayoutParams(-1, -1))
+
+        view.settings.apply {
             javaScriptEnabled = true
             domStorageEnabled = true
             setSupportZoom(false)
@@ -44,11 +55,14 @@ class MainActivity : AppCompatActivity() {
             allowFileAccess = false
             allowContentAccess = false
             javaScriptCanOpenWindowsAutomatically = false
-            userAgentString = userAgentString + " FarmPlugFarmer/2.1.0"
+            setSupportMultipleWindows(false)
         }
 
-        webView.webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+        view.webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(
+                view: WebView,
+                request: WebResourceRequest
+            ): Boolean {
                 val uri = request.url
                 return if (uri.scheme == "https" && uri.host == CANONICAL_HOST) {
                     false
@@ -66,23 +80,47 @@ class MainActivity : AppCompatActivity() {
                 progress.visibility = View.GONE
             }
 
-            override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
+            override fun onReceivedError(
+                view: WebView,
+                request: WebResourceRequest,
+                error: WebResourceError
+            ) {
                 if (request.isForMainFrame) {
                     progress.visibility = View.GONE
                     Toast.makeText(
                         this@MainActivity,
-                        "FarmPlug could not load. Check your internet connection and retry.",
+                        "FarmPlug could not load. Check your internet connection.",
                         Toast.LENGTH_LONG
                     ).show()
                 }
             }
+
+            override fun onRenderProcessGone(
+                view: WebView,
+                detail: android.webkit.RenderProcessGoneDetail
+            ): Boolean {
+                container.removeView(view)
+                webView = null
+                view.destroy()
+                progress.visibility = View.GONE
+                showRendererRecovery()
+                return true
+            }
         }
 
-        if (savedInstanceState != null) {
-            webView.restoreState(savedInstanceState)
-        } else {
-            webView.loadUrl(HOME_URL)
+        view.loadUrl(HOME_URL)
+    }
+
+    private fun showRendererRecovery() {
+        container.removeAllViews()
+        val message = TextView(this).apply {
+            text = "FarmPlug needs to restart its web engine.\n\nTap Retry to continue."
+            textSize = 18f
+            gravity = android.view.Gravity.CENTER
+            setPadding(48, 48, 48, 48)
+            setOnClickListener { recreate() }
         }
+        container.addView(message, FrameLayout.LayoutParams(-1, -1))
     }
 
     private fun openExternal(uri: Uri) {
@@ -93,24 +131,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        webView.saveState(outState)
-        super.onSaveInstanceState(outState)
-    }
-
     override fun onDestroy() {
-        if (::webView.isInitialized) {
-            webView.stopLoading()
-            webView.webViewClient = WebViewClient()
-            webView.removeAllViews()
-            webView.destroy()
+        webView?.let { view ->
+            (view.parent as? ViewGroup)?.removeView(view)
+            view.stopLoading()
+            view.webViewClient = WebViewClient()
+            view.destroy()
         }
+        webView = null
         super.onDestroy()
     }
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        if (webView.canGoBack()) webView.goBack() else super.onBackPressed()
+        val view = webView
+        if (view != null && view.canGoBack()) view.goBack() else super.onBackPressed()
     }
 
     companion object {
