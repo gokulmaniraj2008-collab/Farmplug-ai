@@ -18,93 +18,63 @@
   --shadow-card: 0 8px 30px rgba(20, 32, 25, .06);
   --shadow-float: 0 16px 40px rgba(20, 32, 25, .10);
 }
-
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body {
-  margin: 0;
-  min-width: 320px;
-  background:
-    radial-gradient(circle at 8% 0%, rgba(223, 240, 227, .72), transparent 28rem),
-    var(--background);
-  color: var(--foreground);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-
+body { margin: 0; min-width: 320px; background: radial-gradient(circle at 8% 0%, rgba(223, 240, 227, .72), transparent 28rem), var(--background); color: var(--foreground); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 button, input, select, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 button { cursor: pointer; }
 a { color: inherit; text-decoration-thickness: .08em; text-underline-offset: .18em; }
 ::selection { background: var(--brand-soft); color: var(--foreground); }
 :focus-visible { outline: 3px solid color-mix(in srgb, var(--focus) 55%, transparent); outline-offset: 2px; }
-
-/* Shared surfaces: upgrades existing Tailwind cards without changing page logic. */
-:where(.rounded-xl), :where(.rounded-2xl), :where(.rounded-3xl) {
-  border-color: var(--border);
-  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
-}
+:where(.rounded-xl), :where(.rounded-2xl), :where(.rounded-3xl) { border-color: var(--border); transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
 :where(.bg-white) { background-color: var(--surface); }
 :where(.shadow-sm) { box-shadow: var(--shadow-card); }
-
-/* Interactive cards feel tappable while avoiding aggressive motion. */
-@media (hover: hover) {
-  :where(.rounded-xl.border, .rounded-2xl.border, .rounded-3xl.border):hover {
-    border-color: #cbdacf;
-    box-shadow: var(--shadow-card);
-  }
-}
-
-/* Forms */
-input:not([type="checkbox"]):not([type="radio"]),
-select,
-textarea {
-  min-height: 44px;
-  border-radius: 12px;
-  border-color: var(--border);
-  background: #fff;
-  color: var(--foreground);
-  transition: border-color .18s ease, box-shadow .18s ease;
-}
-input:not([type="checkbox"]):not([type="radio"]):focus,
-select:focus,
-textarea:focus {
-  border-color: var(--focus);
-  box-shadow: 0 0 0 4px rgba(120, 169, 138, .14);
-  outline: none;
-}
-
-/* Buttons */
-button {
-  min-height: 42px;
-  border-radius: 12px;
-  font-weight: 650;
-  transition: transform .16s ease, box-shadow .16s ease, filter .16s ease, background-color .16s ease;
-}
-@media (hover: hover) {
-  button:hover:not(:disabled) { filter: brightness(.98); transform: translateY(-1px); }
-}
+@media (hover: hover) { :where(.rounded-xl.border, .rounded-2xl.border, .rounded-3xl.border):hover { border-color: #cbdacf; box-shadow: var(--shadow-card); } }
+input:not([type="checkbox"]):not([type="radio"]), select, textarea { min-height: 44px; border-radius: 12px; border-color: var(--border); background: #fff; color: var(--foreground); transition: border-color .18s ease, box-shadow .18s ease; }
+input:not([type="checkbox"]):not([type="radio"]):focus, select:focus, textarea:focus { border-color: var(--focus); box-shadow: 0 0 0 4px rgba(120, 169, 138, .14); outline: none; }
+button { min-height: 42px; border-radius: 12px; font-weight: 650; transition: transform .16s ease, box-shadow .16s ease, filter .16s ease, background-color .16s ease; }
+@media (hover: hover) { button:hover:not(:disabled) { filter: brightness(.98); transform: translateY(-1px); } }
 button:active:not(:disabled) { transform: translateY(0); }
 button:disabled { cursor: not-allowed; opacity: .55; }
-
-/* Tables remain usable on phones. */
 table { width: 100%; border-collapse: separate; border-spacing: 0; }
 th { font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
 td, th { border-bottom: 1px solid var(--border); padding: .8rem .75rem; text-align: left; }
 tbody tr:last-child td { border-bottom: 0; }
 
-/* Better touch targets and readable page rhythm on mobile. */
-@media (max-width: 640px) {
-  body { font-size: 15px; }
-  main { overflow-x: clip; }
+/* FarmPlug role workspace: desktop sidebar + mobile bottom tabs. */
+.fp-app-header { position: sticky; top: 0; z-index: 40; height: 68px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,.92); backdrop-filter: blur(16px); }
+.fp-brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+.fp-brand-mark { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: var(--brand); color: #fff; font-size: 12px; font-weight: 900; box-shadow: 0 8px 18px rgba(23,99,58,.18); }
+.fp-brand strong { display: block; font-size: 14px; letter-spacing: -.02em; }
+.fp-brand small { display: block; margin-top: 1px; color: var(--muted); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; }
+.fp-header-actions { display: flex; align-items: center; gap: 8px; }
+.fp-icon-button, .fp-profile-dot { display: grid; place-items: center; width: 40px; height: 40px; min-height: 40px; border: 1px solid var(--border); background: var(--surface); color: var(--brand); text-decoration: none; }
+.fp-desktop-nav { position: fixed; left: 0; top: 68px; bottom: 0; z-index: 30; width: 228px; padding: 22px 14px; border-right: 1px solid var(--border); background: rgba(255,255,255,.9); }
+.fp-nav-label { padding: 0 12px 10px; color: var(--muted); font-size: 10px; font-weight: 900; letter-spacing: .15em; }
+.fp-nav-item { display: flex; align-items: center; gap: 11px; min-height: 46px; margin: 3px 0; padding: 0 12px; border-radius: 13px; color: #526058; font-size: 14px; font-weight: 750; text-decoration: none; }
+.fp-nav-item:hover { background: var(--surface-soft); color: var(--brand); }
+.fp-nav-item.active { background: var(--brand-soft); color: var(--brand-dark); }
+.fp-nav-item span:first-child { width: 22px; text-align: center; font-size: 18px; }
+.fp-bottom-nav { display: none; }
+.fp-workspace-content { margin-left: 228px; min-height: calc(100vh - 68px); }
+
+@media (max-width: 767px) {
+  body { padding-bottom: 76px; font-size: 15px; }
+  .fp-app-header { height: 62px; padding: 0 14px; }
+  .fp-brand-mark { width: 34px; height: 34px; border-radius: 10px; }
+  .fp-brand small { display: none; }
+  .fp-desktop-nav { display: none; }
+  .fp-workspace-content { margin-left: 0; min-height: calc(100vh - 62px); }
+  .fp-bottom-nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; display: grid; grid-template-columns: repeat(5, 1fr); height: 72px; padding: 7px 5px max(7px, env(safe-area-inset-bottom)); border-top: 1px solid var(--border); background: rgba(255,255,255,.96); backdrop-filter: blur(18px); box-shadow: 0 -8px 28px rgba(20,32,25,.08); }
+  .fp-bottom-item { display: flex; min-width: 0; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 12px; color: var(--muted); font-size: 10px; font-weight: 800; text-decoration: none; }
+  .fp-bottom-icon { display: grid; place-items: center; width: 28px; height: 26px; font-size: 18px; line-height: 1; }
+  .fp-bottom-item.active { color: var(--brand); background: var(--surface-soft); }
+  .fp-bottom-item.active .fp-bottom-icon { font-size: 20px; }
   :where(.px-6) { padding-left: 1rem; padding-right: 1rem; }
   :where(.py-20) { padding-top: 3.5rem; padding-bottom: 3.5rem; }
   :where(.text-5xl) { font-size: 2.35rem; line-height: 1.08; }
   :where(.text-6xl) { font-size: 2.65rem; line-height: 1.04; }
   input:not([type="checkbox"]):not([type="radio"]), select, textarea { font-size: 16px; }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
-}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
