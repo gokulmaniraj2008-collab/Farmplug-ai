@@ -1,0 +1,2 @@
+// File location: components/demo/DemoModeBanner.tsx
+export default function DemoModeBanner(){return <div role="status" className="flex items-center justify-center gap-2 bg-amber-500 px-4 py-2 text-center text-sm font-medium text-white"><span aria-hidden="true">⚠️</span>You're viewing a Demo — no real account, no real data, nothing you do here is saved.<a href="/signup" className="ml-2 underline">Create a real account</a></div>;}
