@@ -1,0 +1,1 @@
+# FarmPlug Farmer release rules
