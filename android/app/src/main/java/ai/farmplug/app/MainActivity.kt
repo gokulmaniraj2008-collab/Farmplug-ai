@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        OnBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (web.canGoBack()) web.goBack() else finish()
             }
