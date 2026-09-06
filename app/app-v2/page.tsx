@@ -11,12 +11,15 @@ export default function FarmPlugFarmerApp() {
 
   useEffect(() => {
     let active = true;
-    if (!supabase) {
+    const client = supabase;
+
+    if (!client) {
       router.replace('/signin');
       return;
     }
+
     const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
+      const { data } = await client.auth.getSession();
       if (!active) return;
       if (!data.session) {
         router.replace('/splash');
@@ -24,14 +27,17 @@ export default function FarmPlugFarmerApp() {
       }
       setChecking(false);
     };
+
     checkSession();
-    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+
+    const { data: subscription } = client.auth.onAuthStateChange((_event, session) => {
       if (!active) return;
       if (!session) router.replace('/splash');
     });
+
     return () => {
       active = false;
-      subscription.unsubscribe();
+      subscription.subscription.unsubscribe();
     };
   }, [router]);
 
