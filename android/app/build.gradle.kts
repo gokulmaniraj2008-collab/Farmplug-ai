@@ -11,8 +11,8 @@ android {
         applicationId = "com.farmplug.farmer"
         minSdk = 24
         targetSdk = 35
-        versionCode = 6
-        versionName = "1.2.3"
+        versionCode = 7
+        versionName = "1.2.4"
     }
 
     compileOptions {
@@ -38,5 +38,6 @@ android {
 dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.browser:browser:1.8.0")
     implementation("androidx.webkit:webkit:1.16.0")
 }
