@@ -1,6 +1,6 @@
 // File location: components/orders/OrderStatusBadge.tsx
 
-type OrderStatus =
+type KnownOrderStatus =
   | "quote_pending"
   | "negotiating"
   | "quote_accepted"
@@ -12,7 +12,7 @@ type OrderStatus =
   | "cancelled"
   | "disputed";
 
-const LABEL: Record<OrderStatus, string> = {
+const LABEL: Record<KnownOrderStatus, string> = {
   quote_pending: "Quote Pending",
   negotiating: "Negotiating",
   quote_accepted: "Quote Accepted",
@@ -25,7 +25,7 @@ const LABEL: Record<OrderStatus, string> = {
   disputed: "Disputed",
 };
 
-const STYLE: Record<OrderStatus, string> = {
+const STYLE: Record<KnownOrderStatus, string> = {
   quote_pending: "bg-blue-100 text-blue-800",
   negotiating: "bg-blue-100 text-blue-800",
   quote_accepted: "bg-indigo-100 text-indigo-800",
@@ -42,18 +42,15 @@ export default function OrderStatusBadge({
   status,
   isPaymentSimulated,
 }: {
-  status: OrderStatus;
+  status: string;
   isPaymentSimulated?: boolean;
 }) {
-  const known = LABEL[status] !== undefined;
+  const known = status in LABEL;
+  const key = status as KnownOrderStatus;
   return (
     <span className="inline-flex items-center gap-1.5">
-      <span
-        className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-          known ? STYLE[status] : "bg-gray-100 text-gray-600"
-        }`}
-      >
-        {known ? LABEL[status] : status}
+      <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${known ? STYLE[key] : "bg-gray-100 text-gray-600"}`}>
+        {known ? LABEL[key] : status}
       </span>
       {status === "order_confirmed" && isPaymentSimulated && (
         <span className="text-[10px] uppercase text-gray-400">(simulated)</span>
