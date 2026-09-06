@@ -17,46 +17,42 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
-
       - name: Install Android SDK packages
         run: sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
-
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
-
       - name: Create Android project from Flutter source
         run: |
           rm -rf build/farmplug_flutter
           flutter create --platforms=android --org com.farmplug --project-name farmer build/farmplug_flutter
           cp farmer_app/pubspec.yaml build/farmplug_flutter/pubspec.yaml
-          cp farmer_app/lib/main.dart build/farmplug_flutter/lib/main.dart
+          cp farmer_app/lib/main_complete.dart build/farmplug_flutter/lib/main.dart
           cd build/farmplug_flutter
           flutter --version
           flutter pub get
-
       - name: Verify Dart source
         run: |
           test -f farmer_app/pubspec.yaml
-          test -f farmer_app/lib/main.dart
-          grep -F "FarmPlug AI" farmer_app/lib/main.dart
+          test -f farmer_app/lib/main_complete.dart
+          grep -F "FarmPlug AI" farmer_app/lib/main_complete.dart
+          grep -F "Marketplace" farmer_app/lib/main_complete.dart
+          grep -F "Download Farmer App" farmer_app/lib/main_complete.dart
+          grep -F "Notifications" farmer_app/lib/main_complete.dart
+          grep -F "SettingsPage" farmer_app/lib/main_complete.dart
           grep -F "url_launcher" farmer_app/pubspec.yaml
-
       - name: Build release APK
         working-directory: build/farmplug_flutter
         run: flutter build apk --release --no-shrink
-
       - name: Read Flutter app version
         id: app_version
         run: |
@@ -66,8 +62,6 @@ jobs:
           test -n "$BUILD"
           echo "version_name=$VERSION" >> "$GITHUB_OUTPUT"
           echo "version_code=$BUILD" >> "$GITHUB_OUTPUT"
-          echo "Flutter version: $VERSION ($BUILD)"
-
       - name: Validate APK integrity, signature and package
         env:
           EXPECTED_VERSION_NAME: ${{ steps.app_version.outputs.version_name }}
@@ -81,20 +75,17 @@ jobs:
           BADGING=$("$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK")
           echo "$BADGING"
           echo "$BADGING" | grep -F "package: name='com.farmplug.farmer' versionCode='$EXPECTED_VERSION_CODE' versionName='$EXPECTED_VERSION_NAME'"
-
       - name: Rename APK
         env:
           VERSION_NAME: ${{ steps.app_version.outputs.version_name }}
           VERSION_CODE: ${{ steps.app_version.outputs.version_code }}
         run: cp build/farmplug_flutter/build/app/outputs/flutter-apk/app-release.apk "FarmPlug-Farmer-v${VERSION_NAME}-${VERSION_CODE}.apk"
-
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: FarmPlug-Farmer-Flutter-${{ steps.app_version.outputs.version_name }}-${{ github.run_number }}
           path: FarmPlug-Farmer-v${{ steps.app_version.outputs.version_name }}-${{ steps.app_version.outputs.version_code }}.apk
           if-no-files-found: error
-
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -103,7 +94,4 @@ jobs:
         run: |
           TAG="v${VERSION_NAME}-flutter-build.${GITHUB_RUN_NUMBER}"
           APK="FarmPlug-Farmer-v${VERSION_NAME}-${VERSION_CODE}.apk"
-          gh release create "$TAG" "$APK#FarmPlug-Farmer-${TAG}.apk" \
-            --repo "$GITHUB_REPOSITORY" \
-            --title "FarmPlug Farmer Flutter ${TAG}" \
-            --generate-notes
+          gh release create "$TAG" "$APK#FarmPlug-Farmer-${TAG}.apk" --repo "$GITHUB_REPOSITORY" --title "FarmPlug Farmer Flutter ${TAG}" --generate-notes
