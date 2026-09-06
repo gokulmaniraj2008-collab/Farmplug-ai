@@ -1,97 +1,11 @@
-// File location: app/dashboard/admin/users/page.tsx
 "use client";
-
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client"; // adjust to your existing client path
+import { createClient } from "@/lib/supabase/client";
 
-interface UserRow {
-  id: string;
-  full_name: string | null;
-  email: string;
-  role: string | null;
-  auth_provider: string | null;
-  profile_complete: boolean;
-}
-
-export default function AdminUsersPage() {
-  const [users, setUsers] = useState<UserRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<string>("all");
-
-  useEffect(() => {
-    loadUsers();
-  }, []);
-
-  async function loadUsers() {
-    setLoading(true);
-    const supabase = createClient();
-    const { data } = await supabase
-      .from("profiles")
-      .select("id, full_name, email, role, auth_provider, profile_complete")
-      .order("full_name");
-    setUsers(data ?? []);
-    setLoading(false);
-  }
-
-  const filtered =
-    filter === "all" ? users : users.filter((u) => u.role === filter);
-
-  if (loading) return <div className="p-6 text-gray-500">Loading users...</div>;
-
-  return (
-    <div className="mx-auto max-w-4xl p-6">
-      <h1 className="text-xl font-semibold text-gray-900">Users</h1>
-
-      <div className="mt-3 flex gap-2">
-        {["all", "farmer", "buyer", "fpo", "admin"].map((r) => (
-          <button
-            key={r}
-            onClick={() => setFilter(r)}
-            className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${
-              filter === r
-                ? "bg-green-600 text-white"
-                : "bg-gray-100 text-gray-600"
-            }`}
-          >
-            {r}
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-4 overflow-hidden rounded-lg border border-gray-200">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-gray-50 text-gray-500">
-            <tr>
-              <th className="px-4 py-2">Name</th>
-              <th className="px-4 py-2">Email</th>
-              <th className="px-4 py-2">Role</th>
-              <th className="px-4 py-2">Sign-up method</th>
-              <th className="px-4 py-2">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((u) => (
-              <tr key={u.id} className="border-t border-gray-100">
-                <td className="px-4 py-2">{u.full_name ?? "—"}</td>
-                <td className="px-4 py-2">{u.email}</td>
-                <td className="px-4 py-2 capitalize">{u.role ?? "unassigned"}</td>
-                <td className="px-4 py-2 capitalize">{u.auth_provider ?? "email"}</td>
-                <td className="px-4 py-2">
-                  {u.profile_complete ? (
-                    <span className="text-green-700">Complete</span>
-                  ) : (
-                    <span className="text-amber-600">Incomplete</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <p className="mt-3 text-xs text-gray-400">
-        Read-only. Role changes (e.g. granting Admin) must be done via a
-        server-side/service-role action, never from this UI directly.
-      </p>
-    </div>
-  );
+type UserRow = { id:string; email:string|null; role:string|null; farm_role:string|null; profile_complete:boolean; auth_provider:string|null; phone:string|null; location_text:string|null };
+export default function AdminUsersPage(){
+ const [users,setUsers]=useState<UserRow[]>([]); const [filter,setFilter]=useState("all");
+ useEffect(()=>{(async()=>{const {data}=await createClient().from("profiles").select("id,email,role,farm_role,profile_complete,auth_provider,phone,location_text").order("email");setUsers(data??[]);})();},[]);
+ const shown=filter==="all"?users:users.filter(u=>(u.role==="admin"?"admin":u.farm_role)===filter);
+ return <main className="mx-auto max-w-6xl p-6"><h1 className="text-2xl font-bold">Users</h1><div className="mt-4 flex flex-wrap gap-2">{["all","farmer","buyer","fpo","admin"].map(x=><button key={x} onClick={()=>setFilter(x)} className={`rounded-full px-3 py-1 text-sm ${filter===x?"bg-green-600 text-white":"bg-gray-100"}`}>{x}</button>)}</div><div className="mt-5 overflow-x-auto rounded-2xl border"><table className="w-full text-left text-sm"><thead className="bg-gray-50"><tr>{["Email","Role","Phone","Location","Profile"].map(h=><th key={h} className="px-4 py-3">{h}</th>)}</tr></thead><tbody>{shown.map(u=><tr key={u.id} className="border-t"><td className="px-4 py-3">{u.email??"—"}</td><td className="px-4 py-3 capitalize">{u.role==="admin"?"admin":u.farm_role??"unassigned"}</td><td className="px-4 py-3">{u.phone??"—"}</td><td className="px-4 py-3">{u.location_text??"—"}</td><td className="px-4 py-3">{u.profile_complete?"Complete":"Incomplete"}</td></tr>)}</tbody></table></div></main>;
 }
