@@ -38,7 +38,11 @@ function SignInContent() {
       return;
     }
 
-    window.location.href = "/";
+    const next = params.get("next");
+    const safeNext = next && (next.startsWith("/dashboard") || next.startsWith("/onboarding"))
+      ? next
+      : "/onboarding/complete-profile";
+    window.location.href = safeNext;
   }
 
   return (
