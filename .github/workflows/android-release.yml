@@ -1,4 +1,4 @@
-name: Build Farmer Android APK
+name: Build and Release Farmer Android APK
 
 on:
   workflow_dispatch:
@@ -19,14 +19,10 @@ jobs:
 
       - name: Check Android project
         run: |
-          if [ ! -d android ]; then
-            echo "Android project directory is missing. The APK cannot be built yet."
-            exit 1
-          fi
-          if [ ! -f android/gradlew ]; then
-            echo "android/gradlew is missing. The Android project is incomplete."
-            exit 1
-          fi
+          test -d android
+          test -f android/settings.gradle.kts
+          test -f android/build.gradle.kts
+          test -f android/app/build.gradle.kts
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -37,33 +33,37 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Make Gradle executable
-        run: chmod +x android/gradlew
+      - name: Install Gradle
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gradle
+          gradle --version
 
       - name: Build release APK
         working-directory: android
-        run: ./gradlew assembleRelease --stacktrace
+        run: gradle assembleRelease --stacktrace --no-daemon
 
       - name: Locate APK
         id: apk
         run: |
-          APK=$(find android -type f -name '*release*.apk' | head -n 1)
-          if [ -z "$APK" ]; then
-            echo "No release APK was produced."
-            exit 1
-          fi
+          APK=$(find android/app/build/outputs/apk/release -type f -name '*.apk' | head -n 1)
+          test -n "$APK"
           echo "path=$APK" >> "$GITHUB_OUTPUT"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: FarmPlug-Farmer-Android
+          name: FarmPlug-Farmer-Android-${{ github.run_number }}
           path: ${{ steps.apk.outputs.path }}
           if-no-files-found: error
 
-      - name: Create GitHub release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: ${{ steps.apk.outputs.path }}
-          generate_release_notes: true
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APK_PATH: ${{ steps.apk.outputs.path }}
+        run: |
+          TAG="v1.0.${GITHUB_RUN_NUMBER}"
+          gh release create "$TAG" "$APK_PATH#FarmPlug-Farmer-${TAG}.apk" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "FarmPlug Farmer Android ${TAG}" \
+            --generate-notes
