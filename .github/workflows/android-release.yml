@@ -25,6 +25,7 @@ jobs:
           echo "Building FarmPlug Farmer from main"
           git rev-parse HEAD
           git status --short
+          sha256sum farmer_app/lib/main.dart
       - name: Set up JDK 17
         uses: actions/setup-java@v5
         with:
@@ -56,10 +57,14 @@ jobs:
           grep -F "Marketplace" farmer_app/lib/main.dart
           grep -F "Notifications" farmer_app/lib/main.dart
           grep -F "SettingsPage" farmer_app/lib/main.dart
-          grep -F "brightness: Brightness.light" farmer_app/lib/main.dart
+          grep -F "brightness:Brightness.light" farmer_app/lib/main.dart
           grep -F "Color(0xFFF7FAF7)" farmer_app/lib/main.dart
           ! grep -F "Brightness.dark" farmer_app/lib/main.dart
           ! grep -F "Color(0xFF0B0B0B)" farmer_app/lib/main.dart
+          test "$(grep -oE '^class _?AiCenterState extends State<AiCenter>' farmer_app/lib/main.dart | wc -l | tr -d ' ')" = "1"
+          test "$(grep -oE '^class FarmerHome extends StatelessWidget' farmer_app/lib/main.dart | wc -l | tr -d ' ')" = "1"
+          test "$(grep -oE '^class Notifications extends StatelessWidget' farmer_app/lib/main.dart | wc -l | tr -d ' ')" = "1"
+          test "$(grep -oE '^class SettingsPage extends StatelessWidget' farmer_app/lib/main.dart | wc -l | tr -d ' ')" = "1"
       - name: Analyze Dart source before APK build
         working-directory: build/farmplug_flutter
         run: flutter analyze lib/main.dart
@@ -97,7 +102,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: FarmPlug-Farmer-Flutter-${{ steps.app_version.outputs.version_name }}-${{ github.run_number }}
-          path: FarmPlug-Farmer-v${{ steps.app_version.outputs.version_name }}-${{ steps.app_version.outputs.version_code }}.apk
+          path: FarmPlug-Farmer-v${{ VERSION_NAME }}-${{ VERSION_CODE }}.apk
           if-no-files-found: error
       - name: Publish GitHub Release
         env:
