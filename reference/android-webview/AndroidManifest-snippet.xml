@@ -1,0 +1,48 @@
+<!--
+REFERENCE ONLY — merge the relevant pieces into your existing
+AndroidManifest.xml. Not verified against your actual manifest, which
+wasn't provided.
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application>
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!--
+              Deep link for the OAuth callback leg. This exact scheme
+              (farmplugai://auth/callback) must also be:
+              1. Registered as an additional Redirect URL in Supabase
+                 Auth -> URL Configuration.
+              2. NOT the same as your Google Cloud OAuth Client's
+                 "Authorized redirect URI" — that one stays as your
+                 Supabase project's own callback URL
+                 (https://hvnasippwadzygnaodpp.supabase.co/auth/v1/callback).
+                 This app-side deep link is what Supabase redirects to
+                 AFTER it finishes the Google exchange, not what
+                 Google redirects to.
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="farmplugai" android:host="auth" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
+
+<!--
+build.gradle (app-level) also needs:
+    implementation("androidx.browser:browser:1.8.0")
+for androidx.browser.customtabs used in MainActivity.kt.
+-->
