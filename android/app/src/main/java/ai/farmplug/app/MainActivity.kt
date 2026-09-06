@@ -1,18 +1,22 @@
 package ai.farmplug.app
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.Gravity
 import android.view.View
+import android.webkit.CookieManager
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -35,24 +39,44 @@ class MainActivity : AppCompatActivity() {
 
     private fun showLoadError() {
         progress.visibility = View.GONE
-        Toast.makeText(this, "FarmPlug could not load. Tap OK and check your internet connection.", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, "FarmPlug could not load. Check your internet connection and tap Retry.", Toast.LENGTH_LONG).show()
     }
 
     private fun loadFarmPlug() {
+        retryCount++
         progress.visibility = View.VISIBLE
         web.loadUrl("https://farmplugaisxd.vercel.app/app-v2")
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Android 15+ edge-to-edge is handled explicitly so the WebView is not laid out
+        // underneath system bars on newer devices.
         WindowCompat.setDecorFitsSystemWindows(window, true)
         window.statusBarColor = Color.rgb(22, 101, 52)
         window.navigationBarColor = Color.WHITE
 
         val root = FrameLayout(this)
         web = WebView(this)
-        progress = ProgressBar(this)
-        progress.isIndeterminate = true
+        progress = ProgressBar(this).apply { isIndeterminate = true }
+
+        CookieManager.getInstance().setAcceptCookie(true)
+        CookieManager.getInstance().setAcceptThirdPartyCookies(web, true)
+
+        web.settings.apply {
+            javaScriptEnabled = true
+            domStorageEnabled = true
+            javaScriptCanOpenWindowsAutomatically = false
+            setSupportMultipleWindows(false)
+            allowFileAccess = false
+            allowContentAccess = false
+            mediaPlaybackRequiresUserGesture = true
+            builtInZoomControls = false
+            displayZoomControls = false
+        }
+        web.setBackgroundColor(Color.rgb(247, 251, 247))
 
         web.webViewClient = object : WebViewClient() {
             override fun onPageStarted(view: WebView, url: String?, favicon: android.graphics.Bitmap?) {
@@ -69,9 +93,8 @@ class MainActivity : AppCompatActivity() {
             override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
                 if (request.isForMainFrame) {
                     progress.visibility = View.GONE
-                    if (retryCount < 1 && hasNetwork()) {
-                        retryCount++
-                        handler.postDelayed({ loadFarmPlug() }, 700)
+                    if (retryCount < 2 && hasNetwork()) {
+                        handler.postDelayed({ loadFarmPlug() }, 800)
                     } else {
                         showLoadError()
                     }
@@ -80,16 +103,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        web.settings.javaScriptEnabled = true
-        web.settings.domStorageEnabled = true
-        web.settings.databaseEnabled = true
-        web.settings.mediaPlaybackRequiresUserGesture = false
-        web.settings.allowFileAccess = false
-        web.settings.allowContentAccess = false
-        web.settings.javaScriptCanOpenWindowsAutomatically = false
-        web.settings.setSupportMultipleWindows(false)
-        web.setBackgroundColor(Color.rgb(247, 251, 247))
-
         ViewCompat.setOnApplyWindowInsetsListener(web) { view, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(0, bars.top, 0, bars.bottom)
@@ -97,8 +110,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         root.addView(web, FrameLayout.LayoutParams(-1, -1))
-        val progressParams = FrameLayout.LayoutParams(64, 64)
-        progressParams.gravity = android.view.Gravity.CENTER
+        val progressParams = FrameLayout.LayoutParams(64, 64).apply { gravity = Gravity.CENTER }
         root.addView(progress, progressParams)
         setContentView(root)
 
@@ -108,26 +120,24 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        if (savedInstanceState != null) {
-            web.restoreState(savedInstanceState)
-        } else {
-            loadFarmPlug()
-        }
+        // Do not restore an old WebView navigation snapshot. A stale renderer snapshot
+        // can make the app immediately close on some Android/WebView versions.
+        loadFarmPlug()
 
         if (!hasNetwork()) {
             Toast.makeText(this, "Internet connection is required for FarmPlug AI.", Toast.LENGTH_LONG).show()
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        web.saveState(outState)
-        super.onSaveInstanceState(outState)
-    }
-
     override fun onDestroy() {
         handler.removeCallbacksAndMessages(null)
-        web.stopLoading()
-        web.destroy()
+        if (::web.isInitialized) {
+            web.stopLoading()
+            web.loadUrl("about:blank")
+            web.clearHistory()
+            web.removeAllViews()
+            web.destroy()
+        }
         super.onDestroy()
     }
 }
