@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         val content = FrameLayout(this)
         val mark = TextView(this).apply {
             text = "FP"
-            textColor = Color.WHITE
+            setTextColor(Color.WHITE)
             textSize = 20f
             gravity = Gravity.CENTER
             setTypeface(typeface, android.graphics.Typeface.BOLD)
@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity() {
 
         val title = TextView(this).apply {
             text = "FARMPLUG AI"
-            textColor = Color.rgb(20, 32, 25)
+            setTextColor(Color.rgb(20, 32, 25))
             textSize = 22f
             gravity = Gravity.CENTER
             setTypeface(typeface, android.graphics.Typeface.BOLD)
@@ -109,7 +109,7 @@ class MainActivity : AppCompatActivity() {
 
         val subtitle = TextView(this).apply {
             text = "Farmer workspace • Farm intelligence • Market"
-            textColor = Color.rgb(100, 112, 103)
+            setTextColor(Color.rgb(100, 112, 103))
             textSize = 12f
             gravity = Gravity.CENTER
         }
@@ -134,7 +134,6 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         if (::webView.isInitialized) {
             webView.stopLoading()
-            webView.webViewClient = null
             webView.destroy()
         }
         super.onDestroy()
