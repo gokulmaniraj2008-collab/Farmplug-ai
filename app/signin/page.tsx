@@ -1,31 +1,92 @@
 'use client';
 
-import { useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Building2, Leaf, ShieldCheck, Smartphone, UserRound } from 'lucide-react';
+import { ArrowRight, Leaf, Loader2, ShieldCheck, UserRound } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { supabase } from '../../lib/supabase';
 
-const roles = [
-  ['Farmer / FPO','Open the farmer workspace','/farmer',Leaf],
-  ['Buyer','Open the buyer portal','/buyer',Building2],
-  ['Admin','Open the administration console','/admin',ShieldCheck],
-] as const;
+export default function SignInPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState('');
 
-export default function SignInPage(){
-  const [role,setRole]=useState('Farmer / FPO');
-  const target=roles.find(r=>r[0]===role)?.[2]||'/farmer';
-  return <main className="pageShell">
-    <div className="mobilePageHead"><span>ACCOUNT</span><b>FarmPlug AI</b><span>Sign in</span></div>
-    <section className="pageHero">
-      <span className="eyebrow"><UserRound size={14}/> SECURE ACCESS</span>
-      <h1>Sign in to your FarmPlug workspace.</h1>
-      <p>Choose your role to continue. Production authentication should use the shared identity service with role-based access control.</p>
-    </section>
-    <section className="pageCard">
-      <h2><UserRound size={21}/> Choose your workspace</h2>
-      <div className="miniGrid">{roles.map(([name,desc,href,Icon])=><button key={name} onClick={()=>setRole(name)} style={{textAlign:'left',cursor:'pointer',border:role===name?'2px solid #166534':'1px solid #e3ece5',background:role===name?'#effaf1':'#fff',borderRadius:15,padding:17}}><Icon size={20}/><b style={{display:'block',marginTop:9}}>{name}</b><span className="mutedText">{desc}</span></button>)}</div>
-      <Link href={target} className="btn primary full" style={{marginTop:14}}>CONTINUE AS {role.toUpperCase()} <ArrowRight size={16}/></Link>
-      <div className="notice" style={{marginTop:14}}><Smartphone size={15}/> For the dedicated farmer mobile experience, use the FarmPlug Android app.</div>
-    </section>
-    <section className="pageCard"><h2><ShieldCheck size={21}/> Production readiness</h2><p className="mutedText">This role selector is the platform entry point. Connect it to Supabase Auth, server-side authorization and Row-Level Security before treating the portals as production authenticated surfaces.</p></section>
-  </main>;
+  useEffect(() => {
+    let active = true;
+    const check = async () => {
+      if (!supabase) return;
+      const { data } = await supabase.auth.getSession();
+      if (active && data.session) router.replace('/app-v2');
+    };
+    check();
+    return () => { active = false; };
+  }, [router]);
+
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!supabase) {
+      setMessage('Authentication is not configured. Please contact the administrator.');
+      return;
+    }
+    if (!email.trim() || !password) {
+      setMessage('Enter your email and password.');
+      return;
+    }
+
+    setBusy(true);
+    setMessage('');
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+
+    if (error) {
+      setMessage(error.message);
+      setBusy(false);
+      return;
+    }
+
+    if (!data.session) {
+      setMessage('Sign-in completed, but no active session was returned. Please try again.');
+      setBusy(false);
+      return;
+    }
+
+    router.replace('/app-v2');
+  };
+
+  return (
+    <main className="v2 auth">
+      <Link href="/splash" className="backTop">← Back</Link>
+      <div className="authLogo"><Leaf /></div>
+      <p className="kicker">FARMER ACCOUNT</p>
+      <h1>Welcome back.</h1>
+      <p className="muted">Sign in securely to your FarmPlug AI farmer workspace.</p>
+
+      <form onSubmit={submit} style={{ display: 'grid', gap: 10, marginTop: 24 }}>
+        <label htmlFor="signin-email">Email</label>
+        <input id="signin-email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+        <label htmlFor="signin-password">Password</label>
+        <input id="signin-password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Your password" />
+        {message && <p className="formMessage" role="alert">{message}</p>}
+        <button className="mainBtn" type="submit" disabled={busy}>
+          {busy ? <><Loader2 className="spin" size={18} /> Signing in…</> : <>Sign in <ArrowRight size={18} /></>}
+        </button>
+      </form>
+
+      <div className="notice" style={{ marginTop: 16 }}>
+        <ShieldCheck size={16} /> Your account is protected by Supabase Auth and server-side authorization.
+      </div>
+
+      <p style={{ marginTop: 18, textAlign: 'center' }}>
+        New farmer? <Link href="/signup" style={{ fontWeight: 800 }}>Create an account</Link>
+      </p>
+
+      <Link href="/onboarding" style={{ marginTop: 8, textAlign: 'center' }}>
+        Review onboarding again
+      </Link>
+    </main>
+  );
 }
