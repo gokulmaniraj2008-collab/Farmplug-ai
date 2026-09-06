@@ -102,7 +102,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: FarmPlug-Farmer-Flutter-${{ steps.app_version.outputs.version_name }}-${{ github.run_number }}
-          path: FarmPlug-Farmer-v${{ VERSION_NAME }}-${{ VERSION_CODE }}.apk
+          path: FarmPlug-Farmer-v*.apk
           if-no-files-found: error
       - name: Publish GitHub Release
         env:
