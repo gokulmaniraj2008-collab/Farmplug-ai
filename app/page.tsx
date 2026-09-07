@@ -6,6 +6,7 @@ const images = [
   { src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Millet_crop_at_Asifabad.jpg", title: "Millet farming", meta: "Asifabad · India" },
   { src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Paddy_Crop.jpg", title: "Paddy crop", meta: "Rice cultivation" },
   { src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Paddy_field_image.jpg", title: "Paddy fields", meta: "Harvest season" },
+  { src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Cultivation_of_paddy_crops.jpg", title: "Paddy cultivation", meta: "Open farm imagery" },
 ];
 
 const roles = [
@@ -17,6 +18,25 @@ const roles = [
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#F5F7F2] text-[#182119]">
+      <style jsx>{`
+        @keyframes farmplugImageScroll {
+          from { transform: translateX(0); }
+          to { transform: translateX(calc(-50% - 6px)); }
+        }
+        .farmplug-image-track {
+          width: max-content;
+          animation: farmplugImageScroll 28s linear infinite;
+          will-change: transform;
+        }
+        .farmplug-image-track:hover {
+          animation-play-state: paused;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .farmplug-image-track {
+            animation: none;
+          }
+        }
+      `}</style>
       <header className="sticky top-0 z-50 border-b border-[#DDE4D9] bg-white/95 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
           <Link href="/" className="flex min-w-0 flex-1 items-center gap-2.5 no-underline">
@@ -96,9 +116,20 @@ export default function HomePage() {
           <div className="mt-5 grid gap-4 md:grid-cols-3">{roles.map(({icon:Icon,title,text,href}) => <Link key={title} href={href} className="group flex items-start gap-4 rounded-[20px] border border-[#DDE4D9] bg-white p-5 no-underline shadow-sm hover:border-[#AFCBAF] hover:shadow-md"><span className="grid size-12 shrink-0 place-items-center rounded-full bg-[#EAF4EA] text-[#247A3D]"><Icon size={22} /></span><span className="min-w-0"><span className="flex items-center gap-2 font-black">For {title}<ChevronRight size={15} className="text-[#8C988C] transition group-hover:translate-x-1" /></span><span className="mt-1 block text-sm leading-5 text-[#697369]">{text}</span></span></Link>)}</div>
         </section>
 
-        <section className="mx-auto max-w-6xl pb-12 sm:pb-16">
-          <div className="flex items-end justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[.15em] text-[#B18422]">Inside the field</p><h2 className="mt-1 text-2xl font-black sm:text-3xl">Agriculture, presented simply.</h2></div><span className="hidden text-xs font-bold text-[#788278] sm:block">Open-source imagery</span></div>
-          <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3">{images.map((item,index) => <article key={item.title} className={`overflow-hidden rounded-[20px] border border-[#DDE4D9] bg-white shadow-sm ${index===2 ? "col-span-2 md:col-span-1" : ""}`}><div className="aspect-[1.25] overflow-hidden"><img src={item.src} alt={item.title} className="h-full w-full object-cover transition duration-500 hover:scale-105" loading="lazy" /></div><div className="p-4"><h3 className="text-sm font-black">{item.title}</h3><p className="mt-1 text-xs text-[#798379]">{item.meta}</p></div></article>)}</div>
+        <section className="mx-auto max-w-6xl overflow-hidden pb-12 sm:pb-16" aria-label="Agriculture image gallery">
+          <div className="flex items-end justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[.15em] text-[#B18422]">Inside the field</p><h2 className="mt-1 text-2xl font-black sm:text-3xl">Agriculture, presented simply.</h2></div><span className="hidden text-xs font-bold text-[#788278] sm:block">Auto-scrolling gallery · hover to pause</span></div>
+          <div className="relative mt-5 overflow-hidden rounded-[24px]">
+            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-[#F5F7F2] to-transparent sm:w-16" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-[#F5F7F2] to-transparent sm:w-16" />
+            <div className="farmplug-image-track flex gap-3 pr-3">
+              {[...images, ...images].map((item, index) => (
+                <article key={`${item.title}-${index}`} className="w-[250px] shrink-0 overflow-hidden rounded-[20px] border border-[#DDE4D9] bg-white shadow-sm sm:w-[290px]">
+                  <div className="aspect-[1.25] overflow-hidden"><img src={item.src} alt={item.title} className="h-full w-full object-cover" loading="lazy" /></div>
+                  <div className="p-4"><h3 className="text-sm font-black">{item.title}</h3><p className="mt-1 text-xs text-[#798379]">{item.meta}</p></div>
+                </article>
+              ))}
+            </div>
+          </div>
         </section>
 
         <section className="mx-auto max-w-4xl overflow-hidden rounded-[26px] bg-[#2F8D48] px-5 py-10 text-center shadow-[0_14px_40px_rgba(47,141,72,.22)] sm:px-8 sm:py-14">
