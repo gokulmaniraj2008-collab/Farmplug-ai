@@ -1,133 +1,17 @@
 "use client";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Leaf, LockKeyhole, MailCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Leaf, LockKeyhole, MailCheck } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-function friendlyAuthError(message: string) {
-  const n = message.toLowerCase();
-  if (n.includes("rate limit")) return "Too many signup attempts right now. Wait a few minutes and try again.";
-  if (n.includes("already registered") || n.includes("already exists")) return "An account with this email already exists. Log in instead.";
-  if (n.includes("invalid") && n.includes("email")) return "Enter a valid email address.";
-  return message;
-}
-
-export default function SignUpPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [accountExists, setAccountExists] = useState(false);
-  const [confirmationSent, setConfirmationSent] = useState(false);
-
-  async function createAccount(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setMessage("");
-    setAccountExists(false);
-    setConfirmationSent(false);
-
-    const normalizedEmail = email.trim().toLowerCase();
-    if (password.length < 6) return setMessage("Password must be at least 6 characters.");
-    if (password !== confirmPassword) return setMessage("Passwords do not match.");
-
-    setLoading(true);
-    try {
-      const supabase = createClient();
-      const { data, error } = await supabase.auth.signUp({
-        email: normalizedEmail,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding/role-selection`,
-          data: { farm_role: "farmer" },
-        },
-      });
-
-      if (error) {
-        const n = error.message.toLowerCase();
-        setAccountExists(n.includes("already registered") || n.includes("already exists"));
-        setMessage(friendlyAuthError(error.message));
-        return;
-      }
-
-      if (!data.user) {
-        setMessage("We could not create the account. Please try again.");
-        return;
-      }
-
-      // With email confirmation enabled, Supabase intentionally returns no session.
-      // The confirmation callback creates the profile and starts the onboarding flow.
-      if (!data.session) {
-        setConfirmationSent(true);
-        setMessage(`Account created for ${normalizedEmail}. Check your email and confirm your account to continue.`);
-        return;
-      }
-
-      // If email confirmation is disabled, a session is available immediately.
-      const { error: profileError } = await supabase.from("profiles").upsert(
-        {
-          id: data.user.id,
-          email: data.user.email,
-          auth_provider: "email",
-          role: "user",
-          farm_role: "farmer",
-          profile_complete: false,
-        },
-        { onConflict: "id" },
-      );
-
-      if (profileError) {
-        setMessage(`Account created, but profile setup failed: ${profileError.message}`);
-        return;
-      }
-
-      window.location.href = "/onboarding/role-selection";
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Unable to create your account right now.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <main className="min-h-screen bg-[#F7FAF7] px-4 py-6 text-[#172117] sm:px-6 sm:py-10">
-      <div className="mx-auto grid min-h-[calc(100vh-3rem)] max-w-5xl items-center gap-8 lg:grid-cols-[1fr_420px]">
-        <section className="hidden rounded-[2rem] border border-[#DCE6DC] bg-white p-10 shadow-sm lg:block">
-          <Link href="/" className="inline-flex items-center gap-2 text-sm font-bold text-[#172117] no-underline"><span className="grid size-9 place-items-center rounded-xl bg-[#EAF6ED] text-[#1E7A3D]"><Leaf size={19} /></span>FarmPlug AI</Link>
-          <h1 className="mt-20 max-w-xl text-5xl font-semibold tracking-tight text-[#172117]">Start with your farm. We’ll help you find the next best move.</h1>
-          <p className="mt-5 max-w-lg text-sm leading-7 text-[#647064]">Create one workspace for your farm, crop intelligence, market opportunities and orders.</p>
-        </section>
-
-        <section className="rounded-[2rem] border border-[#DCE6DC] bg-white p-6 shadow-[0_18px_50px_rgba(31,58,35,.08)] sm:p-8">
-          <Link href="/" className="text-sm font-bold text-[#1E7A3D] no-underline lg:hidden">FarmPlug AI</Link>
-          <h2 className="mt-5 text-3xl font-semibold tracking-tight text-[#172117]">Create your account</h2>
-          <p className="mt-2 text-sm leading-6 text-[#647064]">Create a secure FarmPlug account and continue to farmer onboarding.</p>
-
-          {message && (
-            <div className={`mt-5 rounded-xl border p-3 text-sm ${confirmationSent ? "border-[#B8DCC0] bg-[#EDF8EF] text-[#285C34]" : "border-[#DCE6DC] bg-[#F1F6F1] text-[#435043]"}`} role="alert">
-              <div className="flex items-start gap-2">
-                {confirmationSent && <MailCheck size={18} className="mt-0.5 shrink-0 text-[#2E9E4F]" />}
-                <span>{message}</span>
-              </div>
-              {accountExists && <Link href="/signin" className="mt-2 inline-block font-semibold text-[#1E7A3D] hover:underline">Log in instead</Link>}
-            </div>
-          )}
-
-          {!confirmationSent && (
-            <form onSubmit={createAccount} className="mt-6 space-y-4">
-              <label className="block"><span className="mb-2 block text-sm font-medium text-[#435043]">Email</span><input type="email" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" placeholder="you@example.com" className="w-full rounded-xl border border-[#C9D8CA] bg-white px-4 py-3.5 text-sm text-[#172117] outline-none placeholder:text-[#8A958A] focus:border-[#2E9E4F] focus:ring-2 focus:ring-[#2E9E4F]/20" /></label>
-              <label className="block"><span className="mb-2 block text-sm font-medium text-[#435043]">Password</span><input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} autoComplete="new-password" placeholder="At least 6 characters" className="w-full rounded-xl border border-[#C9D8CA] bg-white px-4 py-3.5 text-sm text-[#172117] outline-none placeholder:text-[#8A958A] focus:border-[#2E9E4F] focus:ring-2 focus:ring-[#2E9E4F]/20" /></label>
-              <label className="block"><span className="mb-2 block text-sm font-medium text-[#435043]">Confirm password</span><input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required minLength={6} autoComplete="new-password" placeholder="Re-enter your password" className="w-full rounded-xl border border-[#C9D8CA] bg-white px-4 py-3.5 text-sm text-[#172117] outline-none placeholder:text-[#8A958A] focus:border-[#2E9E4F] focus:ring-2 focus:ring-[#2E9E4F]/20" /></label>
-              <button type="submit" disabled={loading} className="group flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#2E9E4F] px-4 text-sm font-bold text-white transition hover:bg-[#268C45] disabled:opacity-50">{loading ? "Creating account…" : "Create account"}<ArrowRight size={17} /></button>
-            </form>
-          )}
-
-          {confirmationSent && <Link href="/signin" className="mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#2E9E4F] px-4 text-sm font-bold text-white no-underline transition hover:bg-[#268C45]">Continue to sign in<ArrowRight size={17} /></Link>}
-          <div className="mt-5 flex items-center gap-2 text-xs text-[#647064]"><LockKeyhole size={14} /> Your password is handled securely by Supabase Auth.</div>
-          <p className="mt-6 text-center text-sm text-[#647064]">Already have an account? <Link href="/signin" className="font-semibold text-[#1E7A3D] hover:underline">Sign in</Link></p>
-        </section>
-      </div>
-    </main>
-  );
+function friendlyAuthError(message:string){const n=message.toLowerCase();if(n.includes("rate limit"))return "Too many signup attempts right now. Wait a few minutes and try again.";if(n.includes("already registered")||n.includes("already exists"))return "An account with this email already exists. Log in instead.";if(n.includes("invalid")&&n.includes("email"))return "Enter a valid email address.";return "We could not create your account right now. Please try again.";}
+const roleLabels={farmer:"Farmer",buyer:"Buyer",fpo:"FPO / Aggregator"} as const;
+type Role=keyof typeof roleLabels;
+export default function SignUpPage(){
+ const router=useRouter();const params=useSearchParams();const role=(params.get("role") as Role)||"farmer";
+ const[email,setEmail]=useState("");const[password,setPassword]=useState("");const[confirmPassword,setConfirmPassword]=useState("");const[loading,setLoading]=useState(false);const[message,setMessage]=useState("");const[accountExists,setAccountExists]=useState(false);const[confirmationSent,setConfirmationSent]=useState(false);
+ useEffect(()=>{localStorage.setItem("farmplug_onboarding_role",role)},[role]);
+ async function createAccount(event:React.FormEvent<HTMLFormElement>){event.preventDefault();setMessage("");setAccountExists(false);setConfirmationSent(false);const normalizedEmail=email.trim().toLowerCase();if(password.length<6)return setMessage("Password must be at least 6 characters.");if(password!==confirmPassword)return setMessage("Passwords do not match.");setLoading(true);try{const supabase=createClient();const{data,error}=await supabase.auth.signUp({email:normalizedEmail,password,options:{emailRedirectTo:`${window.location.origin}/auth/callback?next=/onboarding/complete-profile&role=${role}`,data:{farm_role:role}}});if(error){const n=error.message.toLowerCase();setAccountExists(n.includes("already registered")||n.includes("already exists"));setMessage(friendlyAuthError(error.message));return}if(!data.user){setMessage("We could not create your account. Please try again.");return}if(!data.session){setConfirmationSent(true);setMessage(`Account created for ${normalizedEmail}. Check your email and confirm your account to continue.`);return}const{error:profileError}=await supabase.from("profiles").upsert({id:data.user.id,email:data.user.email,auth_provider:"email",role:"user",farm_role:role,profile_complete:false},{onConflict:"id"});if(profileError){setMessage("Account created, but profile setup needs another try.");return}localStorage.removeItem("farmplug_onboarding_role");window.location.href="/onboarding/complete-profile"}catch(error){setMessage(error instanceof Error?error.message:"Unable to create your account right now.")}finally{setLoading(false)}}
+ return <main className="min-h-screen bg-[#F7FAF7] px-4 py-5 text-[#172117] sm:px-6 sm:py-8"><div className="mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-5xl flex-col"><div className="flex items-center justify-between"><button onClick={()=>router.back()} className="grid size-10 place-items-center rounded-full border border-[#DCE6DC] bg-white text-[#526052] shadow-sm"><ArrowLeft size={18}/></button><div className="flex items-center gap-2 text-sm font-extrabold"><span className="grid size-9 place-items-center rounded-xl bg-[#EAF6ED] text-[#1E7A3D]"><Leaf size={19}/></span>FarmPlug AI</div><span className="w-10"/></div><div className="mx-auto grid w-full max-w-4xl flex-1 items-center gap-8 py-8 lg:grid-cols-[1fr_430px]"><section className="hidden lg:block"><div className="flex gap-2"><span className="h-1.5 flex-1 rounded-full bg-[#2E9E4F]"/><span className="h-1.5 flex-1 rounded-full bg-[#2E9E4F]"/><span className="h-1.5 flex-1 rounded-full bg-[#E3ECE3]"/></div><p className="mt-6 text-xs font-bold uppercase tracking-wider text-[#8A6817]">STEP 2 OF 3 · {roleLabels[role]}</p><h1 className="mt-3 text-5xl font-black tracking-tight">Create your FarmPlug account.</h1><p className="mt-4 max-w-xl text-base leading-7 text-[#647064]">One account connects your farm, intelligence, marketplace and orders in one simple workspace.</p><div className="mt-8 space-y-3">{["Secure Supabase authentication","Personalized workspace","Continue on web or app"].map(x=><div key={x} className="flex items-center gap-3 text-sm font-semibold text-[#435043]"><span className="grid size-7 place-items-center rounded-full bg-[#EAF6ED] text-[#2E9E4F]"><Check size={14}/></span>{x}</div>)}</div></section><section className="rounded-[2rem] border border-[#DCE6DC] bg-white p-5 shadow-[0_18px_50px_rgba(31,58,35,.08)] sm:p-8"><div className="lg:hidden"><div className="flex gap-2"><span className="h-1.5 flex-1 rounded-full bg-[#2E9E4F]"/><span className="h-1.5 flex-1 rounded-full bg-[#2E9E4F]"/><span className="h-1.5 flex-1 rounded-full bg-[#E3ECE3]"/></div><p className="mt-4 text-xs font-bold text-[#8A6817]">STEP 2 OF 3</p></div><div className="mt-5 rounded-2xl bg-[#EDF8EF] p-4"><p className="text-xs font-bold uppercase tracking-wide text-[#2E9E4F]">Your workspace</p><p className="mt-1 text-lg font-extrabold">{roleLabels[role]}</p></div><h2 className="mt-6 text-2xl font-black tracking-tight">Create your account</h2><p className="mt-2 text-sm leading-6 text-[#647064]">Use an email you can access for account confirmation.</p>{message&&<div className={`mt-5 rounded-2xl border p-4 text-sm ${confirmationSent?"border-[#B8DCC0] bg-[#EDF8EF] text-[#285C34]":"border-[#DCE6DC] bg-[#F1F6F1] text-[#435043]"}`} role="alert"><div className="flex items-start gap-2">{confirmationSent&&<MailCheck size={18} className="mt-0.5 shrink-0 text-[#2E9E4F]"/>}<span>{message}</span></div>{accountExists&&<Link href="/signin" className="mt-2 inline-block font-bold text-[#1E7A3D]">Log in instead</Link>}</div>}{!confirmationSent&&<form onSubmit={createAccount} className="mt-6 space-y-4"><label className="block"><span className="mb-2 block text-sm font-semibold">Email</span><input type="email" value={email} onChange={e=>setEmail(e.target.value)} required autoComplete="email" placeholder="you@example.com" className="w-full rounded-2xl border border-[#C9D8CA] bg-white px-4 py-3.5 text-sm outline-none focus:border-[#2E9E4F] focus:ring-2 focus:ring-[#2E9E4F]/20"/></label><label className="block"><span className="mb-2 block text-sm font-semibold">Password</span><input type="password" value={password} onChange={e=>setPassword(e.target.value)} required minLength={6} autoComplete="new-password" placeholder="At least 6 characters" className="w-full rounded-2xl border border-[#C9D8CA] bg-white px-4 py-3.5 text-sm outline-none focus:border-[#2E9E4F] focus:ring-2 focus:ring-[#2E9E4F]/20"/></label><label className="block"><span className="mb-2 block text-sm font-semibold">Confirm password</span><input type="password" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} required minLength={6} autoComplete="new-password" placeholder="Re-enter your password" className="w-full rounded-2xl border border-[#C9D8CA] bg-white px-4 py-3.5 text-sm outline-none focus:border-[#2E9E4F] focus:ring-2 focus:ring-[#2E9E4F]/20"/></label><button disabled={loading} className="flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl bg-[#2E9E4F] text-sm font-extrabold text-white hover:bg-[#268C45] disabled:opacity-50">{loading?"Creating account…":"Create account"}<ArrowRight size={18}/></button></form>}{confirmationSent&&<Link href="/signin" className="mt-6 flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl bg-[#2E9E4F] text-sm font-extrabold text-white no-underline">Continue to sign in<ArrowRight size={18}/></Link>}<div className="mt-5 flex items-center gap-2 text-xs text-[#647064]"><LockKeyhole size={14}/> Secure authentication powered by Supabase.</div><p className="mt-6 text-center text-sm text-[#647064]">Already have an account? <Link href="/signin" className="font-bold text-[#1E7A3D]">Sign in</Link></p></section></div></div></main>;
 }
