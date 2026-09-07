@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight, Bookmark, ChevronRight, Heart, Leaf, MapPin, MessageCircle, Search, Share2, Sparkles, Tractor, TrendingUp, Users, Wheat } from "lucide-react";
 
