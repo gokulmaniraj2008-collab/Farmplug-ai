@@ -10,6 +10,8 @@ import {
   Truck,
 } from "lucide-react";
 
+const heroImage = "https://commons.wikimedia.org/wiki/Special:Redirect/file/Farm_Field_(Unsplash).jpg";
+
 const capabilities = [
   { icon: Leaf, title: "Crop health", text: "Track crop condition, observations and practical next steps." },
   { icon: LineChart, title: "Market intelligence", text: "See market signals and selling opportunities with clear data status." },
@@ -83,32 +85,42 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-[#DCE6DC] bg-white p-4 shadow-[0_18px_50px_rgba(31,58,35,.10)] sm:p-5">
-            <div className="rounded-xl border border-[#DCE6DC] bg-[#F8FBF8] p-5 sm:p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold text-[#647064]">FarmPlug workflow</p>
-                  <h2 className="mt-1 text-xl font-extrabold text-[#172117]">From farm to buyer</h2>
-                </div>
-                <MapPinned className="text-[#C99A2E]" size={22} />
+          <div className="overflow-hidden rounded-2xl border border-[#DCE6DC] bg-white shadow-[0_18px_50px_rgba(31,58,35,.10)]">
+            <div className="relative aspect-[4/3] overflow-hidden">
+              <img src={heroImage} alt="Green agricultural farm field" className="h-full w-full object-cover" loading="eager" />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent p-5 pt-16">
+                <p className="text-xs font-bold uppercase tracking-wide text-white/85">Open-source farm imagery</p>
+                <p className="mt-1 text-sm font-semibold text-white">Real agricultural context for a farmer-first experience.</p>
               </div>
-
-              <div className="mt-6 space-y-3">
-                {workflow.map(([title, desc], i) => (
-                  <div key={title} className="flex gap-3 rounded-xl border border-[#DCE6DC] bg-white p-4">
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[#EAF6ED] text-sm font-extrabold text-[#1E7A3D]">{i + 1}</span>
-                    <div>
-                      <p className="font-bold text-[#172117]">{title}</p>
-                      <p className="mt-1 text-xs leading-5 text-[#647064]">{desc}</p>
-                    </div>
+            </div>
+            <div className="p-4 sm:p-5">
+              <div className="rounded-xl border border-[#DCE6DC] bg-[#F8FBF8] p-5 sm:p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-semibold text-[#647064]">FarmPlug workflow</p>
+                    <h2 className="mt-1 text-xl font-extrabold text-[#172117]">From farm to buyer</h2>
                   </div>
-                ))}
-              </div>
+                  <MapPinned className="text-[#C99A2E]" size={22} />
+                </div>
 
-              <div className="mt-4 rounded-xl border border-[#E4D5A8] bg-[#FFF9E8] p-4">
-                <p className="text-sm font-bold text-[#8A6817]">Trust by design</p>
-                <p className="mt-1 text-xs leading-5 text-[#6F623F]">Simulated values are labelled and recommendations explain their data status.</p>
+                <div className="mt-6 space-y-3">
+                  {workflow.map(([title, desc], i) => (
+                    <div key={title} className="flex gap-3 rounded-xl border border-[#DCE6DC] bg-white p-4">
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[#EAF6ED] text-sm font-extrabold text-[#1E7A3D]">{i + 1}</span>
+                      <div>
+                        <p className="font-bold text-[#172117]">{title}</p>
+                        <p className="mt-1 text-xs leading-5 text-[#647064]">{desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4 rounded-xl border border-[#E4D5A8] bg-[#FFF9E8] p-4">
+                  <p className="text-sm font-bold text-[#8A6817]">Trust by design</p>
+                  <p className="mt-1 text-xs leading-5 text-[#6F623F]">Simulated values are labelled and recommendations explain their data status.</p>
+                </div>
               </div>
+              <p className="mt-3 text-[11px] leading-5 text-[#6B756B]">Image: Farm Field by Arkadiusz Zet, via Wikimedia Commons, CC0.</p>
             </div>
           </div>
         </div>
