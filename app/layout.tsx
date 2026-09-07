@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import LogoutButton from "@/components/logout-button";
 
 export const metadata: Metadata = {
   title: "FarmPlug AI | Farm Intelligence to Market",
@@ -9,7 +10,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <LogoutButton />
+      </body>
     </html>
   );
 }
