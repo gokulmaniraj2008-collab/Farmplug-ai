@@ -5,10 +5,10 @@ import { ArrowRight, Bookmark, ChevronRight, Heart, Leaf, MapPin, MessageCircle,
 
 const heroImage = "https://commons.wikimedia.org/wiki/Special:Redirect/file/Farm_Field_(Unsplash).jpg";
 const images = [
-  { src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Millet_crop_at_Asifabad.jpg", title: "Millet farming", meta: "Asifabad · India" },
-  { src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Paddy_Crop.jpg", title: "Paddy crop", meta: "Rice cultivation" },
-  { src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Paddy_field_image.jpg", title: "Paddy fields", meta: "Harvest season" },
-  { src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Cultivation_of_paddy_crops.jpg", title: "Paddy cultivation", meta: "Open farm imagery" },
+  { src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Millet_crop_at_Asifabad.jpg", title: "Millet farming", meta: "Asifabad · India", description: "Build resilient crops with better field information and practical decisions." },
+  { src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Paddy_Crop.jpg", title: "Paddy crop", meta: "Rice cultivation", description: "Monitor crop progress and keep important cultivation details organised." },
+  { src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Paddy_field_image.jpg", title: "Paddy fields", meta: "Harvest season", description: "Connect crop planning with market signals before harvest arrives." },
+  { src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Cultivation_of_paddy_crops.jpg", title: "Paddy cultivation", meta: "Open farm imagery", description: "Move from farm activity to buyers, orders and delivery in one workflow." },
 ];
 
 const roles = [
@@ -86,24 +86,28 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-4xl py-10 sm:py-14">
+        <section className="mx-auto max-w-6xl py-10 sm:py-14">
           <div className="flex items-end justify-between gap-4">
             <div><p className="text-xs font-black uppercase tracking-[.15em] text-[#B18422]">Your farm story</p><h2 className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">Everything useful, in one place.</h2></div>
             <Link href="/platform" className="hidden items-center gap-1 text-sm font-bold text-[#247A3D] no-underline sm:flex">See platform <ChevronRight size={16} /></Link>
           </div>
 
-          <article className="mt-6 overflow-hidden rounded-[24px] border border-[#DDE4D9] bg-white shadow-sm">
-            <div className="grid md:grid-cols-[.9fr_1.1fr]">
-              <div className="relative min-h-[250px] md:min-h-full"><img src={images[0].src} alt={images[0].title} className="absolute inset-0 h-full w-full object-cover" loading="lazy" /><span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-black text-[#247A3D]">FIELD NOTE</span></div>
-              <div className="p-5 sm:p-7">
-                <div className="flex items-center gap-2 text-xs font-bold text-[#7A847A]"><span className="grid size-8 place-items-center rounded-full bg-[#EAF4EA] text-[#247A3D]"><Leaf size={15} /></span> FarmPlug AI · Open agriculture imagery</div>
-                <h3 className="mt-5 text-2xl font-black leading-tight">Turn farm information into your next best action.</h3>
-                <p className="mt-3 text-sm leading-6 text-[#657065]">Track crops, review market intelligence, discover matching buyers and keep accepted orders moving without switching between disconnected tools.</p>
-                <div className="mt-5 flex flex-wrap gap-2"><span className="rounded-full bg-[#EEF6EE] px-3 py-1.5 text-xs font-bold text-[#26753C]">Crop health</span><span className="rounded-full bg-[#FFF7DF] px-3 py-1.5 text-xs font-bold text-[#8A6817]">Market signals</span><span className="rounded-full bg-[#F1F4F0] px-3 py-1.5 text-xs font-bold text-[#5E685F]">Buyer matching</span></div>
-                <div className="mt-6 flex items-center gap-5 border-t border-[#E6EBE4] pt-4 text-[#6C756C]"><span className="inline-flex items-center gap-1.5 text-xs font-bold"><Heart size={17} /> Useful</span><span className="inline-flex items-center gap-1.5 text-xs font-bold"><MessageCircle size={17} /> Discuss</span><span className="inline-flex items-center gap-1.5 text-xs font-bold"><Share2 size={17} /> Share</span><span className="ml-auto"><Bookmark size={18} /></span></div>
-              </div>
-            </div>
-          </article>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {images.map((item, index) => (
+              <article key={item.title} className="group overflow-hidden rounded-[24px] border border-[#DDE4D9] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                <div className="relative aspect-[1.2] overflow-hidden">
+                  <img src={item.src} alt={item.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading={index === 0 ? "eager" : "lazy"} />
+                  <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-black text-[#247A3D] shadow-sm">FIELD NOTE {index + 1}</span>
+                </div>
+                <div className="p-5">
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-[#B18422]">{item.meta}</p>
+                  <h3 className="mt-1.5 text-lg font-black leading-tight">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-5 text-[#657065]">{item.description}</p>
+                  <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-[#247A3D]"><Leaf size={14} /> FarmPlug AI</div>
+                </div>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="mx-auto max-w-6xl pb-12 sm:pb-16">
