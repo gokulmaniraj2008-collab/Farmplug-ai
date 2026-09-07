@@ -1,92 +1,112 @@
 import Link from "next/link";
-import { ArrowRight, Check, ChevronRight, Leaf, LineChart, MapPinned, MessageCircle, ShieldCheck, ShoppingBasket, Sparkles, Tractor, Truck, Users, Wheat } from "lucide-react";
+import { ArrowRight, Bookmark, ChevronRight, Heart, Leaf, MapPin, MessageCircle, Search, Share2, Sparkles, Tractor, TrendingUp, Users, Wheat } from "lucide-react";
 
 const heroImage = "https://commons.wikimedia.org/wiki/Special:Redirect/file/Farm_Field_(Unsplash).jpg";
-
-const capabilities = [
-  { icon: Leaf, title: "Crop health", text: "Track crop condition, observations and practical next steps." },
-  { icon: LineChart, title: "Market intelligence", text: "See market signals and selling opportunities with clear data status." },
-  { icon: ShoppingBasket, title: "Direct buyer connection", text: "Match produce with buyer requirements for quantity, quality and timing." },
-  { icon: Truck, title: "Orders & logistics", text: "Follow accepted orders from aggregation and collection to delivery." },
-];
-
-const workflow = [
-  ["My farm", "Add plots, crops and harvest information."],
-  ["AI assistant", "Review crop, weather and market guidance."],
-  ["Marketplace", "Find buyers or list available produce."],
-  ["Orders", "Confirm offers and track fulfilment."],
-  ["Delivery", "Keep collection and delivery status visible."],
-];
-
-const agricultureImages = [
-  { src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Millet_crop_at_Asifabad.jpg", title: "Millet cultivation", text: "Open farm imagery from Asifabad, India.", source: "Wikimedia Commons · Kiran sidam · CC0" },
-  { src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Paddy_Crop.jpg", title: "Paddy crop", text: "A close view of cultivated rice plants.", source: "Wikimedia Commons · Harsha099 · CC0" },
-  { src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Paddy_field_image.jpg", title: "Paddy field", text: "Rice field imagery representing harvest-ready agriculture.", source: "Wikimedia Commons · Maina Tudu · CC0" },
-  { src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Cultivation_of_paddy_crops.jpg", title: "Paddy cultivation", text: "Recent open-source agricultural field imagery.", source: "Wikimedia Commons · Pradip paswan · CC0" },
+const images = [
+  { src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Millet_crop_at_Asifabad.jpg", title: "Millet farming", meta: "Asifabad · India" },
+  { src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Paddy_Crop.jpg", title: "Paddy crop", meta: "Rice cultivation" },
+  { src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Paddy_field_image.jpg", title: "Paddy fields", meta: "Harvest season" },
 ];
 
 const roles = [
-  { icon: Tractor, title: "For Farmers", text: "Manage your farm, understand crop and market signals, find buyers and follow orders.", href: "/onboarding/role-selection" },
-  { icon: Users, title: "For FPOs", text: "Coordinate farmers, aggregate produce, match demand and keep logistics organised.", href: "/onboarding/role-selection" },
-  { icon: ShoppingBasket, title: "For Buyers", text: "Share requirements, discover suitable produce and manage offers and orders.", href: "/onboarding/role-selection" },
-];
-
-const trustPoints = [
-  "Clear DEMO DATA and ESTIMATED labels",
-  "Explainable recommendations with data status",
-  "Role-based workspace permissions",
-  "Secure authentication with Supabase",
+  { icon: Tractor, title: "Farmer", text: "Manage crops, understand markets and find buyers.", href: "/onboarding/role-selection" },
+  { icon: Users, title: "FPO", text: "Aggregate produce and coordinate farmers and orders.", href: "/onboarding/role-selection" },
+  { icon: Wheat, title: "Buyer", text: "Discover produce and manage requirements and offers.", href: "/onboarding/role-selection" },
 ];
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-[#F7FAF7] text-[#172117]">
-      <header className="sticky top-0 z-40 border-b border-[#DCE6DC] bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3.5 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-3 no-underline">
-            <span className="grid h-10 w-10 place-items-center rounded-xl border border-[#2E9E4F]/25 bg-[#EAF6ED] text-[#1E7A3D]"><Leaf size={21} /></span>
-            <span><strong className="block text-base font-extrabold tracking-tight">FarmPlug AI</strong><small className="hidden text-xs font-medium text-[#647064] sm:block">From farm intelligence to the right market.</small></span>
+    <main className="min-h-screen bg-[#F5F7F2] text-[#182119]">
+      <header className="sticky top-0 z-50 border-b border-[#DDE4D9] bg-white/95 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
+          <Link href="/" className="flex min-w-0 flex-1 items-center gap-2.5 no-underline">
+            <span className="grid size-10 shrink-0 place-items-center rounded-full bg-[#E7F2E8] text-[#247A3D]"><Leaf size={20} /></span>
+            <span className="truncate text-base font-black tracking-tight">FarmPlug AI</span>
           </Link>
-          <nav className="hidden items-center gap-6 text-sm font-semibold text-[#526052] md:flex" aria-label="Main navigation">
-            <Link href="/platform" className="no-underline hover:text-[#1E7A3D]">Platform</Link>
-            <Link href="/ai" className="no-underline hover:text-[#1E7A3D]">AI</Link>
-            <Link href="/marketplace" className="no-underline hover:text-[#1E7A3D]">Marketplace</Link>
-            <Link href="/about" className="no-underline hover:text-[#1E7A3D]">About</Link>
-            <Link href="/signin" className="no-underline hover:text-[#1E7A3D]">Sign in</Link>
+          <nav className="hidden items-center gap-6 text-sm font-bold text-[#5E685F] md:flex">
+            <Link href="/platform" className="no-underline hover:text-[#247A3D]">Platform</Link>
+            <Link href="/ai" className="no-underline hover:text-[#247A3D]">AI</Link>
+            <Link href="/marketplace" className="no-underline hover:text-[#247A3D]">Marketplace</Link>
+            <Link href="/about" className="no-underline hover:text-[#247A3D]">About</Link>
           </nav>
-          <Link href="/onboarding/role-selection" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#2E9E4F] px-4 text-sm font-bold text-white no-underline shadow-sm hover:bg-[#268C45]">Get started <ArrowRight size={16} /></Link>
+          <Link href="/signin" className="hidden text-sm font-bold text-[#247A3D] no-underline sm:block">Sign in</Link>
+          <Link href="/onboarding/role-selection" className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-[#2F8D48] px-4 text-xs font-black text-white no-underline shadow-sm">Get started <ArrowRight size={14} /></Link>
         </div>
       </header>
 
-      <section className="border-b border-[#DCE6DC] bg-gradient-to-b from-white to-[#F7FAF7]">
-        <div className="mx-auto grid max-w-7xl gap-12 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:px-8 lg:py-24">
-          <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#BFDCC6] bg-[#EAF6ED] px-3 py-1.5 text-xs font-bold text-[#1E7A3D]"><Sparkles size={13} /> Built for everyday farming</div>
-            <h1 className="max-w-3xl text-4xl font-black leading-tight tracking-[-.04em] sm:text-6xl">Smart farming.<br /><span className="text-[#2E9E4F]">Better decisions.</span></h1>
-            <p className="mt-6 max-w-2xl text-base leading-7 text-[#526052] sm:text-lg">FarmPlug AI brings farm management, crop intelligence, market access and buyer orders into one simple workflow for farmers, FPOs and buyers.</p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row"><Link href="/onboarding/role-selection" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#2E9E4F] px-6 text-sm font-extrabold text-white no-underline shadow-sm hover:bg-[#268C45]">Start with FarmPlug AI <ArrowRight size={17} /></Link><Link href="/marketplace" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#C9D8CA] bg-white px-6 text-sm font-bold text-[#234029] no-underline shadow-sm hover:border-[#8DBA96]"><ShoppingBasket size={17} /> Explore marketplace</Link></div>
-            <div className="mt-8 grid gap-3 text-sm font-semibold text-[#526052] sm:grid-cols-3">{["Farmer-first workflows", "Explainable AI guidance", "Traceable orders"].map(item => <span key={item} className="inline-flex items-center gap-2"><Check size={15} className="text-[#2E9E4F]" /> {item}</span>)}</div>
+      <div className="mx-auto max-w-7xl px-3 py-4 sm:px-6 lg:px-8">
+        <section className="overflow-hidden rounded-[26px] bg-white shadow-[0_10px_35px_rgba(35,65,38,.10)]">
+          <div className="relative min-h-[470px] overflow-hidden sm:min-h-[560px]">
+            <img src={heroImage} alt="Green agricultural field at sunrise" className="absolute inset-0 h-full w-full object-cover" loading="eager" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#102414]/80 via-[#102414]/20 to-transparent" />
+            <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-white/90 px-3 py-2 text-xs font-extrabold text-[#1E6735] shadow-sm backdrop-blur sm:left-6 sm:top-6">
+              <Sparkles size={14} /> Farm intelligence for everyday decisions
+            </div>
+            <div className="absolute inset-x-0 bottom-0 p-5 sm:p-8 lg:p-10">
+              <div className="max-w-2xl">
+                <p className="text-xs font-black uppercase tracking-[.16em] text-[#E7D18A]">From farm intelligence to the right market.</p>
+                <h1 className="mt-3 text-4xl font-black leading-[1.02] tracking-[-.04em] text-white sm:text-6xl">Grow smarter.<br />Sell with confidence.</h1>
+                <p className="mt-4 max-w-xl text-sm leading-6 text-white/85 sm:text-base">FarmPlug AI connects your farm, crop decisions, market signals, buyers and orders in one simple experience.</p>
+                <div className="mt-6 flex flex-col gap-2.5 sm:flex-row">
+                  <Link href="/onboarding/role-selection" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-black text-[#247A3D] no-underline shadow-sm">Start with FarmPlug AI <ArrowRight size={17} /></Link>
+                  <Link href="/marketplace" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/40 bg-white/15 px-6 text-sm font-bold text-white no-underline backdrop-blur hover:bg-white/25"><Search size={17} /> Explore market</Link>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="overflow-hidden rounded-2xl border border-[#DCE6DC] bg-white shadow-[0_18px_50px_rgba(31,58,35,.10)]">
-            <div className="relative aspect-[4/3] overflow-hidden"><img src={heroImage} alt="Green agricultural farm field" className="h-full w-full object-cover" loading="eager" /><div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent p-5 pt-16"><p className="text-xs font-bold uppercase tracking-wide text-white/85">Open-source farm imagery</p><p className="mt-1 text-sm font-semibold text-white">Real agricultural context for a farmer-first experience.</p></div></div>
-            <div className="p-4 sm:p-5"><div className="rounded-xl border border-[#DCE6DC] bg-[#F8FBF8] p-5 sm:p-6"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-semibold text-[#647064]">FarmPlug workflow</p><h2 className="mt-1 text-xl font-extrabold">From farm to buyer</h2></div><MapPinned className="text-[#C99A2E]" size={22} /></div><div className="mt-6 space-y-3">{workflow.map(([title, desc], i) => <div key={title} className="flex gap-3 rounded-xl border border-[#DCE6DC] bg-white p-4"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[#EAF6ED] text-sm font-extrabold text-[#1E7A3D]">{i + 1}</span><div><p className="font-bold">{title}</p><p className="mt-1 text-xs leading-5 text-[#647064]">{desc}</p></div></div>)}</div></div><p className="mt-3 text-[11px] leading-5 text-[#6B756B]">Hero image: Farm Field by Arkadiusz Zet, via Wikimedia Commons, CC0.</p></div>
+
+          <div className="relative z-10 -mt-1 px-4 pb-4 sm:px-6 sm:pb-6">
+            <div className="mx-auto flex max-w-3xl items-center gap-3 rounded-full border border-[#D9E2D7] bg-white p-2 shadow-[0_8px_24px_rgba(25,50,30,.10)]">
+              <div className="grid size-10 shrink-0 place-items-center rounded-full bg-[#EEF6EE] text-[#2F8D48]"><Search size={18} /></div>
+              <div className="min-w-0 flex-1"><p className="truncate text-xs font-bold text-[#9AA39A]">Search crops, buyers, market signals...</p></div>
+              <Link href="/marketplace" className="hidden rounded-full bg-[#2F8D48] px-4 py-2.5 text-xs font-black text-white no-underline sm:block">Explore</Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="border-b border-[#DCE6DC] bg-white"><div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20"><div className="grid gap-8 lg:grid-cols-[.85fr_1.15fr] lg:items-end"><div><p className="text-sm font-bold text-[#8A6817]">Why FarmPlug AI?</p><h2 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">One place to move from information to action.</h2></div><p className="max-w-2xl text-sm leading-7 text-[#647064] sm:text-base">Instead of keeping crop notes, market conversations and order updates in different places, FarmPlug connects the journey so every role can focus on its next useful action.</p></div><div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{capabilities.map(({ icon: Icon, title, text }) => <article key={title} className="rounded-2xl border border-[#DCE6DC] bg-[#F8FBF8] p-5 shadow-sm"><div className="grid h-11 w-11 place-items-center rounded-xl bg-[#EAF6ED] text-[#1E7A3D]"><Icon size={20} /></div><h3 className="mt-5 font-extrabold">{title}</h3><p className="mt-2 text-sm leading-6 text-[#647064]">{text}</p></article>)}</div></div></section>
+        <section className="mx-auto max-w-4xl py-10 sm:py-14">
+          <div className="flex items-end justify-between gap-4">
+            <div><p className="text-xs font-black uppercase tracking-[.15em] text-[#B18422]">Your farm story</p><h2 className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">Everything useful, in one place.</h2></div>
+            <Link href="/platform" className="hidden items-center gap-1 text-sm font-bold text-[#247A3D] no-underline sm:flex">See platform <ChevronRight size={16} /></Link>
+          </div>
 
-      <section className="border-b border-[#DCE6DC] bg-[#F7FAF7]"><div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20"><div className="max-w-3xl"><p className="text-sm font-bold text-[#8A6817]">Built for every side of the market</p><h2 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">A shared workflow, different workspaces.</h2><p className="mt-3 text-sm leading-6 text-[#647064] sm:text-base">Choose your role and FarmPlug guides you into the workspace that matches your day-to-day work.</p></div><div className="mt-8 grid gap-5 md:grid-cols-3">{roles.map(({ icon: Icon, title, text, href }) => <Link key={title} href={href} className="group rounded-2xl border border-[#DCE6DC] bg-white p-6 no-underline shadow-sm transition hover:-translate-y-0.5 hover:border-[#A8CDAF] hover:shadow-md"><div className="flex items-center justify-between"><span className="grid h-12 w-12 place-items-center rounded-xl bg-[#EAF6ED] text-[#1E7A3D]"><Icon size={22} /></span><ChevronRight size={19} className="text-[#91A091] transition group-hover:translate-x-1 group-hover:text-[#1E7A3D]" /></div><h3 className="mt-5 text-lg font-extrabold">{title}</h3><p className="mt-2 text-sm leading-6 text-[#647064]">{text}</p><span className="mt-5 inline-flex text-sm font-bold text-[#1E7A3D]">Explore workspace <ArrowRight size={15} className="ml-1" /></span></Link>)}</div></div></section>
+          <article className="mt-6 overflow-hidden rounded-[24px] border border-[#DDE4D9] bg-white shadow-sm">
+            <div className="grid md:grid-cols-[.9fr_1.1fr]">
+              <div className="relative min-h-[250px] md:min-h-full"><img src={images[0].src} alt={images[0].title} className="absolute inset-0 h-full w-full object-cover" loading="lazy" /><span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-black text-[#247A3D]">FIELD NOTE</span></div>
+              <div className="p-5 sm:p-7">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#7A847A]"><span className="grid size-8 place-items-center rounded-full bg-[#EAF4EA] text-[#247A3D]"><Leaf size={15} /></span> FarmPlug AI · Open agriculture imagery</div>
+                <h3 className="mt-5 text-2xl font-black leading-tight">Turn farm information into your next best action.</h3>
+                <p className="mt-3 text-sm leading-6 text-[#657065]">Track crops, review market intelligence, discover matching buyers and keep accepted orders moving without switching between disconnected tools.</p>
+                <div className="mt-5 flex flex-wrap gap-2"><span className="rounded-full bg-[#EEF6EE] px-3 py-1.5 text-xs font-bold text-[#26753C]">Crop health</span><span className="rounded-full bg-[#FFF7DF] px-3 py-1.5 text-xs font-bold text-[#8A6817]">Market signals</span><span className="rounded-full bg-[#F1F4F0] px-3 py-1.5 text-xs font-bold text-[#5E685F]">Buyer matching</span></div>
+                <div className="mt-6 flex items-center gap-5 border-t border-[#E6EBE4] pt-4 text-[#6C756C]"><span className="inline-flex items-center gap-1.5 text-xs font-bold"><Heart size={17} /> Useful</span><span className="inline-flex items-center gap-1.5 text-xs font-bold"><MessageCircle size={17} /> Discuss</span><span className="inline-flex items-center gap-1.5 text-xs font-bold"><Share2 size={17} /> Share</span><span className="ml-auto"><Bookmark size={18} /></span></div>
+              </div>
+            </div>
+          </article>
+        </section>
 
-      <section className="border-b border-[#DCE6DC] bg-white"><div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20"><div className="grid gap-8 lg:grid-cols-2"><div className="rounded-2xl border border-[#DCE6DC] bg-[#F8FBF8] p-6 sm:p-8"><div className="flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-xl bg-[#EAF6ED] text-[#1E7A3D]"><Sparkles size={20} /></span><div><p className="text-xs font-bold uppercase tracking-wide text-[#8A6817]">AI intelligence</p><h2 className="text-2xl font-black">Recommendations you can understand.</h2></div></div><p className="mt-5 text-sm leading-7 text-[#647064]">FarmPlug is designed to show the recommendation, why it matters, confidence, data status and the action that needs your confirmation. Demo or calculated values are clearly labelled.</p><div className="mt-6 space-y-3">{["Market and price signals", "Demand and selling-window guidance", "Crop and farm decisions", "Buyer matching and fulfilment"].map(x => <div key={x} className="flex items-center gap-3 rounded-xl border border-[#DCE6DC] bg-white p-3 text-sm font-semibold"><Check size={16} className="text-[#2E9E4F]" /> {x}</div>)}</div><Link href="/ai" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#1E7A3D] no-underline">Explore AI Intelligence <ArrowRight size={16} /></Link></div><div className="rounded-2xl border border-[#DCE6DC] bg-white p-6 sm:p-8"><div className="flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-xl bg-[#FFF9E8] text-[#8A6817]"><ShieldCheck size={20} /></span><div><p className="text-xs font-bold uppercase tracking-wide text-[#8A6817]">Trust & transparency</p><h2 className="text-2xl font-black">No hidden certainty.</h2></div></div><p className="mt-5 text-sm leading-7 text-[#647064]">FarmPlug separates real account actions from demo experiences and never presents estimated or simulated market information as guaranteed results.</p><div className="mt-6 space-y-3">{trustPoints.map(x => <div key={x} className="flex items-center gap-3 rounded-xl bg-[#F8FBF8] p-3 text-sm font-semibold"><Check size={16} className="text-[#2E9E4F]" /> {x}</div>)}</div></div></div></div></section>
+        <section className="mx-auto max-w-6xl pb-12 sm:pb-16">
+          <div className="flex items-end justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[.15em] text-[#B18422]">What you can do</p><h2 className="mt-1 text-2xl font-black sm:text-3xl">Explore FarmPlug</h2></div><Link href="/ai" className="inline-flex items-center gap-1 text-sm font-bold text-[#247A3D] no-underline">AI Center <ChevronRight size={16} /></Link></div>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[{icon:Leaf,title:"Manage your farm",text:"Keep farm and crop information organised."},{icon:TrendingUp,title:"Read the market",text:"See price and demand signals with clear status."},{icon:Users,title:"Find the right buyer",text:"Match produce by quantity, quality and timing."},{icon:MapPin,title:"Follow the journey",text:"Keep orders, collection and delivery visible."}].map(({icon:Icon,title,text}) => <Link key={title} href="/platform" className="group rounded-[20px] border border-[#DDE4D9] bg-white p-5 no-underline shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"><span className="grid size-11 place-items-center rounded-full bg-[#EAF4EA] text-[#247A3D]"><Icon size={20} /></span><h3 className="mt-4 font-black">{title}</h3><p className="mt-1.5 text-sm leading-5 text-[#6A746A]">{text}</p><span className="mt-4 inline-flex items-center gap-1 text-xs font-black text-[#247A3D]">Open <ArrowRight size={13} /></span></Link>)}
+          </div>
+        </section>
 
-      <section className="border-b border-[#DCE6DC] bg-[#F7FAF7]"><div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20"><div className="grid gap-8 lg:grid-cols-[1fr_.8fr] lg:items-center"><div><p className="text-sm font-bold text-[#8A6817]">From first visit to first action</p><h2 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Start in a few simple steps.</h2><p className="mt-4 max-w-2xl text-sm leading-7 text-[#647064] sm:text-base">Choose a role, create or sign in to your secure account, complete your profile and land directly in the right workspace.</p><div className="mt-7 space-y-4">{[["01", "Choose your role", "Farmer, FPO or Buyer."], ["02", "Create or sign in", "Use secure FarmPlug authentication."], ["03", "Complete your profile", "Add the information needed for your workspace."], ["04", "Reach your dashboard", "Your role determines the tools and next actions you see."]].map(([n,t,d]) => <div key={n} className="flex gap-4"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#EAF6ED] text-sm font-black text-[#1E7A3D]">{n}</span><div><p className="font-extrabold">{t}</p><p className="mt-1 text-sm text-[#647064]">{d}</p></div></div>)}</div></div><div className="rounded-2xl border border-[#DCE6DC] bg-white p-6 shadow-sm"><MessageCircle className="text-[#2E9E4F]" size={28} /><h3 className="mt-5 text-xl font-black">Simple like a conversation.</h3><p className="mt-2 text-sm leading-6 text-[#647064]">Short steps, clear actions, familiar navigation and useful information when you need it — without overwhelming the screen.</p><Link href="/onboarding/role-selection" className="mt-6 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#2E9E4F] px-5 text-sm font-bold text-white no-underline">Get started <ArrowRight size={16} /></Link></div></div></div></section>
+        <section className="mx-auto max-w-6xl pb-12 sm:pb-16">
+          <div className="flex items-end justify-between"><div><p className="text-xs font-black uppercase tracking-[.15em] text-[#B18422]">Choose your path</p><h2 className="mt-1 text-2xl font-black sm:text-3xl">Made for the whole market.</h2></div></div>
+          <div className="mt-5 grid gap-4 md:grid-cols-3">{roles.map(({icon:Icon,title,text,href}) => <Link key={title} href={href} className="group flex items-start gap-4 rounded-[20px] border border-[#DDE4D9] bg-white p-5 no-underline shadow-sm hover:border-[#AFCBAF] hover:shadow-md"><span className="grid size-12 shrink-0 place-items-center rounded-full bg-[#EAF4EA] text-[#247A3D]"><Icon size={22} /></span><span className="min-w-0"><span className="flex items-center gap-2 font-black">For {title}<ChevronRight size={15} className="text-[#8C988C] transition group-hover:translate-x-1" /></span><span className="mt-1 block text-sm leading-5 text-[#697369]">{text}</span></span></Link>)}</div>
+        </section>
 
-      <section className="border-b border-[#DCE6DC] bg-white"><div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20"><div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-sm font-bold text-[#8A6817]">Open agriculture imagery</p><h2 className="mt-2 text-3xl font-black tracking-tight">Real crops. Real farming context.</h2><p className="mt-3 max-w-2xl text-sm leading-6 text-[#647064]">A growing image library using openly licensed agricultural photographs selected for FarmPlug's farmer-first experience.</p></div><span className="inline-flex w-fit rounded-full border border-[#BFDCC6] bg-[#F8FBF8] px-3 py-1.5 text-xs font-bold text-[#1E7A3D]">CC0 / public domain</span></div><div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{agricultureImages.map(image => <article key={image.src} className="overflow-hidden rounded-2xl border border-[#DCE6DC] bg-white shadow-sm"><div className="aspect-[4/3] overflow-hidden bg-[#EAF6ED]"><img src={image.src} alt={image.title} loading="lazy" className="h-full w-full object-cover transition duration-500 hover:scale-105" /></div><div className="p-4"><h3 className="font-extrabold">{image.title}</h3><p className="mt-1 text-sm leading-5 text-[#647064]">{image.text}</p><p className="mt-3 text-[11px] font-medium text-[#788178]">{image.source}</p></div></article>)}</div></div></section>
+        <section className="mx-auto max-w-6xl pb-12 sm:pb-16">
+          <div className="flex items-end justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-[.15em] text-[#B18422]">Inside the field</p><h2 className="mt-1 text-2xl font-black sm:text-3xl">Agriculture, presented simply.</h2></div><span className="hidden text-xs font-bold text-[#788278] sm:block">Open-source imagery</span></div>
+          <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3">{images.map((item,index) => <article key={item.title} className={`overflow-hidden rounded-[20px] border border-[#DDE4D9] bg-white shadow-sm ${index===2 ? "col-span-2 md:col-span-1" : ""}`}><div className="aspect-[1.25] overflow-hidden"><img src={item.src} alt={item.title} className="h-full w-full object-cover transition duration-500 hover:scale-105" loading="lazy" /></div><div className="p-4"><h3 className="text-sm font-black">{item.title}</h3><p className="mt-1 text-xs text-[#798379]">{item.meta}</p></div></article>)}</div>
+        </section>
 
-      <section className="bg-[#1E7A3D] text-white"><div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-16"><div className="flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between"><div><p className="text-sm font-bold text-[#E4F3E7]">Ready to connect your farm to the market?</p><h2 className="mt-2 max-w-2xl text-3xl font-black tracking-tight sm:text-4xl">Start your FarmPlug AI workspace today.</h2><p className="mt-3 max-w-2xl text-sm leading-6 text-[#E4F3E7]">Choose your role and follow the guided onboarding. You can explore the platform before committing to a real workflow.</p></div><div className="flex flex-col gap-3 sm:flex-row"><Link href="/onboarding/role-selection" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white px-6 text-sm font-extrabold text-[#1E7A3D] no-underline">Get started <ArrowRight size={17} /></Link><Link href="/demo" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/40 px-6 text-sm font-bold text-white no-underline hover:bg-white/10">Try a demo</Link></div></div></div></section>
+        <section className="mx-auto max-w-4xl overflow-hidden rounded-[26px] bg-[#2F8D48] px-5 py-10 text-center shadow-[0_14px_40px_rgba(47,141,72,.22)] sm:px-8 sm:py-14">
+          <p className="text-xs font-black uppercase tracking-[.16em] text-[#DDEEDC]">Your next step</p><h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">Ready to connect your farm to the market?</h2><p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-white/80">Choose your role and build your FarmPlug workspace in a few simple steps.</p><div className="mt-6 flex flex-col justify-center gap-2.5 sm:flex-row"><Link href="/onboarding/role-selection" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-black text-[#247A3D] no-underline">Get started <ArrowRight size={16} /></Link><Link href="/demo" className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/40 px-6 text-sm font-bold text-white no-underline">Try a demo</Link></div>
+        </section>
+      </div>
 
-      <footer className="border-t border-[#DCE6DC] bg-[#F1F6F1]"><div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 text-sm text-[#647064] sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"><div><span className="font-extrabold text-[#172117]">FarmPlug AI</span><span className="ml-2">From farm intelligence to the right market.</span></div><div className="flex flex-wrap gap-5"><Link href="/privacy" className="no-underline hover:text-[#1E7A3D]">Privacy</Link><Link href="/terms" className="no-underline hover:text-[#1E7A3D]">Terms</Link><Link href="/contact" className="no-underline hover:text-[#1E7A3D]">Contact</Link><Link href="/signin" className="no-underline hover:text-[#1E7A3D]">Sign in</Link></div></div></footer>
+      <footer className="mt-4 border-t border-[#DDE4D9] bg-white"><div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-7 text-xs text-[#758075] sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"><div><span className="font-black text-[#263229]">FarmPlug AI</span><span className="ml-2">From farm intelligence to the right market.</span></div><div className="flex flex-wrap gap-4"><Link href="/privacy" className="no-underline hover:text-[#247A3D]">Privacy</Link><Link href="/terms" className="no-underline hover:text-[#247A3D]">Terms</Link><Link href="/contact" className="no-underline hover:text-[#247A3D]">Contact</Link><Link href="/signin" className="font-bold text-[#247A3D] no-underline">Sign in</Link></div></div></footer>
     </main>
   );
 }
