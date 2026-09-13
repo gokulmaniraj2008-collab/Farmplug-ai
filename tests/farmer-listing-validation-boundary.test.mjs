@@ -6,5 +6,6 @@ test("accepts a quantity exactly equal to the crop availability", () => {
   assert.equal(
     validateAvailableQuantity(25, { available_quantity_kg: 25 }),
     undefined,
+    "quantity equal to available stock should be accepted",
   );
 });
